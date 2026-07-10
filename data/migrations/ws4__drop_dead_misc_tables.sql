@@ -1,0 +1,86 @@
+-- WS4 Frente B: Auditoría de tablas muertas — misceláneas de sessions.db
+-- Date: 2026-06-30
+-- Status: NO-OP — ninguna tabla dropeada (todas tienen callers activos; ver abajo)
+-- Author: subagente Frente-B / hilo principal decide aplicar
+
+-- ============================================================
+-- CONTEXTO
+-- sessions.db tiene 23 tablas (excluyendo FTS5 y triggers).
+-- El brief clasificó 4 como "misceláneas sin uso":
+--   query_history / modules_completed / token_counts / progress_tracking
+-- Las 4 están vacías (0 filas, verificado 2026-06-30 en sessions.db vivo).
+--
+-- MANDATO: si alguna tiene callers en engine/hooks/tools/integrations,
+-- NO dropear, reportar.
+-- ============================================================
+
+-- ============================================================
+-- HALLAZGOS DE GREP (evidencia de callers, grep 2026-06-30)
+-- ============================================================
+
+-- 1. token_counts
+--    Callers: engine/v16/f6_comunicacion.py — clase TokenCounter
+--    • TokenCounter.__init__ llama _init_cache_table() → CREATE TABLE IF NOT EXISTS token_counts
+--    • TokenCounter._get_cached_count() → SELECT FROM token_counts
+--    • TokenCounter._save_to_cache()    → INSERT OR REPLACE INTO token_counts
+--    • ComunicacionEngine.__init__ (línea 935) instancia TokenCounter
+--    • v16_orchestrator.py línea 340 → _create_f6_comunicacion() → ComunicacionEngine()
+--    • get_orchestrator() llamado desde hooks/dispatch/events/session_end.py
+--      y hooks/dispatch/events/user_prompt_submit.py
+--    • Tests activos: tests/test_f6_comunicacion.py (TestTokenCounter, ~15 tests)
+--                     tests/test_v16_integration.py (línea 382)
+--    VEREDICTO: ACTIVA — tiene cadena de callers viva en el orquestador. NO DROPEAR.
+
+-- 2. progress_tracking
+--    Callers: engine/v16/f6_comunicacion.py — clase ProgressTracker
+--    • ProgressTracker.__init__ llama _init_table() → CREATE TABLE IF NOT EXISTS progress_tracking
+--    • ComunicacionEngine.__init__ (línea 939) instancia ProgressTracker
+--    • Misma cadena activa que token_counts (orchestrator → f6 → CE)
+--    • Tests activos: tests/test_f6_comunicacion.py (TestProgressTracker, ~10 tests)
+--    VEREDICTO: ACTIVA — comparte cadena con token_counts. NO DROPEAR.
+
+-- 3. query_history
+--    Callers: engine/v16/session_manager.py
+--    • init_db() → executescript con CREATE TABLE IF NOT EXISTS query_history (línea 123)
+--    • init_db() es llamado en el path de arranque: session_end, session_start, user_prompt_submit
+--    • save_query_history() define el INSERT (línea 730) — sin callers externos detectados
+--      pero la función es pública y la tabla vive en el init canónico
+--    VEREDICTO: ACTIVA-SIN-ESCRITORES — tabla creada en init_db (path caliente);
+--    el writer existe pero no tiene callers externos actualmente. Los 0 rows son
+--    consecuencia de que save_query_history() no se llama desde fuera, NO de que
+--    la tabla esté huérfana. NO DROPEAR sin refactorizar primero init_db y la función.
+
+-- 4. modules_completed
+--    Callers: engine/v16/session_manager.py
+--    • init_modules_table() → CREATE TABLE IF NOT EXISTS modules_completed (línea 1202)
+--    • init_modules_table() es llamado desde init_db() (línea 145) → path de arranque
+--    • save_module_result() → INSERT OR REPLACE (línea 1245) — sin callers externos
+--    • get_modules_completed(), get_current_module(), get_module_results() — sin callers externos
+--    • FTS5 virtual table modules_completed_fts y trigger modules_completed_ai están activos
+--    VEREDICTO: ACTIVA-SIN-ESCRITORES — misma situación que query_history. El init
+--    vivo crea la tabla y sus FTS/triggers. NO DROPEAR sin refactorizar init_db.
+
+-- ============================================================
+-- DECISION FINAL
+-- ============================================================
+-- Cero tablas dropeadas. Las 4 tienen callers (creación en init path y/o
+-- classes con read/write activos). Vacías por falta de callers EXTERNOS al writer,
+-- no por estar huérfanas del schema.
+--
+-- Opciones que el hilo principal puede decidir en una fase futura:
+--   A) Dejar como están (costo = 0, son tablas vacías, init idempotente).
+--   B) Separar token_counts/progress_tracking a su propia DB de caché
+--      (f6_comunicacion ya acepta db_path parametrizable).
+--   C) Eliminar save_query_history() y sus compañeras muertas de session_manager
+--      + sacar la CREATE TABLE de init_db → ENTONCES sí dropear query_history
+--      y modules_completed con una migración real.
+--
+-- Reservadas intactas (no tocadas por este frente):
+--   V17 pentest:  engagements / engagement_findings / engagement_log /
+--                 apoptosis_kills / hitl_checkpoints / exploitation_audit
+--   F7 auto-aprendizaje: v16_calibration_history / v16_pid_history /
+--                        v16_learning_evaluation / v16_exemplar_candidates
+
+-- SQL de verificación (correr ANTES y DESPUÉS de cualquier migración futura):
+-- SELECT name, (SELECT COUNT(*) FROM pragma_table_info(name)) AS cols
+-- FROM sqlite_master WHERE type='table' ORDER BY name;

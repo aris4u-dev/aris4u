@@ -1,0 +1,103 @@
+{
+  "_note": "Profundidad de los hooks de ARIS4U (qué sub-handler corre por evento y qué hace). Verificado contra hooks/dispatch/events/*.py 2026-06-22. ARIS4U-interno (no runtime). El escáner lo fusiona en cada capacidad 'hook' para alcanzar 100% de profundidad (no solo el conteo). Bloqueantes reales: migration_linter + phi_guard (BLOCK exit 2), gpu_crash (DENY).",
+  "PreToolUse": {
+    "sub_handlers": 11,
+    "blocking": ["migration_linter", "phi_guard", "gpu_crash"],
+    "handlers": [
+      {"name": "f5_prevalidation", "matcher": "Write|Edit", "does": "Motor F5 de validación (contrato por tipo de archivo)", "blocking": false},
+      {"name": "migration_linter", "matcher": "Bash", "does": "Detecta+lintea migraciones (supabase/flyway/prisma/alembic)", "blocking": true},
+      {"name": "phi_guard", "matcher": "Bash|WebFetch|WebSearch", "does": "Bloquea PHI->API externa (solo healthcare)", "blocking": true},
+      {"name": "phi_sanitizer", "matcher": "Bash|Write|Edit|Read", "does": "Detecta PHI tier-1 + audita (solo healthcare)", "blocking": false},
+      {"name": "type_hints", "matcher": "Write|Edit *.py", "does": "Avisa def sin return type", "blocking": false},
+      {"name": "docker_latest", "matcher": "Write|Edit Dockerfile/compose", "does": "Avisa imágenes sin versión pin", "blocking": false},
+      {"name": "supabase_rls", "matcher": "Write|Edit *.sql", "does": "Avisa CREATE TABLE sin RLS", "blocking": false},
+      {"name": "spring_boot", "matcher": "Write|Edit *.java", "does": "Avisa @Autowired (usar constructor injection)", "blocking": false},
+      {"name": "screenshot_loop", "matcher": "Bash", "does": "Avisa loop de screenshots", "blocking": false},
+      {"name": "kb_docs", "matcher": "Write|Edit Claude/docs/*.md", "does": "Avisa TODO/placeholder + falta fecha", "blocking": false},
+      {"name": "gpu_crash", "matcher": "Bash|navigate", "does": "DENY a viewer scene3d (crash GPU)", "blocking": true}
+    ]
+  },
+  "PostToolUse": {
+    "sub_handlers": 7,
+    "blocking": [],
+    "handlers": [
+      {"name": "redact_secrets", "matcher": "Bash", "does": "MUTA output: redacta llaves AWS/Firebase/Supabase/GCP/genéricas", "blocking": false},
+      {"name": "parallel_dispatch_guard", "matcher": "Write|Edit *.sh", "does": "Avisa ssh w[0-9] secuenciales (paralelizar)", "blocking": false},
+      {"name": "code_quality_gate", "matcher": "Write|Edit *.py", "does": "ruff + radon (complejidad) advisory", "blocking": false},
+      {"name": "commit_quality_gate", "matcher": "Bash git commit", "does": "pyright + tests afectados post-commit", "blocking": false},
+      {"name": "capture_commit", "matcher": "Bash git commit", "does": "Captura el commit como decision en sessions.db", "blocking": false},
+      {"name": "agent_dispatched", "matcher": "Agent|Task", "does": "Loguea dispatch + snapshot de HEADs de labs", "blocking": false},
+      {"name": "schema_drift", "matcher": "Write|Edit|MultiEdit", "does": "Monitorea drift de esquema en labs", "blocking": false}
+    ]
+  },
+  "UserPromptSubmit": {
+    "sub_handlers": 10,
+    "blocking": [],
+    "handlers": [
+      {"name": "client_detection", "does": "Detecta cliente del cwd + escribe bridge MCP", "blocking": false},
+      {"name": "v16_orchestrator", "does": "Clasifica intención (simple/fix/decision/research/impl) + novelty", "blocking": false},
+      {"name": "model_hint", "does": "Sugiere modelo (advisory) + telemetría", "blocking": false},
+      {"name": "wave_timer", "does": "Avisa si la wave supera 80 min", "blocking": false},
+      {"name": "token_budget_effort", "does": "Avisa presupuesto de tokens + effort", "blocking": false},
+      {"name": "depth_directive", "does": "Inyecta DEPTH + rationale adaptativo", "blocking": false},
+      {"name": "locked_decisions", "does": "Inyecta decisiones locked scoped por cliente", "blocking": false},
+      {"name": "auto_recall", "does": "Recall híbrido FTS5+semántico (cap SIGALRM 2s) con filtro epistémico", "blocking": false},
+      {"name": "state_persistence", "does": "Lee/escribe /tmp/aris4u_session_state.json", "blocking": false},
+      {"name": "telemetry", "does": "Loguea model_hint + auto_recall", "blocking": false}
+    ]
+  },
+  "SessionStart": {
+    "sub_handlers": 7,
+    "blocking": [],
+    "handlers": [
+      {"name": "detect_lab_project", "does": "Detecta proyecto lab del cwd", "blocking": false},
+      {"name": "mcp_client_bridge", "does": "write_client_bridge.sh (daemon MCP conoce el cwd)", "blocking": false},
+      {"name": "reset_token_budget", "does": "Resetea presupuesto si no es resume", "blocking": false},
+      {"name": "build_briefing", "does": "Self-briefing: MCP+hooks+memoria+pulso", "blocking": false},
+      {"name": "lab_session_recall", "does": "Recall de últimas observaciones si en lab", "blocking": false},
+      {"name": "staleness_check", "does": "Avisa si la última escritura de decision >48h", "blocking": false},
+      {"name": "telemetry", "does": "Loguea lab_session_init + session_briefing", "blocking": false}
+    ]
+  },
+  "SessionEnd": {
+    "sub_handlers": 8,
+    "blocking": [],
+    "handlers": [
+      {"name": "detect_client", "does": "client_id del cwd", "blocking": false},
+      {"name": "git_activity", "does": "Commits + líneas últimas 8h", "blocking": false},
+      {"name": "git_dirty_check", "does": "Avisa árbol git sucio", "blocking": false},
+      {"name": "collect_decisions_guards", "does": "Lee sessions.db reciente para la narrativa", "blocking": false},
+      {"name": "build_summary", "does": "Resumen determinista de la sesión", "blocking": false},
+      {"name": "enrich_narrative", "does": "Router local: 1 frase de narrativa", "blocking": false},
+      {"name": "save_digest", "does": "Escribe digest a sessions.db + claude-mem.db", "blocking": false},
+      {"name": "async_vacuum_vectors", "does": "Vacuum + envío de vectores (fire-and-forget)", "blocking": false}
+    ]
+  },
+  "Stop": {
+    "sub_handlers": 7,
+    "blocking": [],
+    "handlers": [
+      {"name": "read_validation_log", "does": "Stream del validation log desde offset", "blocking": false},
+      {"name": "load_ledger", "does": "Dedup de agentes ya verificados", "blocking": false},
+      {"name": "parse_agent_events", "does": "Localiza agentes sin verificar", "blocking": false},
+      {"name": "infer_files", "does": "Infiere archivos tocados (lab_write + git diff)", "blocking": false},
+      {"name": "run_verifier", "does": "agent_output_verifier.py (compile/tests rotos)", "blocking": false},
+      {"name": "parse_result", "does": "Parsea verdict del verifier", "blocking": false},
+      {"name": "write_ledger_log", "does": "Dedup + offset + telemetría agent_verify_*", "blocking": false}
+    ]
+  },
+  "SubagentStart": {
+    "sub_handlers": 8,
+    "blocking": [],
+    "handlers": [
+      {"name": "load_state", "does": "Lee session_state.json", "blocking": false},
+      {"name": "locked_decisions", "does": "Inyecta decisiones locked al subagente", "blocking": false},
+      {"name": "critical_guards", "does": "Inyecta guards severity=critical", "blocking": false},
+      {"name": "quality_requirements", "does": "Inyecta 4 bullets de calidad", "blocking": false},
+      {"name": "project_architecture", "does": "Inyecta .planning/ARCHITECTURE.md", "blocking": false},
+      {"name": "agent_execution_plan", "does": "Inyecta waves + progreso", "blocking": false},
+      {"name": "track_launch", "does": "Incrementa contador de agentes en state", "blocking": false},
+      {"name": "telemetry", "does": "Loguea subagent_start", "blocking": false}
+    ]
+  }
+}

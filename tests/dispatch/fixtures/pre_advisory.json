@@ -1,0 +1,1 @@
+{"tool_name":"Write","tool_input":{"file_path":"/tmp/x.py","content":"def foo(x):\n    return x\n"}}

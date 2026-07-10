@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "aris4u": {
+      "command": "bash",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/integrations/mcp_wrapper.sh"
+      ]
+    }
+  }
+}

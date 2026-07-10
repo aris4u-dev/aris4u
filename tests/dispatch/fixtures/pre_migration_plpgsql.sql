@@ -1,0 +1,8 @@
+CREATE FUNCTION check_user() RETURNS BOOLEAN AS $$
+BEGIN
+  INSERT INTO users_test (name) VALUES ('test');
+  RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TABLE users_test (id BIGSERIAL PRIMARY KEY, name TEXT);

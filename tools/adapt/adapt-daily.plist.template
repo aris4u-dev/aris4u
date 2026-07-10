@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template del cron de auto-adaptación (Paso 7d). install.sh reemplaza __ARIS4U_ROOT__ y
+     __HOME__ y copia el resultado a ~/Library/LaunchAgents/com.aris4u.adapt-daily.plist.
+     Arranca en ARIS4U_AUTOUPDATE=shadow (rodaje seguro; cambiar a auto/pr-only tras confiar). -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.aris4u.adapt-daily</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>__ARIS4U_ROOT__/tools/adapt/run_daily.sh</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>ARIS4U_AUTOUPDATE</key>
+		<string>shadow</string>
+		<key>ARIS4U_ROOT</key>
+		<string>__ARIS4U_ROOT__</string>
+		<key>PATH</key>
+		<string>__HOME__/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+	</dict>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>3</integer>
+		<key>Minute</key>
+		<integer>15</integer>
+	</dict>
+	<key>StandardOutPath</key>
+	<string>__ARIS4U_ROOT__/logs/adapt-daily.out</string>
+	<key>StandardErrorPath</key>
+	<string>__ARIS4U_ROOT__/logs/adapt-daily.err</string>
+</dict>
+</plist>

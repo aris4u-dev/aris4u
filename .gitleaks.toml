@@ -1,0 +1,14 @@
+# ARIS4U — gitleaks config. Suprime falsos positivos conocidos (librerías
+# vendor minificadas + fixtures de test con claves de EJEMPLO/falsas usadas
+# para probar los guards de redacción de secretos). Cero secretos reales.
+title = "ARIS4U gitleaks"
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Vendor minified libs (matches espurios) + test fixtures con claves de ejemplo"
+paths = [
+  '''console/aris4u_console/vendor/.*''',
+  '''tests/dispatch/test_post_tool_use\.py''',
+  '''tests/test_model_router\.py''',
+]

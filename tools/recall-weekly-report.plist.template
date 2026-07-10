@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Reporte semanal de amplificación ARIS4U — corre viernes a las 08:00.
+     Template: install.sh debe reemplazar __ARIS4U_ROOT__ y copiar el resultado a
+     ~/Library/LaunchAgents/com.aris4u.recall-weekly-report.plist
+
+     Para cargar manualmente (después de sustituir __ARIS4U_ROOT__):
+       sed 's|__ARIS4U_ROOT__|/Users/TU_USUARIO/projects/aris4u|g' \
+           tools/recall-weekly-report.plist.template \
+           > ~/Library/LaunchAgents/com.aris4u.recall-weekly-report.plist
+       launchctl load -w ~/Library/LaunchAgents/com.aris4u.recall-weekly-report.plist
+
+     Salidas:
+       logs/recall-weekly-report.log  — append permanente (fuente de verdad)
+       logs/recall-weekly-report.out  — stdout del último run (overwrite)
+       logs/recall-weekly-report.err  — stderr del último run (overwrite)
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.aris4u.recall-weekly-report</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>__ARIS4U_ROOT__/.venv312/bin/python3</string>
+		<string>__ARIS4U_ROOT__/tools/recall_usefulness.py</string>
+		<string>--report</string>
+		<string>--sync</string>
+		<string>--days</string>
+		<string>14</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>ARIS4U_ROOT</key>
+		<string>__ARIS4U_ROOT__</string>
+		<key>PATH</key>
+		<string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+	</dict>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Weekday</key>
+		<integer>5</integer>
+		<key>Hour</key>
+		<integer>8</integer>
+		<key>Minute</key>
+		<integer>0</integer>
+	</dict>
+	<key>StandardOutPath</key>
+	<string>__ARIS4U_ROOT__/logs/recall-weekly-report.out</string>
+	<key>StandardErrorPath</key>
+	<string>__ARIS4U_ROOT__/logs/recall-weekly-report.err</string>
+</dict>
+</plist>

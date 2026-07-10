@@ -1,0 +1,37 @@
+{
+  "name": "aris4u",
+  "displayName": "ARIS4U",
+  "description": "Amplificador consciente del modelo sobre Claude Code: rutea Fable/Opus/Sonnet/Haiku por dificultad de subtarea (auto-inyecta model=), mide costo/disciplina de routing, adapta el recall al modelo, y guarda su propia memoria (texto propio, desacoplado de claude-mem). 24 hooks (7 eventos), 7 MCP tools, guards 2 bloqueantes + advisories, memoria local (FTS5 + sqlite-vec por-cliente), auto-adaptacion pr-only con gate. BYO-Claude, cero inferencia propia.",
+  "version": "18.0.0",
+  "author": {
+    "name": "ARIS4U Authors",
+    "email": "admin@example.com"
+  },
+  "homepage": "https://github.com/aris4u-dev/aris4u#readme",
+  "repository": "https://github.com/aris4u-dev/aris4u",
+  "license": "BUSL-1.1",
+  "keywords": [
+    "aris4u",
+    "governance",
+    "memory",
+    "mcp",
+    "hooks",
+    "local-first",
+    "phi-safe",
+    "compliance",
+    "claude-code",
+    "cowork"
+  ],
+  "scripts": {
+    "install": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/tools/migration_runner.py --init",
+    "upgrade": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/tools/migration_runner.py --migrate"
+  },
+  "userConfig": {
+    "healthcare_mode": {
+      "type": "string",
+      "title": "Modo healthcare (PHI/HIPAA)",
+      "description": "Deja '0' (recomendado) salvo que trabajes con datos clinicos reales. En '1' activa los guards de PHI que bloquean egress de datos de paciente. Puedes cambiarlo luego con /aris-config o /aris-onboard.",
+      "default": "0"
+    }
+  }
+}

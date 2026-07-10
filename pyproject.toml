@@ -1,0 +1,89 @@
+[project]
+name = "aris4u"
+version = "18.0.0"
+description = "ARIS4U V18 — Amplificador consciente del modelo: rutea Fable/Opus/Sonnet/Haiku por tarea, mide costo, adapta recall, memoria propia (desacoplada de claude-mem)"
+readme = "README.md"
+license = "BUSL-1.1"
+requires-python = ">=3.11"
+authors = [
+    {name = "ARIS4U Authors"},
+]
+keywords = ["ai", "orchestration", "mcp", "claude-code", "hooks", "engine"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    # Demolición V2.0 2026-06-11: solo deps con imports reales en código vivo
+    # (verificado por grep; ver architecture/audits/AUDIT_V2_20260611.md).
+    # 2026-07-01 (CI run 28558394004): el primer run en Ubuntu limpio expuso deps
+    # NO declaradas que vivían solo en el .venv312 del Mac — falso verde de clon.
+    "httpx>=0.28.0",
+    "mcp[cli]>=1.0.0",
+    "pyyaml>=6.0",       # capability_inventory (import duro)
+    "numpy>=2.0.0",      # f7_aprendizaje, novelty_detector, orchestration (import duro)
+    "scipy>=1.14.0",     # f7_aprendizaje (minimize+chi2), orchestration/calibration
+    "sqlite-vec>=0.1.9", # sustrato vectorial WS3 (vector_store, reindex, tagger)
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-timeout>=2.3",
+    "black>=24.0",
+    "isort>=5.13",
+    "ruff>=0.6",     # PostToolUse code-quality gate (test_code_quality_gate)
+    "radon>=6.0",    # ciclomatic-complexity hotspots en el mismo gate
+]
+
+[project.urls]
+Homepage = "https://github.com/aris4u-dev/aris4u"
+Issues = "https://github.com/aris4u-dev/aris4u/issues"
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["engine*", "integrations*"]
+
+[tool.setuptools.package-data]
+"*" = ["templates/*"]
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint.per-file-ignores]
+# Los tests importan tras pytest.importorskip / sys.path.insert (patrón necesario para
+# saltar módulos opcionales o cargar scripts de tools/) → E402 es legítimo, no deuda.
+"tests/**" = ["E402"]
+
+[tool.pytest.ini_options]
+# 2026-07-05: añadido console/tests (200 tests, ~10% del total) para que
+# `pytest tests/ console/tests/ -q` y `pytest` descubran ambos árboles.
+# Verificado: 1982 passed, 40 skipped, 59 deselected en run combinado.
+# Runner canónico alternativo (sin testpaths): bash run_all_tests.sh
+testpaths = ["tests", "console/tests"]
+norecursedirs = [".venv", "data", "tests/_archive_v16.9"]
+asyncio_mode = "auto"
+# Por defecto la suite excluye integration (tests que requieren Ollama/modelos locales
+# cargados — p.ej. dialectica real carga Foundation-Sec 7.5GB). Mantiene la suite rapida,
+# RAM-safe y CI-friendly. Corre los integration con: pytest -m integration
+addopts = "-m 'not integration'"
+markers = [
+    "integration: marks tests as integration tests that require external resources (deselect with '-m \"not integration\"')",
+    "livehost: marks tests that read live host config files (e.g. ~/.claude.json) — excluded from CI (deselect with '-m \"not livehost\"')",
+    "timeout: mark test with custom timeout in seconds",
+]

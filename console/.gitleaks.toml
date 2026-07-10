@@ -1,0 +1,9 @@
+title = "aris4u-console"
+
+[extend]
+useDefault = true
+
+# Librerías de terceros vendorizadas (xterm.js minificado) — falsos positivos de api-key.
+[allowlist]
+description = "vendored third-party libs"
+paths = ['''aris4u_console/vendor/.*''']

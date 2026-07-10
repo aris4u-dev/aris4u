@@ -1,0 +1,1 @@
+{"tool_name":"Bash","tool_input":{"command":"env | grep AWS"},"tool_output":"AWS_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE and aws_secret_access_key=wJalrXUtnFEMIK7MDENGbPxRfiCYEXAMPLEKEY done","cwd":"/tmp"}

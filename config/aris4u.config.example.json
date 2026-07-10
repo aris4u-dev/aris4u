@@ -1,0 +1,38 @@
+{
+  "_comment": "Config por-usuario de ARIS4U. Genera con: python3 tools/aris4u_init.py --yes. Copia a ~/.aris4u/config.json y ajusta lo que necesites (o exporta las variables de entorno ARIS4U_*). Prioridad: variable de entorno > este archivo > defaults internos. NO versiones tu config real (ver .gitignore). Este es solo el ejemplo con placeholders.",
+  "owner": "Your Name",
+  "hardware": {
+    "auto_detect": true,
+    "primary": {
+      "label": "Apple M-chip / Intel Core i9 / AMD Ryzen 9",
+      "cores": 8,
+      "arch": "arm64",
+      "platform": "Darwin",
+      "ram_gb": 16.0
+    },
+    "workers": [
+      {
+        "name": "w2",
+        "ssh": "w2",
+        "gpu": "RTX 3070 Laptop (8 GB)",
+        "enabled": true,
+        "note": "Verify free RAM before dispatching heavy jobs"
+      }
+    ],
+    "dead": ["w1", "w3", "w4"]
+  },
+  "lab_projects": [
+    {
+      "dir": "your-project",
+      "db_project": "your-project",
+      "topic": "lab",
+      "path": "~/projects/your-project"
+    }
+  ],
+  "clients": ["your-client"],
+  "healthcare_clients": [],
+  "ollama_mac_url": "http://localhost:11434",
+  "ollama_w2_url": "http://YOUR_W2_IP:11434",
+  "w2_ssh": "w2",
+  "w2_enabled": true
+}

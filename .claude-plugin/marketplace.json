@@ -1,0 +1,19 @@
+{
+  "name": "aris4u-dev",
+  "owner": {
+    "name": "aris4u-dev"
+  },
+  "metadata": {
+    "description": "Marketplace de ARIS4U — capa de gobernanza + memoria por-cliente para Claude Code.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "aris4u",
+      "source": "./",
+      "description": "ARIS4U V18 — amplificador consciente del modelo sobre Claude Code: rutea Fable/Opus/Sonnet/Haiku por dificultad de subtarea, mide costo/disciplina de routing, adapta el recall al modelo, y guarda su propia memoria cross-session (FTS5 + sqlite-vec, sin plugins de terceros). Guards de calidad + verificación + orquestación (Conductor). BYO-Claude, cero inferencia propia.",
+      "category": "workflow",
+      "keywords": ["governance", "memory", "mcp", "hooks", "model-routing", "verification", "local-first"]
+    }
+  ]
+}

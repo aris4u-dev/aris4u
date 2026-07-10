@@ -1,0 +1,1 @@
+{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"⚠️ PARALLEL DISPATCH: 2 sequential ssh call(s) could be parallelized. Use 'ssh w2 cmd &' pattern for ~50% faster execution"}}

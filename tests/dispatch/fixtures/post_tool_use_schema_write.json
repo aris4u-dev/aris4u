@@ -1,0 +1,1 @@
+{"tool_name": "Write", "tool_input": {"file_path": "${HOME}/projects/client-b-platform/supabase/migrations/V99__test.sql", "content": "create table x();"}}

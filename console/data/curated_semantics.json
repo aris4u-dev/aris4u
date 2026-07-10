@@ -1,0 +1,1822 @@
+{
+  "identity": {
+    "what_is_aris4u": "Qué es ARIS4U, en una frase: un complemento (plugin) de Claude Code que convierte a Claude en un asistente que te conoce. Le da cuatro capacidades: memoria por cliente (recuerda lo decidido entre sesiones), gobernanza (tus estándares aplicados como reglas/guards), trazabilidad (todo queda registrado, en local) y un cuerpo local (modelos en tu Mac que hacen el trabajo barato y privado). La inteligencia se renta de Claude: ARIS4U no piensa por su cuenta — organiza y recuerda. Todo es local-first: privacidad por diseño.\n\nEs un amplificador sobre Claude Opus 4.8. El principio rector: el cuerpo local PROPONE (amplitud); Claude y el usuario DISPONEN (autoridad). El local (Qwen, gratis) no piensa por Claude — amplía el ancho de banda: genera más ángulos, estructura, flaggea y MIDE; Claude hace la cognición profunda; el usuario decide.\n\nALCANCE (importante): ARIS4U es HORIZONTAL — sirve a cualquier cliente/proyecto (Client-B, Client-D, Lab-Project-1, etc.). El manejo de datos clínicos, «PHI Shield», es UN componente del vertical médico que se activa SOLO para algunos clientes de salud (p. ej. healthcare clients). PHI NO es el core de ARIS4U ni aplica a la mayoría de los clientes.",
+    "menu_sections": [
+      {
+        "id": "inv",
+        "label": "Inventario",
+        "purpose": "Catálogo componente-por-componente del sistema (100 componentes mapeados: 83% vivos, 12% parciales, 5% inertes/muertos, 74% con pruebas). Cada fila se abre para mostrar DOS explicaciones: una en lenguaje sencillo y otra técnica para desarrolladores, más etiquetas de estado, si tiene pruebas y calidad. Incluye la capa nueva orchestration/ (colas/Markov/decisión/calibración), los hooks (dispatcher único en Python, 7 eventos), memoria, guards, etc."
+      },
+      {
+        "id": "flow",
+        "label": "Comportamiento",
+        "purpose": "Cómo se comporta ARIS4U en cada escenario, paso a paso, en lenguaje sencillo. Ej.: cuando escribes un mensaje a Claude, ARIS4U prepara el terreno ANTES de que Claude responda (detecta el cliente/proyecto, busca en memoria las decisiones relevantes por palabras y por significado, lleva la cuenta del contexto/tiempo, y le entrega todo eso a Claude como nota). Nunca te bloquea: solo le entrega contexto."
+      },
+      {
+        "id": "comp",
+        "label": "Comparativos",
+        "purpose": "Comparativa directa contra los competidores reales, por segmento, sin adornos: dónde ARIS4U gana y dónde pierde. Compara contra Mem0, Letta (MemGPT), claude-mem, etc. Resumen: gana en arquitectura (aísla por cliente, guards integrados, 100% local/PHI-safe, costo-cero), pierde en madurez (los rivales tienen SOC2/HIPAA, benchmarks públicos y miles de integraciones)."
+      },
+      {
+        "id": "val",
+        "label": "Valorizacion",
+        "purpose": "Diferenciadores de ARIS4U frente a alternativas: memoria por-cliente real (aislada por esquema, no por carpetas), gobernanza integrada con guards bloqueantes, residencia de datos 100% local y auto-adaptación a versiones de Claude Code — capacidades sin competidor documentado en el ecosistema Claude Code."
+      },
+      {
+        "id": "inst",
+        "label": "Instalacion",
+        "purpose": "Guía de instalación para desarrolladores: los pasos que un desarrollador sigue para instalar ARIS4U en ~15-20 minutos con Python 3.12, Claude Code CLI y Ollama opcional."
+      },
+      {
+        "id": "vis",
+        "label": "Visibilidad",
+        "purpose": "Telemetría real: lo que ARIS4U ha hecho, contado de los registros vivos (17.034 eventos, 351 decisiones en memoria, 84 resúmenes de sesión, 355 bloqueos de PHI, 1208 pruebas pasando). Incluye nota de honestidad de instrumentación (el volumen de eventos es espiky no sostenido; recall_feedback=0 → la métrica de éxito del freeze aún no está instrumentada)."
+      },
+      {
+        "id": "arch",
+        "label": "Arquitectura V2",
+        "purpose": "La arquitectura V2 de amplificación cognitiva (estado: DISEÑO, pre-construcción, validado empíricamente). Integra el cierre del plan 'Todo Verde' y el blueprint de orquestación que potencia a Claude: el cuerpo local como amplificador de I/O, la búsqueda paralela tipo quantum-search, y la capa de decisión probabilística que la gobierna. Doc fuente: architecture/LOCAL_AMPLIFIER_BLUEPRINT.md."
+      },
+      {
+        "id": "ses",
+        "label": "Sesiones",
+        "purpose": "Handover consolidado: un solo documento con el estado VALIDADO (lo hecho y lo que falta), que reemplaza los handovers fragmentados previos (el detalle fino vive en los commits de git). Estado al 2026-06-19: rama feat/session-briefing, cuerpo local generativo = Qwen3.6-35B-A3B, embeddings bge-m3, audit de código cerrado; pendiente: merge a main + rediseño del recall."
+      }
+    ],
+    "why_it_matters": [
+      "Cero inferencia propia: ARIS4U no gasta tokens pensando; renta toda la inteligencia de Claude. La memoria cuesta prácticamente cero.",
+      "Memoria por-cliente de verdad: el cliente es parte del esquema (88% poblada: 309 de 351 decisiones, 7 clientes). No es «separar por carpetas».",
+      "Gobernanza auditable: los guards aplican tus estándares y pueden DETENER acciones peligrosas (migraciones riesgosas, etc.), todo registrado.",
+      "Residencia total de datos (local-first, privado): 3 bases de datos locales, cero red para la parte cognitiva. Verificado.",
+      "Auto-adaptación a las versiones de Claude Code (vigilante + prueba de humo + cron). Categoría sin competidor documentado.",
+      "PHI Shield = vertical médico, SOLO algunos clientes: un guard que registró 355 bloqueos de datos clínicos. Es UN componente del vertical de salud, NO el core de ARIS4U.",
+      "Amplificación real y medible: guards bloqueantes, recall híbrido (FTS5 + semántico) y trazabilidad auditable — todo verificado en producción y cubierto por tests."
+    ],
+    "fresh_start_explainer": "ARIS4U es un plugin de Claude Code que le añade al asistente cuatro capacidades que no trae de serie:\n\n1) Memoria por-cliente — recuerda lo decidido entre sesiones, separado por cada proyecto (el cliente es parte del esquema de datos, no son carpetas).\n2) Gobernanza (guards) — tus estándares aplicados automáticamente (type hints, migraciones seguras, RLS de Supabase, routing de modelos) que pueden avisar o detener acciones peligrosas antes de que ocurran.\n3) Trazabilidad — todo lo que hace queda registrado en bases de datos locales: decisiones, guards, digests de sesión.\n4) Cuerpo local — modelos que corren en tu máquina y hacen trabajo barato y privado (embeddings, review de código, estructuración de ideas).\n\nTodo es local-first (privado por diseño): cero red para la parte cognitiva. La inteligencia la sigue poniendo Claude; ARIS4U organiza, recuerda y hace cumplir las reglas.\n\nPrincipio rector: «git es la verdad, ARIS4U explica». El progreso se ancla en commits reales, nunca en señales internas.\n\nALCANCE: ARIS4U es horizontal (sirve a cualquier proyecto). El modo PHI/HIPAA para datos clínicos es opt-in y está desactivado por defecto."
+  },
+  "inventory": {
+    "groups": [
+      {
+        "group_name": "engine/v16/orchestration/ — capa formal de congestión + decisión (§8.4-8.5) · 4 módulos · 60 tests · NUEVA 2026-06-19",
+        "where_it_works": "DORMIDA / OPT-IN: ningún hook ni v16_orchestrator la importa; no toca decisiones vivas. Es una biblioteca matemática PURA (sin estado, sin I/O) que modela el SISTEMA que ejecuta la búsqueda de agentes — el gap que faltaba al §8 (modelaba la búsqueda, no la congestión que la ejecuta). Origen: barrido del 100% de estadistica.net (8 agentes, 38 PDFs). Validada por 60 tests contra valores de libro de texto. ⚠️ La APLICABILIDAD a ARIS4U sigue SIN validar: requiere parametrizar λ/μ/σ y promise_score↔éxito desde sessions.db (hoy las tablas de outcome están VACÍAS: recall_feedback=0, query_history=0). commit e08f6df.",
+        "components": [
+          {
+            "name": "queueing.py — teoría de colas",
+            "what_for": "Modela cuántos agentes lanzar a la vez sin saturar: el cap de concurrencia (4-8) es un sistema de colas. Calcula cuándo el sistema se satura (probabilidad de rechazo) y predice qué etapa de un pipeline es el cuello de botella.",
+            "tech_detail": "M/M/s (Erlang-C, ρ, Lq, Wq), M/M/s/K (P bloqueo = guardrail anti-saturación), M/G/1 (Pollaczek-Khinchine, varianza real del servicio), tándem (teorema de Burke → cuello = etapa de menor μ), Jackson abierto (ecuaciones de tráfico con loops de retry). Funciones puras + dataclasses frozen.",
+            "status": "Dormido/opt-in · Con test · verde — ruff limpio, CC bajo (mmsk refactorizado a helper)",
+            "evidence": "tests/engine/orchestration/test_queueing.py (21 tests)"
+          },
+          {
+            "name": "markov.py — cadenas de Markov",
+            "what_for": "Modela los estados por los que pasa una tarea (encolada → en proceso → aceptada / rechazada) y cuántas revisiones se esperan antes de aceptarla. Es la base matemática que unifica las colas.",
+            "tech_detail": "Distribución estacionaria (vector propio izquierdo), matriz fundamental (I−Q)⁻¹ = E[nº visitas/pasos a absorción], probabilidades de absorción, proceso de nacimiento-muerte (demuestra que M/M/s es un caso particular). numpy.",
+            "status": "Dormido/opt-in · Con test · verde — ruff limpio",
+            "evidence": "tests/engine/orchestration/test_markov.py (13 tests)"
+          },
+          {
+            "name": "decision.py — decisión + prog. dinámica",
+            "what_for": "Cuantifica cuánto vale la pena investigar antes de decidir (la Regla #1 con presupuesto), el apetito de riesgo del paralelismo, y la secuencia óptima de etapas de un workflow.",
+            "tech_detail": "EVPI (Valor Esperado de la Información Perfecta), criterios bajo incertidumbre (Wald maximin, Hurwicz-α, Savage minimax-regret, Laplace), y programación dinámica de Bellman (backward induction sobre DAG por etapas; principio de optimalidad).",
+            "status": "Dormido/opt-in · Con test · verde — ruff limpio, CC bajo (backward induction + helpers)",
+            "evidence": "tests/engine/orchestration/test_decision.py (15 tests)"
+          },
+          {
+            "name": "calibration.py — gate del sensor local (§8.5)",
+            "what_for": "La pieza que valida o tumba la tesis del cuerpo local: comprueba con datos si la \"puntuación de promesa\" del modelo local realmente predice el éxito de Claude. Si no (odds-ratio ≈ 1), el sensor es teatro y no se debe confiar en él.",
+            "tech_detail": "Regresión logística por IRLS (coeficientes, errores estándar de la información de Fisher, odds-ratios, p-valores de Wald), AUC vía Mann-Whitney, y el gate sensor_is_predictive() que falla-cerrado a \"no confío\" si faltan muestras o el ajuste es imposible. scipy.stats.",
+            "status": "Dormido/opt-in · Con test · verde — ruff limpio; falla-cerrado por diseño",
+            "evidence": "tests/engine/orchestration/test_calibration.py (11 tests)"
+          }
+        ]
+      },
+      {
+        "group_name": "hooks/ — dispatcher único en Python (entrypoint dispatch.py) + 7 eventos + sub-handlers/guards + contrato de E/S · 18 componentes (rama feat/session-briefing)",
+        "where_it_works": "VERIFICADO. ARIS4U cablea los 7 eventos de Claude Code (UserPromptSubmit, PreToolUse, PostToolUse, SessionStart, SessionEnd, Stop, SubagentStart) a UN solo proceso Python: hooks/dispatch.py <Event>, tanto en ~/.claude/settings.json (7 entradas, verificado) como en hooks/hooks.json (modo plugin, ${CLAUDE_PLUGIN_ROOT}). dispatch.py resuelve el handler y es fail-open total (cualquier excepción → passthrough exit 0). Los .sh originales fueron portados a Python y están MUERTOS; siguen vivos solo write_client_bridge.sh, async_vacuum.sh, nightly_vacuum.sh. orchestrator_enforcer.sh = INERTE. Contrato: exit 0 + stdout JSON = advisory; exit 2 + stderr = bloqueo; permissionDecision:deny = deny. Cognición = 0 llamadas de inferencia desde el engine. TESTS: repo completo = 1267 passed / 40 skip / 0 fail. CALIDAD: ruff limpio (repo a verde 2026-06-19, barrido \"Todo Verde II\"). NOTA: SubagentStart está cableado pero es poco estándar en Claude Code (lo habitual es SubagentStop/Task) — no se pudo verificar que el harness lo dispare.",
+        "components": [
+          {
+            "name": "dispatch.py (entrypoint)",
+            "what_for": "Es la puerta de entrada única: cuando Claude Code va a hacer algo (mandas un mensaje, vas a escribir un archivo, abres/cierras sesión), llama a este programa con el nombre del evento. El programa decide qué rutina ejecutar. Si algo falla, deja pasar el trabajo sin estorbar — nunca rompe lo que ibas a hacer.",
+            "tech_detail": "41 LOC. Lee sys.argv[1]=event_name + payload por stdin (read_event). Busca handler en HANDLERS dict; si no existe → passthrough(). Inserta hooks/ en sys.path para import dispatch.*. try/except: respeta SystemExit y atrapa todo lo demás → passthrough (fail-open). Cableado en settings.json (7) + hooks.json (7, modo plugin con ${CLAUDE_PLUGIN_ROOT}).",
+            "status": "Vivo · Test parcial · verde — 41 LOC, ruff limpio, sin complejidad",
+            "evidence": "tests/dispatch/_invoke.py (invocador) + tests/dispatch/test_*.py lo ejercitan indirectamente; sin test unitario propio del main()"
+          },
+          {
+            "name": "contract.py (contrato E/S)",
+            "what_for": "Define las únicas formas en que un hook puede 'hablarle' a Claude Code: o le pasa una nota informativa (advisory), o bloquea la acción con un mensaje, o la deniega. También averigua dónde vive el repo una sola vez, eliminando rutas $HOME quemadas de los scripts viejos.",
+            "tech_detail": "57 LOC. ARIS4U_ROOT = CLAUDE_PLUGIN_ROOT o parents[2] del archivo. Funciones NoReturn: read_event (stdin→dict, fail-open a {}), passthrough (exit 0), emit_additional_context (formato legacy), advise (hookSpecificOutput.additionalContext, exit 0), block (stderr + exit 2). Todas hacen sys.exit; el dispatcher captura SystemExit.",
+            "status": "Vivo · Con test · verde — ruff limpio, CC bajo",
+            "evidence": "ejercitado por todos los tests de tests/dispatch (validan los formatos de salida)"
+          },
+          {
+            "name": "events/__init__.py (registro HANDLERS)",
+            "what_for": "Es la tabla que dice qué rutina maneja cada evento. Mapea los 7 eventos de Claude Code a su módulo correspondiente.",
+            "tech_detail": "28 LOC. HANDLERS: Dict[str, Callable[[str,dict],None]] con las 7 entradas: SubagentStart, SessionStart, SessionEnd, Stop, UserPromptSubmit, PostToolUse, PreToolUse. Migración incremental: evento sin entrada → passthrough.",
+            "status": "Vivo · Con test · verde",
+            "evidence": "tests/dispatch/_invoke.py importa y verifica el dispatch por evento"
+          },
+          {
+            "name": "events/user_prompt_submit.py",
+            "what_for": "El hook más caliente: corre en CADA mensaje que escribes. Detecta en qué cliente estás trabajando, clasifica la intención del mensaje, te recuerda decisiones previas relevantes (RECALL de la memoria), sugiere qué modelo usar, y lleva la cuenta de tokens/tiempo de la sesión. Todo es informativo; nunca te bloquea.",
+            "tech_detail": "404 LOC. Portado de depth_inject.sh sin heredoc. _detect_client(cwd) por /03-clients/<c>; write_client_bridge.sh (puente MCP); v16_orchestrator.process_query (intención/depth F1-F6) + novelty_detector; MODEL_HINT advisory + telemetría; WAVE timer (>80m); TokenIntelligence budget+effort; DEPTH directive; decisiones LOCKED scoped por cliente; AUTO-RECALL híbrido (session_manager.search, FTS5+semántico) con cap SIGALRM 2s + fail-open; persiste /tmp/aris4u_session_state.json + GOAL tracking. Flag ARIS4U_DEPTH_PROTOCOL=0 = modo sombra. Emite via emit_additional_context.",
+            "status": "Vivo · Test parcial · OK — radon: handle() refactorizado F66→B9 (\"Todo Verde II\"); ruff limpio",
+            "evidence": "tests/dispatch/test_user_prompt_submit.py (5 tests: simple/strategy fixtures)"
+          },
+          {
+            "name": "events/pre_tool_use.py (cadena 11 sub-handlers)",
+            "what_for": "Antes de que Claude ejecute una herramienta (escribir archivo, correr comando), pasa por una fila de 11 revisores en orden fijo. La mayoría solo dejan notas (type hints, docker, RLS...). Tres pueden DETENER la acción: el linter de migraciones, el guardián de datos médicos (PHI), y el guardián de la GPU. El primero que diga 'bloquea' corta la fila; las notas se juntan y se entregan al final.",
+            "tech_detail": "110 LOC. handle() arma chain en ORDEN exacto de settings.json: f5_prevalidation, migration_linter, phi_guard, phi_sanitizer + 7 guards de pre_guards (type_hints, docker_latest, supabase_rls, spring_boot, screenshot_loop, kb_docs, gpu_crash). Itera con try/except por handler (fail-open). BLOCK → contract.block (stderr+exit2, corta); DENY → _emit_deny (permissionDecision:deny, corta); ADVISE → acumula. _emit_advisory combina additionalContext.",
+            "status": "Vivo · Con test · verde — CC moderado, orquestación clara; ruff limpio",
+            "evidence": "tests/dispatch/test_pre_tool_use.py (13 tests: advisory, gpu deny, migration bad, phi healthcare/non-healthcare)"
+          },
+          {
+            "name": "events/post_tool_use.py (combina 5 sub-handlers)",
+            "what_for": "Después de cada herramienta, corre 5 rutinas y combina su salida en una sola respuesta: redacta secretos del output (lo único que MODIFICA el resultado), avisa sobre paralelismo, corre el gate de calidad de código y de commit, captura los commits a la memoria, registra los agentes lanzados, y vigila cambios de esquema. Nada bloquea.",
+            "tech_detail": "135 LOC. handle(): _safe() envuelve cada sub-handler (fail-open). redact.redact muta output (updatedToolOutput) + _log_secret_redacted. Advisories: parallel_dispatch_guard, code_quality_gate, commit_quality_gate. Side-effects: capture_commit, agent_dispatched. schema_drift → stderr. Emite JSON combinado (decision:allow + updatedToolOutput si hubo mutación) o additionalContext.",
+            "status": "Vivo · Con test · issues — radon handle()=C/14 (aceptable). El gate de calidad que invoca NO está cubierto por estos tests",
+            "evidence": "tests/dispatch/test_post_tool_use.py (9 tests: redact bash/jsonl, parallel guard, capture_commit, schema write)"
+          },
+          {
+            "name": "events/session_start.py + _briefing.py",
+            "what_for": "Al abrir una sesión nueva: te arma un 'briefing' (identidad de ARIS4U, qué corre solo, qué herramientas puedes invocar a mano, conteos de memoria, hardware), inyecta recall del proyecto-lab si estás en uno, resetea el presupuesto de tokens, y te GRITA si la memoria lleva >48h sin escribir (señal de que el guardado se rompió en silencio, ya pasó 2 veces).",
+            "tech_detail": "session_start.py 274 LOC + _briefing.py 289 LOC. _detect_lab_project(cwd) contra LAB_PROJECTS; _build_recall sobre claude-mem.db (por project + FTS5 cross-project); reset TokenIntelligence salvo source=='resume'; build_briefing() (fail-open, BUDGET_CHARS=2200); _writepath_warning() lee sessions.db MAX(created_at) >48h. _db_memory/_vector_count usan URI mode=ro (read-only estricto). advise(context,'SessionStart').",
+            "status": "Vivo · Con test · OK — radon: _build_recall D23→A6, handle C17→A7 (\"Todo Verde II\"); _build_briefing_inner=C/13 (denso pero read-only)",
+            "evidence": "tests/dispatch/test_session_start_briefing.py (8 tests) + golden session_start_lab.out"
+          },
+          {
+            "name": "events/session_end.py",
+            "what_for": "Al cerrar sesión: arma UN resumen (commits, líneas, decisiones, guards, tokens), lo guarda en la memoria por-cliente (sessions.db) y lo espeja a claude-mem.db, opcionalmente le añade una frase narrativa con un modelo LOCAL (PHI-safe), avisa si dejaste cambios sin commitear, corre el analizador (con freno de 300s) y lanza tareas de fondo (backfill de vectores + vacuum).",
+            "tech_detail": "491 LOC. _write_digest: git log --since=8h, get_stats/get_all_guards, TokenIntelligence.session_summary, save_digest(client_id desde ARIS4U_CLIENT/cwd), espejo a claude-mem.db, F7.APRENDIZAJE via orchestrator.end_session. _enrich_summary_local via model_router.route_local (LOCAL, desactivable ARIS4U_DIGEST_NARRATIVE=0). _check_git_dirty (H33). _run_analyzer_throttled (state file 300s). _launch_background (ws3_backfill_vectors.py + async_vacuum.sh).",
+            "status": "Vivo · Test parcial · OK — radon: _write_digest D26→A6, _run_analyzer_throttled D22→A2 (\"Todo Verde II\"); ruff limpio",
+            "evidence": "tests/dispatch/test_session_end_enrich.py (4 tests, foco en _enrich_summary_local) + golden session_end_client.json fixture"
+          },
+          {
+            "name": "events/subagent_start.py",
+            "what_for": "Cuando se lanza un sub-agente, le inyecta el contexto crítico para que no produzca código genérico: decisiones bloqueadas (que no debe contradecir), guards críticos, requisitos de calidad (código completo, validación), y la arquitectura del proyecto desde .planning/.",
+            "tech_detail": "142 LOC. Lee /tmp/aris4u_session_state.json (last_query); get_locked_decisions + get_all_guards (critical, dedup máx 6); QUALITY REQUIREMENTS fijos; .planning/ARCHITECTURE.md[:800]; AgentOrchestrator.get_waves; incrementa research_agents_launched. emit_additional_context. Telemetría subagent_depth si VALIDATION_LOG.",
+            "status": "Vivo · Test parcial · OK — handle() E37→A3 (\"Todo Verde II\"). NOTA: SubagentStart es evento poco estándar; cableado pero no confirmado que el harness lo dispare",
+            "evidence": "golden tests/dispatch/golden/subagent_start_basic.out + fixture; sin test_*.py dedicado de aserciones ricas"
+          },
+          {
+            "name": "events/stop.py (post_agent_verify)",
+            "what_for": "Al terminar tu turno, audita lo que hicieron los sub-agentes: busca en el log los agentes lanzados sin verificar, deduce qué archivos tocaron (por log + diff de git) y corre un verificador real (compila/tests). Si un agente dejó errores, te lo avisa. Lleva un registro para no re-verificar lo mismo.",
+            "tech_detail": "315 LOC. Portado de post_agent_verify.sh. P0 AUDIT resuelto: el .sh NUNCA corría en macOS por 'ulimit -v' (no soportado en Darwin); aquí _run_verifier_safe omite mem_cap en Darwin (solo ulimit -t 30 + timeout 35). Streaming-read por byte-offset (H32), lock mkdir atómico, ledger /tmp, correlación lab_write + git diff desde repo_heads_pre. Corre tools/agent_output_verifier.py. Exit 0 siempre.",
+            "status": "Vivo · Test parcial · OK — _verify F47→B8 (\"Todo Verde II\"). El fix macOS es load-bearing y correcto",
+            "evidence": "golden stop_basic.json + tests/tools/test_h32_verifier_safety.py (verificador subyacente)"
+          },
+          {
+            "name": "handlers/migration_linter.py (BLOQUEANTE)",
+            "what_for": "Guardián real: si vas a aplicar una migración de base de datos (Supabase/Flyway/Prisma/Alembic) con errores, lo DETIENE (exit 2) con el detalle, hasta que arregles los errores.",
+            "tech_detail": "156 LOC. check(tool_name,tool_input,cwd): solo Bash; _detect_stack por needles; _locate_migrations_dir por convención relativa al cwd; _run_linter in-process (tools.migration_linter.MigrationLinter); exit_code!=0 o error_count>0 → V.block. Fail-open: linter explota → V.ok().",
+            "status": "Vivo · Con test · issues — radon check()=C/15, _locate=C/13; lógica correcta y bien cubierta",
+            "evidence": "tests/dispatch/test_pre_tool_use.py (fixture pre_migration_bad.sql + plpgsql) + tests/test_migration_linter.py + tests/test_h47_migration_fk_validator.py"
+          },
+          {
+            "name": "handlers/phi_guard.py (BLOQUEANTE, solo healthcare)",
+            "what_for": "Guardián de datos médicos: si detecta información de paciente (SSN, diagnóstico, historial...) saliendo hacia una API externa, lo DETIENE — PERO solo cuando trabajas en un proyecto de salud (healthcare clients). Fuera de salud no estorba. Destinos locales (W2/localhost/ollama) son seguros.",
+            "tech_detail": "198 LOC. _NETWORK_TOOLS={Bash,WebFetch,WebSearch}. _is_healthcare_ctx: ARIS4U_HEALTHCARE=1 / ARIS4U_CLIENT en {client-c,client-a,client-b} / markers en cwd / bridge file / .aris-healthcare ascendiendo. ~57 _PHI_PATTERNS regex; _SAFE_PATTERNS locales. PHI + destino no-seguro → V.block; PHI→local → V.ok + _log_audit. Re-scopeado a healthcare (era global = over-reach).",
+            "status": "Vivo · Con test · verde — bien cubierto; el gate healthcare es load-bearing y testeado en ambos sentidos",
+            "evidence": "tests/dispatch/test_pre_tool_use.py (pre_phi_healthcare.json + pre_phi_nonhealthcare.json) + tests/test_phi_sanitizer.py"
+          },
+          {
+            "name": "handlers/pre_guards.py (7 guards advisory + gpu_crash DENY)",
+            "what_for": "Siete revisores de estándares en un módulo: type hints faltantes en Python, imágenes Docker sin versión fija, tablas SQL sin RLS, @Autowired en Java, loops de screenshots, docs de KB sin fecha. Casi todos solo dejan una nota. El séptimo (gpu_crash) DENIEGA abrir el viewer 3D WebGL que tumbó el Mac dos veces.",
+            "tech_detail": "226 LOC. type_hints/docker_latest/supabase_rls/spring_boot/screenshot_loop/kb_docs → V.advise. gpu_crash → V.deny (permissionDecision:deny) salvo override file ~/projects/lab-project-4/scene3d/.gpu-guard-override → V.advise. Regex portadas 1:1 de guards/*.sh.",
+            "status": "Vivo · Test parcial · issues — radon gpu_crash=C/18, docker_latest=C/16, varios C/14; cobertura por-guard parcial",
+            "evidence": "tests/dispatch/test_pre_tool_use.py (advisory genérico + gpu deny via pre_gpu_deny.json); guards individuales sin aserción dedicada cada uno"
+          },
+          {
+            "name": "handlers/redact.py (muta output)",
+            "what_for": "El único hook que MODIFICA lo que ves: si el resultado de un comando contiene secretos (llaves AWS/Firebase/Supabase JWT/GCP, passwords), los tacha como [REDACTED] antes de mostrarlos.",
+            "tech_detail": "116 LOC. redact(tool_name,tool_output)→(updated|None,total). Solo Bash. 6 patrones: AWS access key, Firebase, Supabase JWT, AWS secret, GCP private key block, genéricos ENV (>=16 chars, guards FP localhost/trivial). Clase JSONL-safe para no romper líneas compactas (fix preservado del .sh).",
+            "status": "Vivo · Con test · verde — el mejor cubierto del paquete (13 tests)",
+            "evidence": "tests/hooks/test_redact_secrets.py (13 tests) + golden post_tool_use_redact_bash/jsonl.out"
+          },
+          {
+            "name": "handlers/capture_commit.py",
+            "what_for": "Cada vez que haces un commit, lo guarda automáticamente como 'decisión' en la memoria por-cliente, sin que tengas que registrarlo a mano. No duplica si ya lo capturó.",
+            "tech_detail": "75 LOC. run(tool_name,tool_input,cwd): Bash + 'git commit' en comando. git log -1 sha/msg; dedup por session_ref(sha); save_decision(domain='git-commit', client_id=resolve_client_from_path). Side-effect a sessions.db, sin stdout.",
+            "status": "Vivo · Con test · verde — radon run()=C/11 (borderline), simple y cubierto",
+            "evidence": "tests/dispatch/test_post_tool_use.py (fixture post_tool_use_capture_commit.json)"
+          },
+          {
+            "name": "handlers/code_quality_gate.py + commit_quality_gate.py",
+            "what_for": "Tras cada edición de un archivo Python corre linters rápidos (ruff) y mide complejidad (radon) y te avisa de problemas, para frenar la degradación del código en loops de agentes. En el commit corre los checks caros (pyright + tests afectados). Solo avisa, no bloquea.",
+            "tech_detail": "code_quality_gate 160 LOC: run() Write/Edit/MultiEdit sobre .py reales (excluye venv); _run_ruff (--output-format concise) + _run_radon (CC>=11) usando binarios de .venv312; _record en tabla gate_results (VIVA, 43 filas verificadas). commit_quality_gate 157 LOC: Bash+git commit; _run_pyright + _affected_tests + _run_tests. Ambos advisory, fail-open.",
+            "status": "Vivo · Sin test · issues — GAP de test claro: 317 LOC combinadas, escriben a sessions.db y corren subprocesos, sin cobertura. gate_results revivida (43 filas) confirma uso real en vivo",
+            "evidence": "ninguno — 0 tests dedicados (grep code_quality_gate/commit_quality_gate en tests/ = vacío; test_post_tool_use no los ejercita)"
+          },
+          {
+            "name": "handlers/phi_sanitizer / f5_prevalidation / schema_drift / agent_dispatched / parallel_dispatch_guard / pre_common / verdict",
+            "what_for": "Sub-handlers de apoyo: phi_sanitizer avisa (sin bloquear) de PHI tier-1 en salud; f5_prevalidation pasa el contenido por el motor de validación F5 en modo sombra; schema_drift vigila cambios de esquema en labs; agent_dispatched registra agentes lanzados; parallel_dispatch_guard sugiere paralelizar SSH; verdict es el tipo de resultado (PASS/ADVISE/BLOCK/DENY); pre_common aplana tool_input para los regex.",
+            "tech_detail": "phi_sanitizer (79 LOC, reusa _is_healthcare_ctx, tier-1 SSN/DOB/MRN/NPI, advisory). f5_prevalidation (71 LOC, engine.v16.f5_validacion.ValidacionEngine, shadow). schema_drift (188 LOC, tools/schema_compat_check.py, stderr). agent_dispatched (72 LOC, JSONL repo_heads_pre, solo si VALIDATION_LOG). parallel_dispatch_guard (52 LOC, regex ssh w[0-9] sin &). verdict.py (51 LOC, dataclass Verdict frozen). pre_common.py (44 LOC, walk_strings/tool_text/matches_tool).",
+            "status": "Vivo · Test parcial · issues — radon parallel_guard.check=C/14, agent_dispatched.run=C/13; verdict/pre_common verde. f5 cae a shadow (V.ok) en error",
+            "evidence": "phi_sanitizer→test_phi_sanitizer.py; f5→test_v16_6_f5_contracts.py; schema_drift→test_v16_e2e_multi_stack.py; agent_dispatched→test_post_tool_use.py + test_h32_verifier_safety.py; verdict/pre_common indirectos"
+          },
+          {
+            "name": ".sh MUERTOS + orchestrator_enforcer.sh (INERTE)",
+            "what_for": "Los scripts shell originales (depth_inject.sh, session_end.sh, phi_guard.sh, etc.) ya fueron reescritos a Python y NO están conectados a nada — son código muerto que solo se conserva por referencia. orchestrator_enforcer.sh nunca se portó ni se conectó: está totalmente inerte. Siguen vivos solo 3 .sh: write_client_bridge, async_vacuum, nightly_vacuum.",
+            "tech_detail": "VERIFICADO: settings.json y hooks.json solo apuntan a dispatch.py (grep dispatch.py = 7 en settings; hooks.json 7 eventos). orchestrator_enforcer: 0 callers en hooks/.py, settings.json, hooks.json (única ref = README línea 110). Vivos: write_client_bridge.sh (session_start/user_prompt_submit via subprocess), async_vacuum.sh (session_end _launch_background), nightly_vacuum.sh (cron).",
+            "status": "Inerte · Sin test · deuda de limpieza — 14 .sh muertos + orchestrator_enforcer.sh inerte ocupan hooks/ root; candidato a mover a attic/ o borrar",
+            "evidence": "ninguno — son código retirado; los .py que los reemplazan sí tienen tests"
+          }
+        ]
+      },
+      {
+        "group_name": "engine/v16 — NÚCLEO de percepción + memoria (F1→F3 + orquestador + utilidades de soporte) · 11 componentes",
+        "where_it_works": "Todos en engine/v16/ (rama feat/session-briefing). ESTADO GLOBAL: 9 live, 1 partial (knowledge_atoms), 0 inert/dead. Cadena viva verificada por grep en callers reales: user_prompt_submit.py invoca orchestrator.process_query (F1→F6), novelty_detector.detect_novelty y TokenIntelligence; session_end.py invoca orchestrator.end_session (F7). F1 sólo se alcanza vía orquestador/depth_protocol. CIFRAS VERIFICADAS EN VIVO: 175 exemplars exactos, 9259 vectores en el sidecar (decisions:411 + observations:8848), sessions.db 84 digests/351 decisions/16 guards, 25 knowledge_atoms, v16_events 27201 event_logged (state_updated ya NO se acumula tras fix P0-B commit e6c9d5d). TESTS: suite dirigida del clúster 195 passed / 11 skipped / 0 fail. NINGÚN módulo del núcleo está muerto; el motor de percepción+memoria está realmente cableado y vivo.",
+        "components": [
+          {
+            "name": "v16_orchestrator",
+            "what_for": "Es el director de orquesta del motor: cada vez que escribes un prompt, este módulo arranca la cadena completa — clasifica tu intención (F1), decide cuánto esfuerzo aplicar (F2), recupera decisiones y reglas guardadas (F3) y prepara validación/formato (F5/F6). Si cualquier pieza falla, no rompe nada: usa valores seguros por defecto y sigue. Al cerrar la sesión dispara el aprendizaje. En resumen: pega todas las partes para que ARIS4U reaccione a lo que pides, sin caerse aunque Ollama o la base de datos fallen.",
+            "tech_detail": "Singleton (get_orchestrator/reset_orchestrator). process_query() ejecuta F1→F6 con try/except por fase y contador de fallos (3 strikes en F1/F2 → error). end_session() invoca AprendizajeEngine.learn_from_session + apply_reward_signals. Lazy import + singletons cacheados. VERIFICADO vivo: user_prompt_submit.py:137-138 (process_query) y session_end.py:296-297 (end_session); ambos eventos cableados en settings.json.",
+            "status": "Vivo · Con test · issues: process_query complejidad ciclomática D(23) — el bloque más complejo del clúster; ruff limpio. Resto verde",
+            "evidence": "tests/test_v16_orchestrator_integration.py"
+          },
+          {
+            "name": "f1_classifier",
+            "what_for": "Es el sentido del oído de ARIS4U: lee tu frase y adivina qué tipo de tarea es (pregunta simple, arreglar un bug, decidir algo, implementar o investigar) comparándola con 175 frases-ejemplo ya memorizadas. Antes lo hacía con reglas de texto que fallaban casi siempre; ahora usa 'embeddings' (representación numérica del significado). Tiene un 'canario': una frase de prueba que vuelve a calcular cada 6 horas para detectar si el modelo de Ollama cambió por debajo — eso ya causó meses de fallo silencioso donde TODO se clasificaba como 'simple'. Si Ollama no responde, no inventa: devuelve 'simple' como opción segura.",
+            "tech_detail": "EmbeddingClassifier con mxbai-embed-large (NO bge-m3, decisión empírica 7/10 vs 5/10). Caché en disco data/exemplar_embeddings.npz; gate doble: mtime + canary (_CANARY_TEXT, sim≥0.95, throttle 6h) que detecta cambio de normalización L2 del modelo Ollama. classify_v16_with_confidence() es la entrada del orquestador. Embed vía subprocess curl a OLLAMA_MAC_URL. VERIFICADO: 175 exemplars {simple:35,fix:30,decision:35,implementation:45,research:30}. Sólo se alcanza vía v16_orchestrator y depth_protocol.",
+            "status": "Vivo · Con test · verde: 0 hallazgos ruff. El canary está bien encapsulado en _cache_is_fresh. Docstring stale ('~180/160' vs 175 reales)",
+            "evidence": "tests/test_f1_classifier.py"
+          },
+          {
+            "name": "f2_cognicion",
+            "what_for": "Es la parte que decide 'cuánto pensar'. A partir del tipo de tarea y de cuánto presupuesto de tokens queda, escoge 4 cosas: cuántos niveles de profundidad usar, qué nivel de esfuerzo (bajo/medio/alto), qué hooks activar y qué estrategia (paralelo, secuencial o investigar-primero). Usa un controlador PID (como el de un termostato) para mantener estable el esfuerzo aunque el presupuesto suba y baje, y una fórmula de probabilidad (Boltzmann/softmax) para elegir hooks. Es el regulador que evita gastar de más o de menos.",
+            "tech_detail": "PIDController (anti-windup, estado persistido en sessions.db tabla v15_session_state) + CognicionEngine.decide() → CognicionResult inmutable. 4 decisiones: _decision_dimensioning, _decision_effort_routing (PID, target 0.80), _decision_hook_selection (softmax), _decision_strategy. numpy opcional con fallback math puro. VERIFICADO: invocado por orquestador (create_cognicion_engine en process_query:151-153).",
+            "status": "Vivo · Con test · verde: ruff limpio (0). Lógica determinista y bien testeada; PID con anti-windup correcto. Sin deuda estructural",
+            "evidence": "tests/test_f2_cognicion.py"
+          },
+          {
+            "name": "f3_memoria",
+            "what_for": "Es la memoria a prueba de cortes de luz. Guarda el estado de la sesión y un registro inmutable de eventos en SQLite con garantías ACID (todo-o-nada, modo WAL) para que nada se corrompa aunque el sistema se caiga. Permite recordar decisiones bloqueadas (máx 7, el límite de la memoria de trabajo humana) y reglas/guards. Hoy se le quitó un evento que inflaba la base de datos en un 94% (413 mil filas inútiles): ahora el valor real vive en la fila clave-valor, no duplicado en el log.",
+            "tech_detail": "MemoriaEngine: _connect con PRAGMA WAL+synchronous=NORMAL+foreign_keys. Tablas v16_session_state (KV) y v16_events (event sourcing con CHECK de event_type). save_state ya NO loguea state_updated (fix V2.0 P0-B, anti-bloat). recall_decisions (Miller cap 7, FTS5 sobre decisions_fts), recall_guards, prune_old_events, verify_consistency. RLock para thread-safety. VERIFICADO vivo vía _get_or_create_memoria; commit e6c9d5d. v16_events 27201 event_logged.",
+            "status": "Vivo · Con test · issues: ruff limpio (0). prune_old_events tiene bug latente: reusa cursor.rowcount tras un 2º DELETE distinto. No estructural pero anotado. Resto sólido",
+            "evidence": "tests/test_f3_memoria.py"
+          },
+          {
+            "name": "session_manager",
+            "what_for": "Es el bibliotecario de la memoria por-cliente: guarda y recupera decisiones, guards, digests y resultados, y hace la búsqueda 'híbrida' — combina búsqueda por palabras (FTS5) con búsqueda por significado (vectores). Sabe a qué cliente pertenece cada cosa mirando la carpeta o un puente de sesión, para que la memoria de Client-B no se mezcle con la de Client-C. Hoy se arregló la hidratación de resultados (_hydrate) para que muestre el texto correcto aunque algunos campos estén vacíos.",
+            "tech_detail": "Módulo más grande del clúster (1088 LOC). detect_client/resolve_client_from_path (canónico lower-case, fix 'acme-wellness'), puente por-sesión /tmp/aris4u_active_client.<sid>.json (anti cross-client leak). semantic_recall() delega a vector_store.search + _hydrate(); _hydrate usa COALESCE(NULLIF(text,''),NULLIF(narrative,''),title) — VERIFICADO línea 771. save_decision dispara _async_embed_decision (dual-write blob legacy + sidecar WS3). Callers vivos: subagent_start, session_end, user_prompt_submit, capture_commit, mcp_server, smoke_roundtrip. Counts: 84 digests / 351 decisions / 16 guards.",
+            "status": "Vivo · Con test · issues: 1 ruff; resolve_client_from_path C(11); search_semantic RETIRADA 2026-06-19 (fallback legacy semi-muerto, H48). Mezcla 3 dominios — candidato a split",
+            "evidence": "tests/test_v2_fixes.py (+ test_v15_modules, test_v1610_engine_integration, conftest)"
+          },
+          {
+            "name": "vector_store",
+            "what_for": "Es el índice de búsqueda por significado de ARIS4U. Guarda 'huellas numéricas' (embeddings) de observaciones y decisiones en una base aparte (sqlite-vec) para poder buscar por parecido conceptual, no sólo por palabras exactas. Está aislado por cliente: si buscas con un cliente activo, sólo ves sus vectores y los sin-dueño, nunca los de otro cliente. Si la extensión no carga, todo se vuelve inofensivo (no-op) y la búsqueda cae a palabras-clave sin romperse.",
+            "tech_detail": "Sidecar data/aris_vectors.db con vec0 (float[1024] cosine) + tabla vec_map. Embeddings vía bge-m3 (EMBED_MODEL, distinto a F1 a propósito). available() cachea si sqlite-vec carga; degradación total a no-op. search() con over-fetch (k*3) + post-filtro de metadata por client_id IN (cliente, sentinel '') — fix FREEZE del bug '84% de recalls vacíos'. VERIFICADO vivo: 9259 vectores (decisions:411, observations:8848); usado por session_manager.semantic_recall y _async_embed_decision.",
+            "status": "Vivo · Con test · issues: ruff limpio (0); search() C(11). Aislamiento cross-client bien implementado",
+            "evidence": "tests/test_vector_store.py"
+          },
+          {
+            "name": "depth_protocol",
+            "what_for": "Define el 'protocolo de profundidad': por cada tipo de tarea, qué pasos debe seguir Claude (RECALL, RESEARCH, ANALYZE, IMPLEMENT, TEST...). También guarda el clasificador viejo de reglas de texto como red de seguridad: sólo se usa si Ollama está caído y el clasificador inteligente no puede responder. Es básicamente el manual de 'cómo pensar a fondo' según lo que pediste.",
+            "tech_detail": "classify() = wrapper que llama f1_classifier.classify_v16 y cae a _classify_regex (patrones bilingües, 'roto 93% del tiempo') sólo si f1 lanza excepción. get_levels() lee DEPTH_LEVELS de config. LEVEL_NAMES (1-10) + DIRECTIVES por intención (texto inyectable). VERIFICADO: usado por user_prompt_submit.py y f2/f1 tests; el regex es fallback, no ruta normal.",
+            "status": "Vivo · Con test · verde: 0 hallazgos ruff. Tablas DIRECTIVES son datos estáticos; el comentario '93% wrong' documenta honestamente el fallback. Sin deuda",
+            "evidence": "tests/test_f1_classifier.py (+ test_f2_cognicion, test_v1610_engine_integration)"
+          },
+          {
+            "name": "novelty_detector",
+            "what_for": "Detecta cuando le pides algo de un tema NUEVO que nunca se ha tratado. Mira tres señales: si no hay memoria previa (claude-mem), si no se parece a ningún 'átomo' de conocimiento, y si está lejos de los ejemplos conocidos. Si 2 de 3 señales dicen 'esto es nuevo', recomienda explorar con mucha más profundidad — justo lo que el usuario pidió: dominios nuevos = pensar mucho más. Si Ollama falla, por seguridad asume que es nuevo (mejor pasarse de profundo que quedarse corto).",
+            "tech_detail": "detect_novelty() → NoveltyResult. 3 señales: _search_claude_mem (FTS5 sobre claude-mem.db read-only, BM25), _match_atoms (cosine vectorizado vs ATOMS cacheados), _exemplar_distance (reusa data/exemplar_embeddings.npz de f1). Cachés npz invalidadas por mtime. Fail-safe: embed falla → is_new_domain=True. emit_event para telemetría. VERIFICADO vivo: importado en user_prompt_submit.py:146-148.",
+            "status": "Vivo · Con test · issues: 1 ruff; _load_or_compute_atoms_cache C(11). Riesgo latente: cachés npz invalidan solo por mtime, NO por el canary anti-cambio-de-modelo de f1 (mismo bug que f1 ya cerró sigue abierto aquí)",
+            "evidence": "tests/test_novelty_detector.py"
+          },
+          {
+            "name": "knowledge_atoms",
+            "what_for": "Es un pequeño catálogo de 25 'píldoras' de conocimiento destiladas de investigación previa (hardware, métodos de research, decisiones de arquitectura, etc.), agrupadas por tema, para inyectarlas en el momento justo según el tipo de tarea. La idea es darle a Claude el dato correcto sin que tenga que releer documentos enormes. Hoy se usan como referencia para el detector de novedad; las funciones que las 'inyectarían' a un prompt no tienen quien las llame.",
+            "tech_detail": "Dict ATOMS (VERIFICADO: 25 atoms — research:4, implementation:7, decision:5, agent_dispatch:4, fix:2, planning:3). get_atoms_for_context()/format_atoms_for_injection() RETIRADAS 2026-06-19 (solo el dict ATOMS sigue vivo). USO REAL PARCIAL: novelty_detector importa ATOMS (vivo), pero NINGÚN hook/MCP/tool llama las funciones de inyección (grep = 0). Inertes. Algunos atoms stale (D04 cita aris_recall MCP retirado, I01 'Mac NO CUDA').",
+            "status": "Parcial · Sin test · issues: el dato (ATOMS) vivo vía novelty_detector, pero las 2 funciones públicas de inyección son código sin caller y sin test. 0 ruff. Contenido stale en algunos atoms",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "token_utils",
+            "what_for": "Lleva la cuenta del presupuesto de tokens de la sesión: estima cuántos tokens consume cada cosa, calcula cuánto queda y, según eso, baja el nivel de esfuerzo o pide respuestas más cortas cuando el presupuesto se agota. Es el medidor de combustible que evita que la sesión se quede sin gas, persistiendo su estado de forma segura en la base de datos.",
+            "tech_detail": "TokenIntelligence: estado vía MemoriaEngine.load_state/save_state (ACID, key='token_intelligence'). estimate_tokens (heurística chars/ratio, NO usa la API count_tokens pese al atom I03), get_budget_pct, get_effort_level (downgrade por umbral), get_terse_directive, reset_budget (en wave boundaries). VERIFICADO vivo: instanciado en user_prompt_submit.py:232-234 (una sola instancia, dedup WS-C) y session_start/session_end.",
+            "status": "Vivo · Con test · issues: 2 ruff menores. Estima tokens por chars/4 (heurística) cuando el atom I03 dice usar la API gratuita count_tokens — inconsistencia conocida, no bloqueante",
+            "evidence": "tests/test_v15_modules.py::TestTokenIntelligence"
+          },
+          {
+            "name": "exemplars",
+            "what_for": "Es el diccionario de frases-ejemplo que usa el clasificador para entender qué quieres: 175 frases en español e inglés repartidas en 5 categorías. Es puro dato de entrenamiento por vecindad — cuando escribes algo, el sistema busca a cuál de estas frases se parece más. No tiene lógica, es la 'memoria de muestras' contra la que se compara todo.",
+            "tech_detail": "Dict EXEMPLARS + helpers get_all_exemplars/get_exemplars_for_intent/intent_names. VERIFICADO en vivo: 175 totales (simple:35, fix:30, decision:35, implementation:45, research:30). Fuente única de verdad de las cachés npz de f1_classifier y novelty_detector. implementation sobre-representado con frases de confirmación ambiguas ('sigue con eso').",
+            "status": "Vivo · Test parcial · verde: 0 ruff, sin lógica que romper. Docstrings de consumidores stale ('~180'/'160' vs 175). implementation desbalanceado (45 vs 30) = riesgo de sesgo, documentado",
+            "evidence": "ninguno directo (consumido por tests/test_f1_classifier.py vía el clasificador)"
+          }
+        ]
+      },
+      {
+        "group_name": "engine/v16 — Ruteo multi-modelo + Aprendizaje/Reward + Pentest (ofensivo, diferido) · 9 componentes",
+        "where_it_works": "Rama feat/session-briefing; 252 tests de los 10 archivos objetivo PASAN. DOS verdades verificadas por grep de callers: (1) el RUTEO es la pieza más viva — model_router.route_local() tiene 2 callers de producción (session_end digest + mcp_server dialectic); el dispatcher mlx es NUEVO y health-aware (cascada MLX-27B→Foundation-Sec→W2 qwen3:8b tras el borrado 06-16 de los generativos viejos). (2) el APRENDIZAJE corre pero es en gran parte ceremonia: f7.learn_from_session se invoca al cierre vía v16_orchestrator.end_session, pero en producción recibe session_data sin labels → degrada a 0 exemplars/temperature=1.0 (fix de HOY). El aprendizaje REAL fluye por el loop de reward: agent_output_verifier (Stop hook) → record_reward (compile/test) → reward_signals → compute_adaptation → depth params. f5_validacion corre LIVE en modo sombra (PreToolUse advisory). f6_comunicacion es INERTE en el pipeline. f8_assessment+f8_vuln_kb (vertical pentest OFENSIVO) están SIN cablear en runtime — funcionales-listos pero diferidos a Tramo 4. Online (Grok/route()) construido pero dormido (gate fail-closed).",
+        "components": [
+          {
+            "name": "model_router (route_local + route)",
+            "what_for": "Es el 'recepcionista' que decide a qué modelo de IA local mandar una tarea pequeña (no el cerebro, eso es Claude). Antes de molestar a un modelo comprueba que esté encendido y vivo; si el primero no responde, prueba el siguiente en una lista de respaldo (primero el cuerpo local de 27B, luego un modelo de seguridad, y por último la computadora remota W2). Tiene una regla de privacidad estricta: las tareas locales NUNCA pueden salir a internet por accidente, y solo una puerta especial (hoy apagada) podría mandar algo a un servicio externo, y solo si no hay datos sensibles.",
+            "tech_detail": "Política declarativa sin ML (_POLICY dict por task: dialectic/digest/default, lista ordenada de Candidate(backend,model,options)). Health-aware vía _live_models() con cache TTL que cura /api/tags (Mac curl, W2 ssh+curl) y /v1/models (MLX). Cascada MLX-27B→Foundation-Sec-8B(Mac)→qwen3:8b(W2), fail-open (RouteResult ok=False, nunca lanza). Invariante de privacidad por separación física: route_local solo lee _LOCAL_BACKENDS, route() lee _ONLINE_POLICY tras gate _online_eligible fail-closed. Callers live: session_end.py:72 (digest), mcp_server.py:149 (dialectic).",
+            "status": "Vivo · Con test · verde: ruff 0. Invariante de privacidad explícito y testeado. route() online sin caller de producción (Fase C dormida, intencional)",
+            "evidence": "tests/test_model_router.py (19 tests) — pasan"
+          },
+          {
+            "name": "model_dispatcher (dispatch_local/w2/grok/mlx + health_check)",
+            "what_for": "Es el 'mensajero' de bajo nivel: sabe hablar el idioma exacto de cada destino — el Ollama de esta Mac, el de la máquina remota W2 (por SSH), el servidor del modelo grande de 27B (MLX), y la API de pago de Grok. Manda el texto siempre por una vía que no deja rastro del prompt en la lista de procesos del sistema (privacidad). dispatch_mlx es nuevo: habla con el cuerpo local 27B y, si ese servidor no está arrancado, simplemente devuelve vacío para que el recepcionista pase al siguiente.",
+            "tech_detail": "4 transportes + health_check. dispatch_local/dispatch_mlx vía curl a Ollama/MLX (-d @- por stdin, no argv → no en ps). dispatch_w2 vía ssh+curl con 1 reintento. dispatch_mlx (NUEVO) habla OpenAI-compatible /v1/chat/completions, lazy (None si server caído → fail-open). dispatch_grok usa urllib (key en memoria, _xai_key lee .env), SOLO invocable desde route(). Surfacea data['thinking'] como fallback. Callers: vía model_router._dispatch/_dispatch_online; health_check desde mcp_server.py:226 (aris_health).",
+            "status": "Vivo · Test parcial · verde: ruff 0. dispatch_grok sin caller de producción (route() dormida). Sin test unitario propio de los transportes (se mockean en el router)",
+            "evidence": "ninguno directo (cubierto indirectamente vía test_model_router con mocks de _dispatch)"
+          },
+          {
+            "name": "f5_validacion (ValidacionEngine, 3-tier)",
+            "what_for": "Es un revisor de calidad automático de lo que se va a escribir en disco: comprueba estructura (¿es JSON válido?, ¿tiene los campos?, ¿la longitud correcta?) y un segundo nivel que huele incertidumbre (muchos TODO/FIXME, contradicciones, salida sospechosamente corta). Hoy corre en 'modo sombra': avisa pero no bloquea nada, y si el motor se rompe se calla en vez de estorbar.",
+            "tech_detail": "Cascada 3-tier: Tier1 contract gates (formato/campos/tipos/longitud), Tier2 entropía semántica heurística (markers+contradicciones+longitud → entropy_score), Tier3 LLM-judge diferido. ValidationResult con verdict PASS/FAIL/UNCERTAIN. compute_semantic_entropy + _hash_embedding son stubs Fase 1. Caller live: hooks/dispatch/handlers/f5_prevalidation.py (PreToolUse Write|Edit, advisory/shadow, fail-open V.ok()).",
+            "status": "Vivo · Con test · ruff limpio. radon: _tier1_contract refactorizado E34→A6 (\"Todo Verde II\"). Tier2/Tier3 = stubs/heurísticas. Funcional en shadow",
+            "evidence": "tests/test_f5_validacion.py + tests/test_v16_6_f5_contracts.py — pasan"
+          },
+          {
+            "name": "f6_comunicacion (TokenCounter/ComunicacionEngine)",
+            "what_for": "Es la pieza que cuenta tokens (cuánto 'ocupa' un texto) usando la API gratuita de Anthropic con respaldos locales, y que en teoría adaptaría el formato/compresión de las respuestas. En la práctica casi todo está apagado: el pipeline dice 'esto se hará en otro momento' y no lo llama. Lo único que se usa de verdad es la función simple de contar tokens, y solo dentro de la prueba de humo del auto-actualizador.",
+            "tech_detail": "TokenCounter (API count_tokens + fallback tiktoken/chars), FormatApplier, CognitiveLoadEnforcer, ComunicacionEngine. En v16_orchestrator.process_query el bloque F6 hace logger.debug('deferred to PostToolUse') = NO ejecuta nada. Único caller live real: count_tokens_simple desde tools/adapt/smoke_test.py:67. ComunicacionEngine instanciable vía _create_f6_comunicacion pero sin invocación de runtime efectiva.",
+            "status": "Parcial · Con test · issues: ruff limpio (0). C(13)/C(11) en _apply_cognitive_load_constraints/enforce. El grueso del módulo (33KB) es código inerte en el flujo — la cognición de formato la hace Claude nativo",
+            "evidence": "tests/test_f6_comunicacion.py — pasan"
+          },
+          {
+            "name": "f7_aprendizaje (AprendizajeEngine, 5 fases)",
+            "what_for": "Es el 'aprendizaje de fin de sesión': intenta seleccionar ejemplos difíciles, recalibrar la confianza del clasificador y afinar un controlador de presupuesto. Hoy corre de verdad al cerrar cada sesión, pero como en el uso real no hay 'respuestas correctas' etiquetadas, casi siempre se queda en cero (0 ejemplos, sin recalibrar) — lo importante es que ya NO se rompe (el arreglo de hoy). El aprendizaje que sí tiene efecto viene de otra vía: las señales de éxito/fallo de las verificaciones.",
+            "tech_detail": "5 fases: SELECT_EXEMPLARS (uncertainty+hard-negatives+regret), IMPROVE_EMBEDDINGS (stub), CALIBRATE (temperature scaling L-BFGS-B sobre ECE), TUNE_PID (Ziegler-Nichols), EVALUATE (McNemar chi2). Caller live: v16_orchestrator.end_session() → session_end.py:297. Fix de hoy (V2.0 3c): try/except por fase + guards → degrada a 0 exemplars / T=1.0 sin crashear. apply_reward_signals() puentea a soft_reward_loop.compute_adaptation. Depende de numpy/scipy.",
+            "status": "Vivo · Con test · issues: ruff E712 x8 + F401. C(17) en select_exemplars. En producción es en gran parte teatro (sin labels → no-op por diseño); valor real delegado al reward loop. scipy import top-level",
+            "evidence": "tests/test_f7_aprendizaje.py + tests/test_f7_confidence.py — pasan"
+          },
+          {
+            "name": "soft_reward (EMA verify_score)",
+            "what_for": "Lleva una 'nota de confianza' por cada recuerdo/observación de la memoria: si una verificación sale bien la nota sube suavemente, si sale mal se reduce a la mitad, y con el tiempo se va desvaneciendo (decay). Sirve para que la memoria priorice lo que históricamente ha funcionado. Hoy la pieza existe y está testeada, pero la vía que actualiza notas por observación concreta aún no está conectada.",
+            "tech_detail": "EMA sobre observations.verify_score en claude-mem.db (success: 0.9*old+0.1; failure: 0.5*old), apply_decay (0.95^semanas), domain_weights, backfill_domain_baseline. Importado en tools/agent_output_verifier.py (update_verify_score) PERO _update_soft_reward_for_observations solo llama record_reward (loop), no update_verify_score → el path per-observación es no-op declarado.",
+            "status": "Parcial · Con test · verde: ruff 0, código limpio y documentado. Estado partial NO por calidad sino por wiring: API lista pero su caller per-obs sigue desconectado",
+            "evidence": "tests/engine/test_soft_reward.py — pasan"
+          },
+          {
+            "name": "soft_reward_loop (Q-loop reward_signals)",
+            "what_for": "Es el lazo de retroalimentación que SÍ tiene efecto: cuando una verificación de código compila/pasa tests, registra una recompensa (1.0 éxito / 0.0 fallo) por sesión; luego promedia las últimas recompensas y de ahí saca 'perillas' (más o menos profundidad, confianza en la estrategia) que se aplican en la siguiente sesión. Es el verdadero canal de aprendizaje barato del sistema (cero llamadas a IA).",
+            "tech_detail": "Tabla reward_signals en claude-mem.db (UNIQUE decision_id,caller). record_reward (auto-crea schema), compute_adaptation (EMA alpha=0.3 sobre últimos 20 → depth_multiplier[0.5,2.0]/strategy_confidence/exemplar_budget_scale/pid_adaptive_tau), get_history, mark_applied. Caller live: tools/agent_output_verifier.py:729 (Stop hook, decision_type=agent_verify) → consumido por f7.apply_reward_signals. Cableado HOY a verify outcomes.",
+            "status": "Vivo · Con test · verde: ruff 0. Loop cerrado y honesto (señal real compile/test, no labels inventados). Pieza más limpia del sub-sistema de aprendizaje",
+            "evidence": "tests/test_soft_reward_loop.py — pasan"
+          },
+          {
+            "name": "f8_assessment (AssessmentWorkflow pentest)",
+            "what_for": "Es el orquestador completo de un pentest de salud (reconocimiento → escaneo → explotación con aprobación humana obligatoria → reporte), diseñado para que ningún dato de paciente salga a internet (todo por modelos locales). Es el vertical OFENSIVO. Importante: NO está enchufado a nada en el funcionamiento normal — está construido y listo pero apagado, esperando una decisión de producto (Tramo 4).",
+            "tech_detail": "1434 LOC. AssessmentWorkflow (4 fases recon/scan/exploit/report), HITLGate (bloqueo hasta aprobación humana), LLMRouter local-only, AssessmentSession, validación de scope IP, export a PDF vía pandoc. PHI-safe (OLLAMA_MAC_URL, nunca Claude API). SIN callers de runtime (verificado): solo lo importa engine/v16/__init__.py y sus tests. El docstring lo declara: 'NO CABLEADO EN RUNTIME'.",
+            "status": "Inerte · Con test · issues menores: ruff F541. C(16/15/11) en run_recon/generate_report/run_exploitation. Funcional-listo y bien testeado, pero diferido a Tramo 4. Decisión ofensivo/defensivo ABIERTA",
+            "evidence": "tests/test_f8_assessment.py — pasan (252 total incl. 1 RuntimeWarning de AsyncMock benigno)"
+          },
+          {
+            "name": "f8_vuln_kb (HealthcareVulnKB)",
+            "what_for": "Es una pequeña base de conocimiento de vulnerabilidades típicas de entornos de salud (EHR como Epic/Cerner, equipos DICOM/PACS de imágenes, mensajería HL7, dispositivos médicos con contraseñas por defecto, VPNs). Permite, dado un puerto/servicio descubierto, decir 'ojo, aquí suele haber este CVE'. Solo sirve al orquestador de pentest, que está apagado, así que hoy no se ejecuta en el flujo normal.",
+            "tech_detail": "HEALTHCARE_VULN_KB = lista estática de 11 KBEntry (CVE, CVSS, puertos, MITRE TTP, healthcare_impact). HealthcareVulnKB con lookup_by_port/service/cve, enrich_finding (match puerto+servicio, max CVSS), get_critical_entries, stats. Único consumidor: f8_assessment.run_scan (inerte). Data-only, sin dependencias externas.",
+            "status": "Inerte · Con test · verde: ruff 0, código limpio. Inert solo por dependencia de f8_assessment. KB pequeña (11 entries), ampliable si el vertical se activa",
+            "evidence": "tests/test_f8_vuln_kb.py — pasan"
+          }
+        ]
+      },
+      {
+        "group_name": "MCP Server (integrations/) — los 7 brazos opt-in de ARIS4U que Claude invoca como herramientas · 9 componentes",
+        "where_it_works": "integrations/mcp_server.py (409 LOC) es el servidor FastMCP 'aris4u-v16' con EXACTAMENTE 7 tools (F1 2026-06-19 añadió aris_structure + aris_critique, el amplificador local de I/O opt-in), todas -> str, sin inferencia a la API de Claude (aris_dialectic/aris_structure/aris_critique tocan modelos LOCALES vía model_router; el resto, no). Cableado por mcp_wrapper.sh desde dos .mcp.json (repo + plugin con ${CLAUDE_PLUGIN_ROOT}). VIVO y muy usado: telemetría real = 896 eventos mcp_tool (2026-06-12→2026-06-19) — ingest 373, search 213, dialectic 162, health 123, recall_client 25. Fix de hoy (commit e6c9d5d) cambió session_manager._hydrate de SELECT text (None en 6191/8849 obs → aris_search/aris_recall_client devolvían [] en silencio) a COALESCE → semantic_recall ahora devuelve 3 hits hidratados (~0.57). Tests: 27 passed en la suite MCP.",
+        "components": [
+          {
+            "name": "mcp_server.py (servidor FastMCP, contenedor de las 7 tools)",
+            "what_for": "Es la 'centralita' que conecta a Claude con la memoria y los chequeos de ARIS4U. Expone 7 botones (herramientas) que Claude puede pulsar a voluntad: guardar algo, buscar algo, recordar lo de un cliente, pedir una revisión de código, estructurar una idea cruda, criticar una respuesta, y ver si el sistema está sano. Cada vez que se pulsa un botón, anota en una bitácora quién, cuándo y cuánto tardó.",
+            "tech_detail": "Servidor FastMCP (FastMCP(\"aris4u-v16\")), stdio. 409 LOC. Llama session_manager.init_db() al cargar. 7 @mcp.tool(), todas -> str (contrato MCP). _telemetry() escribe un JSONL por llamada a logs/v16.1-events.jsonl (fail-silent). Cognición 0: aris_dialectic/aris_structure/aris_critique invocan modelos LOCALES (Ollama/MLX vía model_router), nunca la API de Claude. Arranca por mcp_run() en __main__.",
+            "status": "Vivo · Con test · Verde en ruff. Radon media B (8.14). Telemetría VIVA: 896 eventos mcp_tool (06-12 a 06-19). Sin issues de import/typing",
+            "evidence": "tests/test_v16_7_mcp_public_api.py::test_four_tools_exactly + test_tool_returns_str (27 passed)"
+          },
+          {
+            "name": "aris_ingest",
+            "what_for": "Guarda en la memoria una decisión importante o una 'regla' (guard) para que se recuerde en sesiones futuras. Puede etiquetarla a un cliente concreto (Client-B, Client-C, Client-D). Por defecto la 'cierra con llave' para que sí se pueda recuperar después.",
+            "tech_detail": "Firma (content, content_type='decision', domain='', rationale='', client='', locked=True). Normaliza client a lower-case canónico. content_type='guard' → save_guard(severity='high'); resto → save_decision(locked=...). locked=True por defecto = fix V2.0 del roundtrip roto (histórico guardaba locked=0 → irrecuperable). Trunca el eco a 100 chars.",
+            "status": "Vivo · Con test · Verde. Radon B (8). La tool más usada: 373 invocaciones. Defaults pineados por test para evitar drift de contrato",
+            "evidence": "tests/test_v1610_mcp_and_cli_tools.py::TestArisIngest (5 casos) + test_v16_7::test_aris_ingest_optional_metadata"
+          },
+          {
+            "name": "aris_search",
+            "what_for": "Busca en toda la memoria (resúmenes de sesión, decisiones, reglas y observaciones) tanto por palabras exactas como por significado. Se le puede acotar a un cliente. Devuelve una lista en texto plano.",
+            "tech_detail": "Firma (query, client=''). Delega en session_manager.search(limit=10, client_id=...) que combina FTS5 + brazo semántico (sqlite-vec sidecar). Formatea digests/decisions/guards/semantic en líneas. El brazo semantic depende de _hydrate — ARREGLADO HOY (commit e6c9d5d): antes SELECT text devolvía None en 6191/8849 obs y la búsqueda semántica retornaba [] en silencio; ahora COALESCE. Verificado en vivo: semantic_recall devuelve 3 hits hidratados (~0.57).",
+            "status": "Vivo · Test parcial · Verde ruff, radon B (10, borderline). GAP: el fix de _hydrate de hoy NO tiene test de regresión dedicado. 213 invocaciones",
+            "evidence": "tests/test_v1610_mcp_and_cli_tools.py::TestArisSearch (4 casos no-crash) + test_v16_7 firma; ejercitan FTS no el brazo semántico hidratado"
+          },
+          {
+            "name": "aris_recall_client",
+            "what_for": "Trae lo que ARIS4U recuerda de UN cliente concreto: sus decisiones cerradas, sus reglas y un recall semántico, todo aislado de los demás clientes (privacidad por-cliente). Es lo que conviene pulsar antes de empezar a trabajar in Client-B/Client-C/Client-D.",
+            "tech_detail": "Firma (client_name, query='', limit=5). Canoniza a lower-case. SQL directo sobre decisions (ORDER BY locked DESC, created_at DESC — fix V2.0: NO filtra locked=1) y guards, con manejo de errores por sección y db.close() en finally. Luego semantic_recall(query or canonical, client_id=canonical) — fix V2.0 de casing (antes pasaba 'Client-B' crudo vs client_id lower → 0 resultados). Comparte el _hydrate arreglado hoy.",
+            "status": "Vivo · Test parcial · Radon C (14) — la 2ª más compleja. Ruff verde. GAP: peor cobertura — solo existencia/firma, no el recall scoped ni el casing fix. Solo 25 invocaciones (la menos usada)",
+            "evidence": "tests/test_v16_7::test_four_tools_exactly (presencia); SIN test funcional de DB/recall por-cliente en la suite"
+          },
+          {
+            "name": "aris_dialectic",
+            "what_for": "Pide una revisión de código a tres 'expertos' en paralelo (Constructor, Revisor, Auditor de Seguridad) que corren en modelos locales (privado, sin salir a la nube). Si los modelos locales no están encendidos, avisa con claridad en vez de fingir una revisión.",
+            "tech_detail": "Firma (task, file_path=''). ThreadPoolExecutor(max_workers=3), as_completed(timeout=100), 90s/rol. Cada rol → _call_ollama_role → model_router.route_local('dialectic',...) (health-aware, fallback Mac→W2). Degradación elegante: sentinela _OLLAMA_UNAVAILABLE; si todos caen, mensaje accionable (no '0 findings' engañoso) — fix commit 1e46bd3. Cuenta findings por keywords. SIEMPRE local = PHI-safe por construcción.",
+            "status": "Vivo · Con test · Radon C (15) — la función más compleja. Ruff verde. 162 invocaciones. Los tests dependen de Ollama vivo (skipif); cubren estructura y no-timeout, no contenido del review",
+            "evidence": "tests/test_v1610_mcp_and_cli_tools.py::TestArisDialectic (SQLi/JWT/empty/file_path, verifica fix H44 no-timeout)"
+          },
+          {
+            "name": "aris_structure (F1 PRE · NUEVA)",
+            "what_for": "Toma una idea cruda y la organiza en una especificación (objetivo, requisitos, riesgos, criterios, ángulos) ANTES de que Claude trabaje, para darle una entrada más rica. No la resuelve ni la juzga. Si la idea ya está estructurada, la deja igual.",
+            "tech_detail": "Firma (idea). _looks_structured() corta el paso si ya hay secciones/bullets (anti query-drift §2). Si no, route_local('structure_prompt', system=_STRUCTURE_SYSTEM) → único candidato mlx (27B, thinking OFF vía chat_template_kwargs). ok=False → _AMPLIFY_UNAVAILABLE (omite). Salida etiquetada como sugerencia a filtrar.",
+            "status": "Vivo · opt-in · Con test · NUEVA 2026-06-19. SOLO MLX (27B): si el server está frío, OMITE (no degrada al 8B, no bloquea). Guard anti query-drift. ruff limpio. 0 invocaciones aún",
+            "evidence": "tests/test_amplify_tools.py::TestArisStructure (3 casos) + test_v16_7 firma"
+          },
+          {
+            "name": "aris_critique (F1 POST · NUEVA)",
+            "what_for": "Revisa una respuesta o código DESPUÉS, desde varios ángulos (correctitud, seguridad, lógica, omisiones, mantenibilidad), y devuelve banderas a revisar — no un veredicto de si está bien (eso lo decide Claude/el usuario). Si el motor local está apagado, lo omite.",
+            "tech_detail": "Firma (response, angles='correctitud,seguridad,lógica,omisiones,mantenibilidad'). Una llamada route_local('critique', system=_CRITIQUE_SYSTEM) con los ángulos en el prompt (solo mlx, thinking OFF). ok=False → omite. Salida etiquetada como sugerencia a filtrar, NO veredicto.",
+            "status": "Vivo · opt-in · Con test · NUEVA 2026-06-19. SOLO MLX (27B). Devuelve BANDERAS, no veredicto. Una pasada multi-ángulo. ruff limpio. 0 invocaciones aún",
+            "evidence": "tests/test_amplify_tools.py::TestArisCritique (3 casos) + test_v16_7 firma"
+          },
+          {
+            "name": "aris_health",
+            "what_for": "Chequeo de salud: dice si Ollama está vivo en el Mac y en W2, qué modelos hay cargados, y cuántas decisiones/guards/digests tiene la memoria. Es el botón de 'status' sin argumentos.",
+            "tech_detail": "Sin args. model_dispatcher.health_check() (Mac+W2) + session_manager.get_stats(). Formatea líneas UP/DOWN + modelos + conteos. Verificado en vivo get_stats: 84 digests / 351 decisions / 16 guards.",
+            "status": "Vivo · Con test · Verde, radon A (5) — la más simple. 123 invocaciones. El título dice 'V16.9 Health' (cosmético, motor real ya post-V16.9)",
+            "evidence": "tests/test_v1610_mcp_and_cli_tools.py::TestArisHealth (4 casos) + test_v16_7::test_aris_health_no_required_args"
+          },
+          {
+            "name": "mcp_wrapper.sh + .mcp.json (cableado)",
+            "what_for": "El 'enchufe' que arranca el servidor: detecta solo el entorno Python correcto y lo lanza para que Claude Code lo vea como el servidor MCP 'aris4u'. Hay dos cableados: uno para el repo y otro para cuando ARIS4U se instala como plugin.",
+            "tech_detail": "Bash con set -e. Resuelve ROOT desde ARIS4U_ROOT/CLAUDE_PLUGIN_ROOT, autodetecta venv (.venv→.venv312→.venv313→.venv314), exec python3 -u mcp_server.py 2>/dev/null. Dos cableados: .mcp.json (repo, ruta relativa) y .claude-plugin/.mcp.json (plugin, ${CLAUDE_PLUGIN_ROOT}). Server name = 'aris4u'.",
+            "status": "Vivo · Sin test · Verde funcionalmente (telemetría viva de 896 eventos prueba que el cableado arranca). Silencia stderr con 2>/dev/null — oculta errores de arranque del SDK (trade-off documentado)",
+            "evidence": "ninguno (script bash, sin test automatizado)"
+          }
+        ]
+      },
+      {
+        "group_name": "ARIS4U tools/ — CLI scripts, guard backends, auto-adaptación, cuerpo local MLX y registro de stacks · 20 componentes (rama feat/session-briefing)",
+        "where_it_works": "36 archivos .py/.sh (18 .py top-level + adapt/ + stack_registry/). Callers verificados por grep + suites ejecutadas: tests/tools/ + 6 test files = 142 passed, 2 skipped, 0 fail. La cognición se renta de Claude; estos tools son utilidades determinísticas (linters, verificadores, backups, telemetría) que NO llaman a la API. CLUSTERS: GUARDS con caller vivo (migration_linter ÚNICO bloqueante exit 2, agent_output_verifier por Stop hook, schema_compat_check, detect_stack_cli, stack_registry, cosmetic_classifier); MANTENIMIENTO de memoria (vacuum_sessions, ws3_backfill_vectors, log_rotator); TELEMETRÍA/lab (analyze_validation_log, smoke_roundtrip); AUTO-ADAPTACIÓN adapt/ VIVA en launchd en modo shadow; CUERPO LOCAL mlx_serve.sh (NUEVO); HARNESS F2 (f1_roi+f1_feedback, NUEVO 2026-06-19); INVOCACIÓN MANUAL (freeze_report, measure_recall, prune_orphan_vectors, sync_version). CORRECCIONES: NO existe tools/redact.py (vive en hooks/), status-gen es global (~/.claude/bin/), los gates de calidad están en hooks/ no tools/.",
+        "components": [
+          {
+            "name": "f1_roi.py (F2 · NUEVA)",
+            "what_for": "El reporte que dice si el amplificador local F1 de verdad ayuda: cuántas veces se usó, si el 27B estaba disponible, cuánto tardó, y — cuando hay feedback — qué porcentaje de las salidas fueron útiles. Es el \"¿vale la pena?\" del cuerpo local, con datos en vez de opinión (blueprint F2).",
+            "tech_detail": "Lee logs/v16.1-events.jsonl: une eventos mcp_tool (aris_structure/aris_critique, con call_id) + f1_feedback. Reporta total/disponibilidad/latencia p50-p90/% utilidad y un flag ready_for_calibration (≥30 etiquetas). compute_roi/read_events/format_report = funciones puras testables. Sin caller automático (CLI manual).",
+            "status": "Vivo · Con test · NUEVA 2026-06-19 (commit 133abf1). Funciones puras, CC bajo; ruff limpio. 12 tests con f1_feedback",
+            "evidence": "tests/test_f1_roi.py (12 tests: compute_roi, percentiles, read_events, feedback)"
+          },
+          {
+            "name": "f1_feedback.py (F2 · NUEVA)",
+            "what_for": "El comando para marcar si una salida de F1 ayudó o no: python tools/f1_feedback.py <call_id> ok|no [nota]. El call_id sale en el footer de cada respuesta F1. Honesto por diseño: el etiquetado lo haces tú o Claude, el sistema NO se auto-califica.",
+            "tech_detail": "record_feedback() anexa un evento f1_feedback {call_id, useful, note} a logs/v16.1-events.jsonl; parse_useful() acepta ok/si/sí/no/etc. Sin caller automático (CLI opt-in). Es la fuente de las etiquetas que consume f1_roi.py → calibration.py.",
+            "status": "Vivo · Con test · NUEVA 2026-06-19. Pequeño y enfocado; ruff limpio. Cubierto por test_f1_roi.py",
+            "evidence": "tests/test_f1_roi.py::TestFeedback"
+          },
+          {
+            "name": "migration_linter.py",
+            "what_for": "El portero de las migraciones de base de datos. Antes de que se ejecute un comando que cambia el esquema (crear tablas, alterarlas), revisa el SQL en busca de errores peligrosos (p.ej. referenciar una tabla que aún no existe). Si encuentra un error grave, BLOQUEA la operación por completo: es uno de los dos únicos guards que pueden detener tu trabajo. Evita romper la base de datos del cliente.",
+            "tech_detail": "Clase MigrationLinter (lint_path, _parse_creates, _check_forward_table_references). Caller real BLOQUEANTE: hooks/dispatch/handlers/migration_linter.py importa from tools.migration_linter import MigrationLinter y, vía pre_tool_use.py línea 79, retorna V.block(msg) (exit 2) si hay errores. Ya trae fix de falsos positivos en cuerpos $$...$$ plpgsql. Soporta multi-stack (Flyway/Supabase/Prisma).",
+            "status": "Vivo · Con test · 3 funciones grado C en radon (complejidad 11-20); ruff limpio (0). Deuda controlada: es el guard más crítico y el mejor testeado",
+            "evidence": "tests/test_migration_linter.py + tests/test_h47_migration_fk_validator.py + tests/dispatch/test_pre_tool_use.py"
+          },
+          {
+            "name": "agent_output_verifier.py",
+            "what_for": "El verificador de la verdad de los sub-agentes. Cuando un agente dice 'compila, los tests pasan, todo OK', este tool lo comprueba de verdad ejecutando el compilador y los tests sobre los archivos que tocó. Atrapa la mentira clásica del agente que reporta éxito mientras la realidad es otra. Funciona para Flutter, Java/Maven, Node/TS, Python, etc.",
+            "tech_detail": "Caller real: hooks/dispatch/events/stop.py (Stop hook, ex post_agent_verify.sh) — línea 284 arma verifier = tools/agent_output_verifier.py y lo corre tras detectar agent_dispatched sin agent_verify_completed (ledger /tmp). Detecta stack vía stack_registry.detect_stack. Integra soft_reward_loop (Q-loop) si está disponible. OJO histórico: en macOS con ulimit -v no corría; el fix de VERIFY ya está aplicado.",
+            "status": "Vivo · Con test · radon: compile_file F41→A5 y main D27→A6 (\"Todo Verde II\"); 3 funciones grado C restantes. ruff limpio (0). Funciona y bien testeado",
+            "evidence": "tests/test_agent_output_verifier.py + tests/tools/test_h32_verifier_safety.py + tests/test_soft_reward_loop.py"
+          },
+          {
+            "name": "schema_compat_check.py",
+            "what_for": "Detecta cuando el esquema de la base de datos y el código de la aplicación dejan de coincidir (drift). Por ejemplo, si renombras una columna en la DB pero el modelo del código sigue usando el nombre viejo. Avisa (no bloquea) para que no descubras el desajuste en producción.",
+            "tech_detail": "Caller real: hooks/dispatch/handlers/schema_drift.py línea 103-109 lo invoca por subprocess.run sobre tools/schema_compat_check.py, enriquece con detect_stack_cli.py, y emite evento (advisory, no bloqueante). Clase DriftDetector + StaticSchemaIntrospector + FlutterCodeParser.",
+            "status": "Vivo · Con test · main + DriftDetector.detect + 2 parsers grado C en radon; ruff limpio (0). Aceptable",
+            "evidence": "tests/test_schema_compat_check.py + tests/test_v16_e2e_multi_stack.py"
+          },
+          {
+            "name": "detect_stack_cli.py + stack_registry/",
+            "what_for": "Identifica de qué tecnología es un proyecto (Flutter, Java/Spring, Node, Python o genérico) mirando sus archivos marcadores (pubspec.yaml, pom.xml, package.json, etc.). Es la base que permite que el verificador y el detector de drift sepan qué herramientas usar para cada proyecto, en vez de asumir que todo es Flutter.",
+            "tech_detail": "stack_registry/ = paquete con detect.py + stacks/{flutter,java_spring,node_ts,python,generic}.py. detect_stack importado por agent_output_verifier.py y schema_compat_check.py; detect_stack_cli.py (wrapper CLI) invocado por hooks/dispatch/handlers/schema_drift.py línea 141. Backend transversal de los guards de stack.",
+            "status": "Vivo · Con test · Limpio (ruff 0). Diseño modular por stack = bien estructurado, baja complejidad",
+            "evidence": "tests/test_stack_registry.py + tests/test_v16_e2e_multi_stack.py"
+          },
+          {
+            "name": "cosmetic_classifier.py",
+            "what_for": "Distingue los cambios 'de fondo' (lógica, datos) de los 'cosméticos' (estilos, espaciado, renombrados visuales). Sirve para no gastar el esfuerzo caro de verificación en cambios triviales, alineado con la disciplina anti-deriva de no quemar tiempo en rediseños bonitos en proyectos laboratorio.",
+            "tech_detail": "Importado por tools/stack_registry/__init__.py y tools/stack_registry/stacks/flutter.py (se usa dentro de la lógica de clasificación del stack que alimenta al verifier). Caller real intra-paquete, no un hook directo.",
+            "status": "Vivo · Con test · Verde — sin issues ruff ni hotspots radon. Pequeño y enfocado",
+            "evidence": "tests/test_cosmetic_classifier.py + tests/test_stack_registry.py"
+          },
+          {
+            "name": "redact (handler) — tools no posee script; redacción vive en hooks",
+            "what_for": "Censura secretos (API keys, tokens, contraseñas) que aparezcan en la salida de comandos antes de que queden registrados o se muestren. Protección automática contra filtrar credenciales. NOTA: NO vive en tools/ sino en hooks/ — en tools/ no existe un 'redact.py'.",
+            "tech_detail": "Aclaración de inventario: NO hay tool en tools/ llamado redact. La capacidad es hooks/dispatch/handlers/redact.py, cableada en post_tool_use.py línea 39 (muta updatedToolOutput sobre Bash). El antiguo hooks/redact_secrets.sh está portado/muerto. Pendiente conocido: redact_secrets sobre el JSONL del event log.",
+            "status": "Vivo · Con test · Verde en su ubicación real (hooks/). Mencionado en el encargo bajo tools/ pero ahí no existe — corregido",
+            "evidence": "tests/dispatch/test_post_tool_use.py + tests/hooks/test_redact_secrets.py"
+          },
+          {
+            "name": "log_rotator.py",
+            "what_for": "Mantiene los archivos de registro (logs) bajo control rotándolos cuando crecen demasiado, para que el event log no se infle a cientos de MB y llene el disco.",
+            "tech_detail": "Invocado por hooks/nightly_vacuum.sh (job nocturno). Tiene cobertura en test_h32_verifier_safety.py (TestH32LogRotation). DEUDA conocida (MEMORY/audits): el event log ha llegado a ~87MB → log_rotator necesita re-cableado/verificación de que efectivamente corre en el flujo nocturno.",
+            "status": "Parcial · Test parcial · 1 issue ruff menor. El riesgo no es el código sino que su trigger nocturno no esté rotando de hecho (event log creció a 87MB según AUDIT_V2)",
+            "evidence": "tests/tools/test_h32_verifier_safety.py::TestH32LogRotation"
+          },
+          {
+            "name": "vacuum_sessions.py",
+            "what_for": "Limpia y compacta la base de datos de memoria (sessions.db): borra digests viejos y recupera espacio (VACUUM de SQLite) para que la memoria no se degrade con el tiempo.",
+            "tech_detail": "Caller real: hooks/async_vacuum.sh y hooks/nightly_vacuum.sh (ambos VIVOS según CLAUDE.md). Modos delete/vacuum. Bien testeado.",
+            "status": "Vivo · Con test · Grado C en radon esperable para mantenimiento de DB; sin issues ruff bloqueantes. Test usa adaptador datetime deprecado py3.12 (warning, no error). Sólido",
+            "evidence": "tests/tools/test_vacuum_sessions.py"
+          },
+          {
+            "name": "ws3_backfill_vectors.py",
+            "what_for": "Rellena el índice de búsqueda semántica (los 'vectores' bge-m3 en aris_vectors.db) para las decisiones que aún no lo tienen, de modo que la memoria pueda recuperarse por significado y no solo por palabra exacta. Se dispara solo al cerrar la sesión.",
+            "tech_detail": "Caller real: hooks/dispatch/events/session_end.py línea 430-433 lo lanza con subprocess.Popen (background, stdout/stderr a DEVNULL) al terminar la sesión. Backfill incremental sobre data/aris_vectors.db.",
+            "status": "Vivo · Sin test · Sin tests dedicados — gap de cobertura para un componente del write-path de memoria (que ya se rompió 2× históricamente). Código funcional; conviene un smoke test",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "analyze_validation_log.py",
+            "what_for": "Resume el diario de validación de los proyectos-laboratorio (qué bugs/fixes se encontraron) cuando cierras la sesión, para capturar aprendizajes en vez de perderlos. Es el cierre del ciclo 'fix-as-we-go' en los labs (Lab-Project-1/Lab-Project-2).",
+            "tech_detail": "Caller real: hooks/dispatch/events/session_end.py línea 373-383 (subprocess sobre tools/analyze_validation_log.py); también start_validation_session.sh y lab_session_init.sh. Lee ARIS4U_VALIDATION_LOG.",
+            "status": "Vivo · Sin test · Sin tests. Script de resumen relativamente simple; bajo riesgo pero sin red de seguridad",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "smoke_roundtrip.py",
+            "what_for": "Prueba de humo que escribe una decisión y la vuelve a leer (ingest→recall) para confirmar que la memoria de ARIS4U funciona de extremo a extremo. Es la defensa contra el modo-de-fallo que ya ocurrió 2 veces: la memoria 'rota en silencio'. Métrica clave del plan de freeze.",
+            "tech_detail": "Caller real: tools/adapt/run_daily.sh línea 36 lo corre SIEMPRE (antes del early-exit) y registra el veredicto en logs/smoke_roundtrip.jsonl. session_start.py NO lo auto-ejecuta — solo sugiere correrlo si detecta write-path stale (>48h). Job adapt-daily está cargado en launchd (com.aris4u.adapt-daily).",
+            "status": "Vivo · Sin test · Sin test que lo verifique a él. Es justamente el canario del write-path; su propia regresión no está cubierta",
+            "evidence": "ninguno (es él mismo un smoke test, pero no tiene test que lo cubra)"
+          },
+          {
+            "name": "freeze_report.py",
+            "what_for": "Genera el 'reporte de los viernes' del plan de congelación (freeze): cuenta cuántos recalls de memoria fueron realmente útiles esta semana (la métrica de éxito del plan). Permite marcar cada recall como útil/no-útil y revisar los no marcados.",
+            "tech_detail": "CLI con argparse (cmd_report/cmd_review/cmd_mark) sobre la tabla recall_feedback de sessions.db. Comparte esa tabla con hooks/dispatch/events/user_prompt_submit.py (que escribe recall_id por cada recall). OJO: el handler solo COMENTA freeze_report.recall_feedback — NO lo invoca; freeze_report es de invocación MANUAL.",
+            "status": "Parcial · Test parcial · cmd_report grado E en radon (complejidad 31-40) — deuda de complejidad restante tras \"Todo Verde II\". Sin issues ruff. 'partial' porque su disparo es 100% manual",
+            "evidence": "tests/conftest.py (aislamiento de recall_feedback; no test funcional directo)"
+          },
+          {
+            "name": "measure_recall.py",
+            "what_for": "Mide la calidad de la búsqueda en memoria: dada una consulta, comprueba si los recuerdos esperados aparecen en los resultados (recall@k). Herramienta de diagnóstico para saber si la memoria semántica recupera lo correcto, p.ej. al cambiar el modelo de embeddings.",
+            "tech_detail": "Solo aparece en su propio archivo + docs (architecture/audits/KNOWLEDGE_CLOSURE_20260616.md). Sin caller en hooks/, tests/, ni install.sh. Función main grado D. Es una utilidad de diagnóstico de invocación 100% manual.",
+            "status": "Parcial · Sin test · main grado D en radon. Sin tests, sin caller automático. Útil pero olvidable (opt-in puro)",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "prune_orphan_vectors.py",
+            "what_for": "Borra del índice semántico los 'vectores huérfanos' — entradas de búsqueda que ya no tienen una decisión real detrás (basura acumulada). Mantiene limpio el índice aris_vectors.db. Ya se usó para podar 1370 vectores huérfanos.",
+            "tech_detail": "NO tiene ningún caller fuera de su propio archivo (grep limpio en hooks/tests/install.sh). Utilidad de mantenimiento de invocación 100% manual. Histórico: se corrió a mano (1370 podados, KNOWLEDGE_CLOSURE).",
+            "status": "Parcial · Sin test · Verde en ruff/radon (limpio y simple). 'partial' por ser one-shot manual sin automatización ni test",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "sync_version.py",
+            "what_for": "Mantiene sincronizado el número de versión entre el manifiesto del plugin (plugin.json) y pyproject.toml, para que no se desincronicen (un problema real que ya pasó: 16.3 vs 16.9). Se ejecuta automáticamente antes de cada commit.",
+            "tech_detail": "Caller real: tools/git-hooks/pre-commit línea 6 corre sync_version.py --check y aborta el commit si difieren. Guard de integridad de versión en el pre-commit local.",
+            "status": "Vivo · Sin test · Verde en ruff/radon. Sin test dedicado pero el caller (pre-commit --check) es en sí su verificación. Bajo riesgo",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "mlx_serve.sh",
+            "what_for": "Enciende y apaga el 'cuerpo local' de ARIS4U: un modelo de lenguaje (Qwen3.6-27B) que corre en la propia MacBook. Es perezoso y cuida la RAM: solo arranca si hay 18GB+ libres (para no competir con Claude) y se apaga para devolver memoria. Si no está encendido, el sistema usa otros caminos sin fallar.",
+            "tech_detail": "NUEVO (commit 3d735f9). Lanzador start/stop/status de mlx_lm.server en :8765, RAM-gated (vm_stat, MIN_FREE_GB=18) con PID en data/mlx_server.pid. Su consumidor es engine/v16/model_dispatcher.dispatch_mlx, alcanzable vía model_router.route_local — que SÍ tiene callers vivos (mcp_server.py:149 aris_dialectic, session_end.py:72 digest). PERO: el server NO está corriendo ahora y route_local solo elige 'mlx' si hay candidato configurado, si no cae a Foundation-Sec/W2 (fail-open).",
+            "status": "Parcial · Sin test · Script bash limpio, RAM-gated lazy. 'partial': el lanzador es funcional y su cadena de consumo está cableada y viva, pero el cuerpo no corre por defecto y no hay test del arranque/health",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "adapt/ (watch_sources.py + smoke_test.py + run_daily.sh)",
+            "what_for": "El sistema de auto-adaptación en 'modo sombra': cada día revisa si cambió el contrato con Claude (versión del harness, settings.json, modelo activo), corre una prueba de seguridad (gate) y ANOTA qué haría — pero NO modifica nada. Es el rodaje seguro antes de permitir cambios automáticos. Hoy está vivo en launchd (com.aris4u.adapt-daily) en modo shadow.",
+            "tech_detail": "run_daily.sh = orquestador (lock anti-paralelo, modos off/shadow/pr-only/auto; solo shadow implementado). Corre smoke_roundtrip.py + watch_sources.py (detecta deltas mechanical/semantic vs data/adapt_state.json) + smoke_test.py (gate). Cableado en tools/adapt/adapt-daily.plist.template → launchd job CARGADO. ARIS4U_AUTOUPDATE=shadow por defecto (kill-switch en 'off').",
+            "status": "Vivo · Sin test · Verde en ruff. Gate-first, fail-open, anti-saturación. DEUDA: cero cobertura de tests del cluster, y pr-only/auto explícitamente NO implementados (solo shadow). 'live' porque el job nocturno corre de verdad pero es inocuo por diseño",
+            "evidence": "ninguno (sin tests para watch_sources/smoke_test/run_daily)"
+          },
+          {
+            "name": "code_quality_gate.py + commit_quality_gate.py (handlers, no tools/)",
+            "what_for": "El gate de calidad post-escritura: tras editar un .py corre ruff (estilo/bugs) y radon (complejidad) sobre el archivo tocado y lo anota en telemetría; al hacer commit corre pyright y los tests afectados. Avisa, no bloquea. NOTA: viven en hooks/, no en tools/ — pero son los consumidores vivos de ruff/radon del .venv312.",
+            "tech_detail": "Cableados en post_tool_use.py líneas 94-95 (_code_quality_gate.run + _commit_quality_gate.run). code_quality_gate revive la tabla gate_results (antes inerte) y usa ruff/radon del .venv312 (universal); umbral complejidad=11. Incluido porque define la calidad que se reporta arriba.",
+            "status": "Vivo · Test parcial · Verde. Es el mecanismo que ejecuta los mismos ruff/radon usados para puntuar el resto",
+            "evidence": "cubierto indirectamente por tests/dispatch/test_post_tool_use.py"
+          }
+        ]
+      },
+      {
+        "group_name": "SUBSTRATO + GLOBAL + EMPAQUETADO · 8 componentes",
+        "where_it_works": "Inventario verificado en vivo (rama feat/session-briefing, HEAD a04beea; 133 .py / 35.883 LOC). El cluster está VIVO y cableado: 7 eventos de Claude Code → dispatcher único Python tanto en ~/.claude/settings.json (instalación viva del usuario) como en hooks/hooks.json (plugin), con ${CLAUDE_PLUGIN_ROOT}. La memoria es de 3 DBs: sessions.db (351 decisions/59 locked/16 guards/84 digests + 27.201 v16_events, podada hoy 440k→27k), aris_vectors.db (sqlite-vec, 9.259 vectores scoped por client_id), y claude-mem.db (3.0GB/8.849 observations, externo, ARIS4U solo INDEXA). config.py = loader 100% portable. ruff PASA limpio en TODO el repo (era 134 errores, ahora 0 — \"Todo Verde II\"). EMPAQUETADO: plugin.json mínimo (metadata v16.9.0 + MIT) depende 100% de auto-discovery; install.sh idempotente NO toca settings.json. RIESGO ESTRUCTURAL: doble cableado — settings.json vivo Y plugin cablearían los hooks dos veces si se instala como plugin sin quitar los bloques manuales.",
+        "components": [
+          {
+            "name": "Dispatcher único por evento",
+            "what_for": "Es el portero central de ARIS4U. Claude Code, mientras el usuario trabaja, dispara avisos en 7 momentos (al escribir un mensaje, antes/después de usar una herramienta, al empezar/terminar sesión, etc.). Antes había muchos scripts sueltos; ahora un solo programa recibe cada aviso y decide qué hacer. Si algo falla, deja pasar la operación sin romperla (no bloquea por error).",
+            "tech_detail": "Entrypoint de 41 líneas: sys.argv[1]=event, lee payload de stdin, busca handler en dispatch/events/__init__.py (HANDLERS dict, 7 eventos), fail-open con except Exception→passthrough() salvo SystemExit. Cableado en ~/.claude/settings.json Y hooks/hooks.json vía .venv312/bin/python3 ... dispatch.py <Event>. Sub-handlers en hooks/dispatch/events/*.py.",
+            "status": "Vivo · Con test · dispatch.py: ruff limpio, trivial. Handlers aguas abajo refactorizados en \"Todo Verde II\" (F66→B9, F47→B8, E37→A3, D26→A6, etc.). El entrypoint está sano y la deuda aguas abajo quedó resuelta",
+            "evidence": "tests/dispatch/ (39 tests: test_user_prompt_submit.py, test_post_tool_use.py, test_session_start_briefing.py)"
+          },
+          {
+            "name": "sessions.db — decisions/guards/digests + v16_events",
+            "what_for": "La libreta de memoria estructurada de ARIS4U. Guarda DECISIONES tomadas (351, de las cuales 59 están 'selladas' = no se contradicen sin evidencia nueva), GUARDS (16 reglas/estándares, todas severidad alta), resúmenes de sesión (84 digests) y un registro de eventos (27.201). Cada cosa puede estar etiquetada por cliente para no mezclar contextos. Hoy se podó de 440 mil a 27 mil eventos para que no se hinche.",
+            "tech_detail": "SQLite 11.4MB. Tablas: decisions (351; locked: 292 no / 59 sí), guards (16 todas severity=high), digests (84), v16_events (27.201; event_type CHECK; 100% actual = 'event_logged', sink genérico de telemetría). +FTS5 mirrors por tabla. apoptosis_kills=0 → la poda 440k→27k NO pasó por el registro de apoptosis (fue vacuum/delete). Consumido por 19 módulos.",
+            "status": "Vivo · Con test · Verde de esquema/integridad. Observación: client_id muy disperso (forward-only, backfill nunca corrido). 292/351 decisions sin lock = memoria mayormente 'blanda'. v16_events es telemetría pura",
+            "evidence": "tests/test_f3_memoria.py (33 tests) + tests/tools/test_vacuum_sessions.py"
+          },
+          {
+            "name": "aris_vectors.db — sidecar sqlite-vec (recall semántico)",
+            "what_for": "El índice de búsqueda 'por significado' de ARIS4U. Cuando se busca algo, no solo compara palabras exactas: encuentra contenido parecido en idea (bge-m3, 1024 dimensiones). Apunta a la libreta (sessions.db) y a la memoria narrativa externa (claude-mem) sin tocarlas, así que nunca las corrompe. Hoy tiene 9.259 entradas, separadas por cliente (client-e, client-c, lab-project-1, client-d, pentest…) y un gran bloque general.",
+            "tech_detail": "VIRTUAL TABLE vec_items USING vec0(embedding float[1024] distance_metric=cosine, client_id text) + vec_map. 9.259 vectores: 8.848 observations + 411 decisions. Scoping: unscoped 8.884, client-e 139, __cc_audit__ 90, aris4u 57, lab-project-1 35, client-c 29, pentest 12, client-d 10, client-b 3. Degradación elegante: available()=False si no carga sqlite_vec → no-op, callers caen a FTS5+cosine brute-force.",
+            "status": "Vivo · Con test · vector_store.py ruff LIMPIO. search()=C(11). Diseño sólido (sidecar inmutable, fail-open). Solo 5 tests para pieza crítica = cobertura algo delgada. Re-embed a Qwen3-Embedding-8B pendiente",
+            "evidence": "tests/test_vector_store.py (5 tests)"
+          },
+          {
+            "name": "claude-mem.db — memoria narrativa externa (indexada, no propia)",
+            "what_for": "La memoria narrativa grande (3 GB) que vive FUERA del proyecto, mantenida por la herramienta claude-mem. Guarda 8.849 'observaciones' de sesiones. ARIS4U la LEE e INDEXA para búsqueda, pero no la modifica — es prestada, no suya. Hay dos copias de respaldo viejas de abril (700 MB cada una) que se podrían borrar.",
+            "tech_detail": "SQLite externo 3.0GB en ~/.claude-mem/ (WAL activo). Tablas: observations (8.849, FTS5), user_prompts, session_summaries, reward_signals, sdk_sessions. ARIS4U lo referencia (CLAUDE_MEM_DB en config.py) desde 11 módulos solo para indexar/recall. 2 .bak de 700MB (pre-W3.6/pre-W4.3 abril) = grasa borrable.",
+            "status": "Vivo · Test parcial · Funciona como fuente de observations. ISSUE: 2 backups de 700MB de abril ocupan ~1.4GB. Dependencia externa fuera del repo — riesgo de portabilidad (otro dev no la tendría: degrada, pierde recall narrativo)",
+            "evidence": "tests/test_f3_memoria.py (cubre la capa de acceso, no la DB externa directamente)"
+          },
+          {
+            "name": "config.py — loader portable + manifiestos de modelos",
+            "what_for": "El panel de configuración. Decide dónde están las bases de datos, qué modelos locales usar y cómo conectar con la máquina W2, sin que haya que tocar el código: lee de variables de entorno o de un archivo ~/.aris4u/config.json, y si no existen usa valores por defecto. Esto permite que ARIS4U funcione en otra máquina o usuario.",
+            "tech_detail": "186 líneas. ARIS4U_ROOT = env override o parents[2] del módulo (portable). _cfg(): prioridad env var > ~/.aris4u/config.json > default. Define SESSIONS_DB, CLAUDE_MEM_DB, ARIS_VECTORS_DB, OLLAMA_MAC/W2_URL, W2_ENABLED, MLX_MODEL='mlx-community/Qwen3.6-27B-4bit' + MLX_URL=:8765 (lazy), MAC_MODELS (reapuntado 06-18 a Foundation-Sec-8B), DEPTH_LEVELS, TOKEN_BUDGET_MAX=966000, EMBED_MODEL=bge-m3/1024d. ARIS4U_VERSION del plugin.json (fuente única). ~/.aris4u/config.json NO existe → corre con defaults.",
+            "status": "Vivo · Test parcial · ruff LIMPIO. Bien documentado, portabilidad correcta. ISSUE menor: OLLAMA_W2_URL default YOUR_W2_IP contradice hardware.md (W2 vía Tailscale YOUR_W2_TAILSCALE_IP) — config stale potencial. Sin test del loader",
+            "evidence": "ninguno test dedicado (importado por todos los tests de engine; sin test_config.py propio)"
+          },
+          {
+            "name": "Cableado global de hooks (settings.json + scripts globales)",
+            "what_for": "El interruptor que conecta ARIS4U a Claude Code en la máquina del usuario. Aquí se enchufan los 7 momentos a su portero central. Además hay 5 scripts de protección globales propios del usuario (guard de RAM, limpieza de procesos, guard de bash) que conviven con ARIS4U.",
+            "tech_detail": "settings.json cablea los 7 eventos (UserPromptSubmit, Stop, SubagentStart, PostToolUse[Bash|Write|Edit|MultiEdit|Agent|Task], SessionStart, PreToolUse[Bash|Write|Edit|MultiEdit|Read|WebFetch|WebSearch], SessionEnd) a .venv312/bin/python3 .../hooks/dispatch.py <Event>, timeouts 5-20s. ~/.claude/hooks/*.sh = 5 scripts NO-aris4u (ram-saturation-guard, process-cleanup, pre-bash-guard, post-change-ecosystem-validator, statusline).",
+            "status": "Vivo · Sin test · Cableado correcto y verificado vivo. RIESGO ESTRUCTURAL: este cableado manual + el del plugin son IDÉNTICOS en función → instalar como plugin SIN quitar estos bloques dispararía cada hook DOS veces (install.sh lo advierte, pero la limpieza es manual)",
+            "evidence": "ninguno (config de máquina, no código del repo)"
+          },
+          {
+            "name": "plugin.json — manifest del plugin",
+            "what_for": "La 'cédula de identidad' del plugin: nombre, versión (16.9.0), autor y licencia. Es deliberadamente escueta: no lista a mano los hooks, skills ni herramientas MCP, sino que confía en que Claude Code los descubra solos por las carpetas. Pasa la validación oficial con un aviso menor.",
+            "tech_detail": "JSON mínimo: solo name/description/version=16.9.0/author/repository/license=MIT. SIN keys hooks/mcpServers/skills → depende 100% de auto-discovery (hooks/hooks.json, .mcp.json, skills/*/SKILL.md). 'claude plugin validate' = PASS con 1 warning (CLAUDE.md en root no se carga como contexto de plugin; recomienda skill). ARIS4U_VERSION del engine se lee de aquí (fuente única de versión).",
+            "status": "Vivo · Test parcial · Válido pero FRÁGIL por minimalismo: al no declarar componentes, cualquier cambio de convención de auto-discovery rompería la carga silenciosamente. description menciona '24 hooks'/'~9 guards' no verificables desde el manifest. Warning de CLAUDE.md sin resolver",
+            "evidence": "claude plugin validate (CLI gate, no pytest)"
+          },
+          {
+            "name": "Empaquetado: install.sh + hooks.json + .mcp.json + skills",
+            "what_for": "El kit para instalar ARIS4U como plugin en otra máquina: crea el entorno Python, instala dependencias, prueba que el contrato carga, y opcionalmente programa la auto-adaptación nocturna en modo 'sombra' (observa pero no cambia nada). A propósito NO toca la configuración viva del usuario para no duplicar cosas. Incluye 3 'habilidades' (skills) listas: auditar código de clientes, consejo de razonamiento, y auditar la memoria.",
+            "tech_detail": "install.sh idempotente (set -euo pipefail): venv312 + pip install -e . + gate tools/adapt/smoke_test.py + opcional --cron launchd (ARIS4U_AUTOUPDATE=shadow). hooks/hooks.json = 7 eventos con ${CLAUDE_PLUGIN_ROOT}. .mcp.json → integrations/mcp_wrapper.sh (server FastMCP, 7 tools). skills/ del repo = 3 (aris-client-audit, aris-council, aris-memory-audit) con SKILL.md frontmatter válido. install.sh advierte el doble-cableado pero no lo resuelve solo.",
+            "status": "Vivo · Test parcial · Empaquetado coherente y portable. ISSUES: (1) doble-cableado no automatizado = riesgo de hooks duplicados; (2) plugin.json no enumera componentes; (3) mcp_server.py complejidad alta (aris_dialectic=C15, aris_recall_client=C14) aunque ruff limpio",
+            "evidence": "tests/test_v16_7_mcp_public_api.py cubre los 7 MCP tools; install.sh sin test (gate vía smoke_test.py)"
+          }
+        ]
+      },
+      {
+        "group_name": "Sub-handlers del dispatcher (revisores individuales de PreToolUse / PostToolUse) · 8 componentes",
+        "where_it_works": "Los revisores concretos que la cadena de guards ejecuta uno por uno. El inventario del barrido los describió como cadena; aquí cada uno tiene su ficha.",
+        "components": [
+          {
+            "name": "verdict (veredicto del revisor)",
+            "what_for": "Define las 4 respuestas posibles de un revisor: dejar pasar, sugerir, bloquear o denegar. Es el idioma común de todos los guards.",
+            "tech_detail": "50 LOC. dataclass Verdict(kind,text); is_stop para BLOCK/DENY. Cada handler PreToolUse devuelve un Verdict puro y el orquestador lo traduce al contrato.",
+            "status": "Vivo · Con test · verde",
+            "evidence": "tests/dispatch (validan los veredictos)"
+          },
+          {
+            "name": "pre_common (utilidades de guards)",
+            "what_for": "Funciones compartidas por todos los revisores previos (leer el archivo que se va a tocar, etc.) para no repetir código.",
+            "tech_detail": "43 LOC. Helpers de extracción de tool_input/path para los handlers PreToolUse.",
+            "status": "Vivo · Test parcial · verde",
+            "evidence": "indirecto vía test_pre_tool_use"
+          },
+          {
+            "name": "phi_sanitizer (aviso de datos médicos)",
+            "what_for": "Detecta datos médicos sensibles (número de seguro, fecha de nacimiento, expediente) y avisa. Solo en proyectos de salud; advierte, no bloquea.",
+            "tech_detail": "78 LOC. PreToolUse advisory; reusa el gate de contexto healthcare de phi_guard; patrones PHI tier-1.",
+            "status": "Vivo · Con test · verde",
+            "evidence": "test_pre_tool_use (phi healthcare/non-healthcare)"
+          },
+          {
+            "name": "f5_prevalidation (pre-chequeo de salida)",
+            "what_for": "Antes de escribir un archivo, revisa que la salida tenga sentido. En modo sombra: solo observa, no bloquea.",
+            "tech_detail": "70 LOC. PreToolUse advisory/shadow via engine.v16.f5_validacion; fail-open silencioso.",
+            "status": "Parcial · Test parcial · parcial - depende del motor F5",
+            "evidence": "test_pre_tool_use"
+          },
+          {
+            "name": "parallel_dispatch_guard (sugerencia de paralelismo)",
+            "what_for": "Si ve comandos a otra máquina puestos en fila (lentos), sugiere correrlos en paralelo.",
+            "tech_detail": "51 LOC. Write/Edit de .sh: detecta 'ssh w[0-9]' secuenciales sin '&', advisory.",
+            "status": "Vivo · Test parcial · verde",
+            "evidence": "test_post_tool_use"
+          },
+          {
+            "name": "schema_drift (vigía de esquemas)",
+            "what_for": "Vigila cambios en la estructura de las bases de datos de los proyectos y avisa si algo no cuadra.",
+            "tech_detail": "187 LOC. PostToolUse; corre tools/schema_compat_check.py sobre 7 proyectos; warn solo si hay errores.",
+            "status": "Vivo · Test parcial · verde",
+            "evidence": "test_post_tool_use"
+          },
+          {
+            "name": "agent_dispatched (registro de subagentes)",
+            "what_for": "Anota cuando se lanza un subagente y el estado del código en ese momento, para verificar después qué cambió.",
+            "tech_detail": "71 LOC. PostToolUse Agent|Task; snapshot git HEAD de repos-lab para la ventana de diff del Stop. Solo con ARIS4U_VALIDATION_LOG.",
+            "status": "Vivo · Test parcial · verde",
+            "evidence": "test_post_tool_use"
+          },
+          {
+            "name": "commit_quality_gate (gate en el commit)",
+            "what_for": "Cuando haces un commit, revisa tipos y corre los tests afectados, y deja sugerencias.",
+            "tech_detail": "156 LOC. PostToolUse Bash git commit; pyright + test_<nombre>.py sobre HEAD; advisory.",
+            "status": "Vivo · Sin test · issues - sin test dedicado",
+            "evidence": "ninguno (hueco de cobertura conocido)"
+          }
+        ]
+      },
+      {
+        "group_name": "Helpers, CLI de capacidades y registro de stacks · 10 componentes",
+        "where_it_works": "Módulos de apoyo: el briefing de arranque, el orquestador de subagentes, el logger, los motores de las skills /aris-status y /aris-config, el auto-updater y la detección de tecnología por proyecto.",
+        "components": [
+          {
+            "name": "_briefing (briefing de arranque)",
+            "what_for": "Al abrir sesión, te muestra un resumen del estado de ARIS4U: versión, memoria viva, hardware. Solo lee, no modifica.",
+            "tech_detail": "289 LOC. build_briefing en SessionStart (source==startup); lee sessions.db en mode=ro; presupuesto 2200 chars; fail-open.",
+            "status": "Vivo · Con test · verde",
+            "evidence": "test_session_start_briefing.py"
+          },
+          {
+            "name": "agent_orchestrator (orquestador de subagentes)",
+            "what_for": "Coordina varios subagentes con dependencias entre sí (cuál va antes que cuál). Hoy ese rol lo cubre Claude nativo.",
+            "tech_detail": "208 LOC. AgentDef/Result/State (DAG V15); persiste via session_manager; alcanzable pero su rol DAG lo cubre el harness de Claude Code.",
+            "status": "Parcial · Test parcial · parcial - rol cubierto por Claude nativo",
+            "evidence": "cobertura indirecta"
+          },
+          {
+            "name": "_logger (registro de eventos)",
+            "what_for": "Escribe los eventos de ARIS4U a un archivo de registro de forma segura, sin corromperlo.",
+            "tech_detail": "50 LOC. emit_event: append JSONL atómico a logs/v16.1-events.jsonl.",
+            "status": "Vivo · Test parcial · verde",
+            "evidence": "cobertura indirecta"
+          },
+          {
+            "name": "aris_status (panel de estado)",
+            "what_for": "El motor de la skill /aris-status: muestra qué hooks, MCP y guards están vivos y los conteos de memoria. Solo lectura.",
+            "tech_detail": "223 LOC. Lee settings.json + sessions.db (mode=ro) + telemetría; alimenta /aris-status.",
+            "status": "Vivo · Sin test · verde - read-only",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "aris_config (visor de configuración)",
+            "what_for": "El motor de la skill /aris-config: muestra y ayuda a editar la configuración de ARIS4U (modelo, flags, MCP).",
+            "tech_detail": "114 LOC. Lee config + flags + MCP cableados; detecta duplicados; alimenta /aris-config.",
+            "status": "Vivo · Sin test · verde",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "gen_plugin_hooks (generador del manifiesto)",
+            "what_for": "Genera el archivo que le dice a Claude Code qué hooks tiene el plugin, a partir del cableado real.",
+            "tech_detail": "55 LOC. Genera hooks/hooks.json con ${CLAUDE_PLUGIN_ROOT} desde la config de hooks.",
+            "status": "Vivo · Sin test · verde - utilidad de empaquetado",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "adapt/smoke_test (gate del auto-updater)",
+            "what_for": "Antes de que ARIS4U se auto-adapte a una versión nueva de Claude, corre 4 chequeos rápidos; si alguno falla, no aplica nada.",
+            "tech_detail": "96 LOC. 4 checks (MCP 7/7, sqlite, hooks cargan, token-counting); exit 0 = OK. Gate fail-closed.",
+            "status": "Vivo · Test parcial · verde",
+            "evidence": "corre en vivo (verificado esta sesión)"
+          },
+          {
+            "name": "adapt/watch_sources (vigía de cambios)",
+            "what_for": "Vigila si Claude Code cambió de versión y clasifica el cambio (mecánico vs semántico). Hoy solo observa (modo sombra).",
+            "tech_detail": "108 LOC. hash-diff de claude --version + changelog + settings; clasifica mechanical/semantic; shadow.",
+            "status": "Vivo · Sin test · verde - shadow",
+            "evidence": "ninguno"
+          },
+          {
+            "name": "stack_registry (detección de tecnología)",
+            "what_for": "Detecta qué tecnología usa cada proyecto (Python, Flutter, Java, Node) para aplicar las reglas correctas.",
+            "tech_detail": "detect.py (142L) por marcadores + extensión; stacks/{python,flutter,java_spring,node_ts,generic}.py = patrones por lenguaje (5 archivos). Callers en 4 herramientas + 1 hook.",
+            "status": "Vivo · Con test · verde",
+            "evidence": "tests/tools"
+          },
+          {
+            "name": "render_orchestration (generador de mapa)",
+            "what_for": "Genera el HTML del mapa de orquestación de ARIS4U (los 7 eventos y 100 pasos) a partir de un JSON.",
+            "tech_detail": "174 LOC. Renderiza architecture/orchestration_map.json a HTML. Utilidad de documentación, standalone.",
+            "status": "Vivo · Sin test · verde - utilidad de documentación",
+            "evidence": "ninguno"
+          }
+        ]
+      },
+      {
+        "group_name": "Artefactos, datos y documentos (no-código) · 7 componentes",
+        "where_it_works": "Lo que NO es código ejecutable pero forma parte del repo: skills empaquetadas, plantillas de configuración, datasets, documentos de planeación y el material del vertical pentest.",
+        "components": [
+          {
+            "name": "skills del repo (3)",
+            "what_for": "Tres comandos empaquetados con el plugin (para tu CTO o clientes): auditoría de código de cliente, consejo de 5 perspectivas y auditoría de memoria.",
+            "tech_detail": "aris-client-audit, aris-council, aris-memory-audit (cada una SKILL.md); invocan aris_dialectic. Auto-discovery: plugin.json NO las declara (verificar al empaquetar).",
+            "status": "Vivo · Sin test · verde - pero plugin.json no las declara",
+            "evidence": "n/a (definiciones de skill)"
+          },
+          {
+            "name": "config/ (plantillas portables)",
+            "what_for": "Ejemplos de cómo configurar ARIS4U en otra máquina (endpoints, secretos) sin tocar código.",
+            "tech_detail": "aris4u.config.example.json + aris4u_secrets.example; el loader de config.py lee ~/.aris4u/config.json (env > file > default).",
+            "status": "Vivo · Sin test · verde",
+            "evidence": "n/a"
+          },
+          {
+            "name": "evals/ (dataset de recall, huérfano)",
+            "what_for": "Un conjunto de pruebas para medir qué tan bien recuerda ARIS4U, pero hoy no hay nada que lo corra.",
+            "tech_detail": "20 queries con expected_docs; SIN runner (0 callers). Candidato a reactivar como suite de eval (cerraría la métrica del freeze).",
+            "status": "Inerte · Sin test · inerte - sin runner",
+            "evidence": "n/a"
+          },
+          {
+            "name": "templates/ (andamiaje de planeación)",
+            "what_for": "Plantillas para planear features (arquitectura, ejecución, calidad) y un checklist de seguridad.",
+            "tech_detail": "SECURITY_CHECKLIST.md + planning/{ARCHITECTURE,EXECUTION,MODULE_SPEC,QUALITY}.md; 0 callers (andamiaje).",
+            "status": "Parcial · Sin test · andamiaje",
+            "evidence": "n/a"
+          },
+          {
+            "name": ".planning/ (corpus estratégico)",
+            "what_for": "29 documentos de investigación y planeación de la era pentest/healthcare (research, auditorías, roadmap).",
+            "tech_detail": "research-2026-05-15 (A1-A6 + síntesis), audit-2026-05-15, ROADMAP/STATE/PROJECT. subagent_start inyecta .planning/ARCHITECTURE.md a subagentes (verificar vigencia).",
+            "status": "Inerte · Sin test · docs era V17/V18 - verificar ARCHITECTURE.md no esté stale",
+            "evidence": "n/a"
+          },
+          {
+            "name": "docs/v17-cvp/ (material pentest ofensivo)",
+            "what_for": "La aplicación al programa de vulnerabilidades de Anthropic + 3 exploits de prueba. Es el vertical ofensivo decidido, diferido a Tramo 4.",
+            "tech_detail": "3 .py + 1 .c (port_scanner_stealth, reverse_shell_template, xss_payload_generator, buffer_overflow) + screenshots + org-id. Standalone, 0 callers. Repo PRIVADO.",
+            "status": "Parcial · Sin test · diferido Tramo 4 - framing ofensivo decidido",
+            "evidence": "n/a"
+          },
+          {
+            "name": "docs/ (guías internas)",
+            "what_for": "Guías internas: cómo hacer dogfooding y cómo usar los workflows en DAG.",
+            "tech_detail": "dogfooding_sprint_guide.md + workflow_dag_guide.md.",
+            "status": "Vivo · Sin test · verde - documentación",
+            "evidence": "n/a"
+          }
+        ]
+      }
+    ]
+  },
+  "behavior": {
+    "scenarios": [
+      {
+        "title": "1. Cuando escribes un mensaje a Claude",
+        "when_it_happens": "En cada mensaje que escribes, ARIS4U prepara el terreno ANTES de que Claude responda. Nunca te bloquea: solo le entrega contexto. (Disparador: cada prompt que el usuario envia a Claude.)",
+        "steps": [
+          "Detecta en que proyecto o cliente estas trabajando (segun la carpeta).",
+          "Busca en la memoria las decisiones y notas relevantes a lo que escribiste (busca por palabras Y por significado).",
+          "Lleva la cuenta de cuanto contexto y tiempo llevas en la sesion.",
+          "Le entrega a Claude todo ese contexto recuperado como una nota.",
+          "Claude responde ya 'sabiendo' lo que decidieron antes, sin que se lo repitas."
+        ],
+        "components_involved": [
+          "Deteccion de proyecto/cliente (segun carpeta)",
+          "Memoria hibrida (busqueda por palabras y por significado / FTS5 + semantica)",
+          "Contador de contexto y tiempo de sesion",
+          "Inyeccion de contexto (auto_recall / nota a Claude)",
+          "Claude (Opus 4.8)"
+        ]
+      },
+      {
+        "title": "2. Cuando Claude va a escribir un archivo o correr un comando",
+        "when_it_happens": "Antes de actuar, la accion pasa por una fila de revisores en orden. Casi todos solo dejan notas; tres pueden DETENER la accion. (Disparador: Claude esta por escribir un archivo o ejecutar un comando, es decir, antes de usar una herramienta / PreToolUse.)",
+        "steps": [
+          "La accion entra a la fila de 11 revisores.",
+          "La mayoria solo deja sugerencias (tipos, Docker, seguridad de base de datos, etc.).",
+          "DETIENE 1: si detecta una migracion de base de datos peligrosa.",
+          "DETIENE 2: si datos medicos (PHI) saldrian hacia internet (solo en proyectos de salud).",
+          "DETIENE 3: si abririas el visor 3D que ya tumbo la Mac dos veces (proteccion de GPU).",
+          "Si nadie detiene -> la accion se ejecuta y las sugerencias se juntan en una sola nota."
+        ],
+        "components_involved": [
+          "Fila de 11 revisores / guards (PreToolUse)",
+          "Guards advisory (tipos, Docker :latest, seguridad de base de datos / RLS, etc.)",
+          "Guard bloqueante: linter de migraciones de base de datos",
+          "Guard bloqueante: phi_guard (datos medicos PHI, solo proyectos de salud)",
+          "Guard bloqueante: proteccion de GPU (visor 3D)",
+          "Consolidacion de sugerencias en una sola nota"
+        ]
+      },
+      {
+        "title": "3. Despues de que Claude escribe codigo o hace un commit",
+        "when_it_happens": "Una vez ejecutada la accion, ARIS4U revisa calidad, protege secretos y guarda lo importante en la memoria. (Disparador: justo despues de que Claude escribe codigo o hace un commit de git / PostToolUse.)",
+        "steps": [
+          "Revisa el codigo con linters (calidad y complejidad) y deja sugerencias.",
+          "Borra cualquier secreto (claves, tokens) del resultado antes de mostrarlo.",
+          "Si fue un commit de git, lo guarda en la memoria como una 'decision' del proyecto.",
+          "En commits revisa tambien que los tests afectados pasen."
+        ],
+        "components_involved": [
+          "Linters de calidad y complejidad (ruff + radon / gate de calidad)",
+          "Redactor de secretos (redact_secrets: claves, tokens)",
+          "Captura de commit a la memoria (capture_commit / decision del proyecto)",
+          "Verificacion de tests afectados en commits"
+        ]
+      },
+      {
+        "title": "4. Cuando cierras la sesion",
+        "when_it_happens": "Al terminar, ARIS4U consolida lo aprendido para que la proxima sesion arranque mas inteligente. (Disparador: cierre de la sesion / SessionEnd.)",
+        "steps": [
+          "Resume lo que paso en la sesion (un 'digest') y lo guarda en la memoria.",
+          "Corre el motor de aprendizaje (sin romperse aunque falten datos).",
+          "Registra una senal de exito o fallo segun como salieron las verificaciones.",
+          "Resultado: la proxima sesion recuerda mejor lo decidido y como te fue."
+        ],
+        "components_involved": [
+          "Generador de digest de sesion (save_digest a la memoria)",
+          "Motor de aprendizaje (LEGO learning engine, tolerante a datos faltantes)",
+          "Registro de senal de exito/fallo (segun verificaciones)",
+          "Memoria persistente (sessions.db)"
+        ]
+      },
+      {
+        "title": "5. Cuando Claude lanza un sub-agente",
+        "when_it_happens": "ARIS4U asegura que los sub-agentes no trabajen 'a ciegas' y verifica lo que producen. (Disparador: Claude lanza un sub-agente / SubagentStart y SubagentStop.)",
+        "steps": [
+          "Al lanzar el sub-agente, le inyecta las decisiones y reglas relevantes del proyecto.",
+          "Asi el sub-agente no genera codigo generico que ignora lo ya decidido.",
+          "Cuando el sub-agente termina, ARIS4U verifica que su salida compile y pase tests."
+        ],
+        "components_involved": [
+          "Inyeccion de contexto al sub-agente (decisiones y reglas del proyecto)",
+          "Memoria por proyecto/cliente",
+          "Verificacion post-agente (compila y pasa tests / post_agent_verify)"
+        ]
+      },
+      {
+        "title": "6. Cuando pides recordar, buscar o guardar (herramientas MCP)",
+        "when_it_happens": "ARIS4U expone 7 herramientas que Claude (o tu) pueden invocar directamente. (Disparador: invocacion explicita de una herramienta MCP por Claude o por el usuario.)",
+        "steps": [
+          "Recordar de un cliente: trae las decisiones guardadas de ese cliente.",
+          "Buscar: busca en la memoria por texto y por significado.",
+          "Guardar: archiva una decision importante para el futuro.",
+          "Segunda opinion: un modelo local revisa codigo critico.",
+          "Salud: muestra el estado del sistema (modelos vivos, memoria)."
+        ],
+        "components_involved": [
+          "MCP aris_recall_client (recordar de un cliente)",
+          "MCP aris_search (buscar por texto y por significado)",
+          "MCP aris_ingest (guardar una decision)",
+          "MCP aris_dialectic (segunda opinion, modelo local revisa codigo critico)",
+          "MCP aris_health (salud del sistema: modelos vivos, memoria)"
+        ]
+      },
+      {
+        "title": "7. Cuando responde el 'cuerpo local' (modelos en tu Mac)",
+        "when_it_happens": "Para tareas baratas o sensibles, ARIS4U usa modelos locales en cascada. Si ninguno esta disponible, no pasa nada: Claude sigue normal. (Disparador: una tarea barata o sensible que conviene resolver con modelos locales.)",
+        "steps": [
+          "Pregunta: el modelo grande (Qwen 27B) esta encendido y con RAM? -> lo usa.",
+          "Si no (RAM ocupada o apagado) -> usa Foundation-Sec, un modelo de seguridad local.",
+          "Si tampoco -> usa el modelo en la otra maquina (W2).",
+          "Si nada responde -> 'fail-open': no estorba, Claude continua igual.",
+          "Regla de RAM: el 27B no se carga si dejaria poca memoria libre (cede RAM a Claude)."
+        ],
+        "components_involved": [
+          "Modelo local grande (Qwen 27B en la Mac, segun RAM)",
+          "Foundation-Sec (modelo de seguridad local, fallback)",
+          "Modelo en la otra maquina (W2, fallback remoto)",
+          "Logica fail-open (si nada responde, Claude continua)",
+          "Regla de RAM / cascada de modelos (no carga el 27B si dejaria poca memoria libre)"
+        ]
+      },
+      {
+        "title": "8. El trabajo en 2 niveles: borrador local, decision de Claude",
+        "when_it_happens": "El principio central: lo local hace el trabajo barato; Claude pone la verdad final. Lo local SOLO suma, nunca resta calidad. (Disparador: cualquier tarea donde un modelo local puede pre-procesar antes de que Claude decida; principio de arquitectura de 2 niveles.)",
+        "steps": [
+          "El modelo local hace el trabajo barato: resumir, pre-revisar, escribir un borrador.",
+          "Ese borrador o senal se le entrega a Claude como insumo.",
+          "Claude revisa, corrige y DECIDE (la version final es siempre de Claude).",
+          "Resultado: ahorras limites de Claude sin perder calidad."
+        ],
+        "components_involved": [
+          "Cuerpo local (modelos locales: resumir, pre-revisar, escribir borrador)",
+          "Puente de entrega del borrador/senal a Claude",
+          "Claude (Opus 4.8) como decisor final",
+          "Principio 'local PROPONE, Claude DISPONE' (2 niveles)"
+        ]
+      }
+    ]
+  },
+  "sections": [
+    {
+      "section_id": "comp",
+      "title": "Comparativos",
+      "summary": "Comparativa directa de ARIS4U contra competidores reales en 3 segmentos (memoria para agentes, asistentes de coding, gobernanza/compliance), detallando dónde gana y dónde pierde sin adornos.",
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Encuadre",
+          "text": "Comparativa directa contra los competidores reales, por segmento. Donde ARIS4U gana y donde pierde, sin adornos."
+        },
+        {
+          "type": "text",
+          "heading": "Segmento 1 — Memoria para agentes de IA",
+          "text": "ARIS4U se diferencia en arquitectura: memoria por-cliente real (aislada por esquema, no por carpetas), guards integrados y residencia de datos 100% local. La ventaja central está en la gobernanza auditable y la privacidad por diseño."
+        },
+        {
+          "type": "table",
+          "heading": "Memoria para agentes: ARIS4U gana vs pierde",
+          "table": {
+            "headers": [
+              "Competidor",
+              "Qué es",
+              "ARIS4U gana",
+              "ARIS4U pierde"
+            ],
+            "rows": [
+              [
+                "Mem0",
+                "Memoria comercial lider (vector + grafo), enfocada a copilotos B2B.",
+                "Aisla por cliente, trae guards integrados, es 100% local y costo-cero (no cobra tokens), con residencia total de datos.",
+                "Mem0 tiene certificaciones SOC2/HIPAA, benchmarks publicos y miles de integraciones; ARIS4U nada de eso."
+              ],
+              [
+                "Letta (MemGPT)",
+                "Memoria por niveles, estilo sistema operativo.",
+                "No obliga al modelo a gestionar su memoria (es automatico) y suma gobernanza.",
+                "Letta da mas autonomia al agente y una metafora limpia para multi-agente."
+              ],
+              [
+                "Zep",
+                "Grafo temporal: sabe que los hechos cambian con el tiempo.",
+                "Local-first, con guards y mas barato.",
+                "Zep razona en el tiempo (quien decidio que y cuando) y trae certificaciones de compliance."
+              ],
+              [
+                "Cognee",
+                "Grafo de conocimiento open-source con extraccion automatica.",
+                "Mas simple, integrado y con aislamiento por-cliente.",
+                "Cognee permite auditar relaciones y maneja documentos heterogeneos (PDFs, codigo)."
+              ],
+              [
+                "Memoria nativa de Claude (Anthropic, beta)",
+                "Memoria integrada en Claude, sin plugin.",
+                "ARIS4U anade memoria por-cliente, guards y residencia de datos que el nativo no tiene.",
+                "El nativo es cero-setup y Anthropic mantiene el compliance. RIESGO EXISTENCIAL: si madura, comoditiza a ARIS4U."
+              ]
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "heading": "Segmento 2 — Asistentes de coding con memoria",
+          "text": "ARIS4U no es un editor de codigo; cabalga sobre Claude Code y le anade memoria y gobernanza. Es complemento, no competidor de los editores."
+        },
+        {
+          "type": "table",
+          "heading": "Asistentes de coding: ARIS4U gana vs pierde",
+          "table": {
+            "headers": [
+              "Competidor",
+              "Qué es",
+              "ARIS4U gana",
+              "ARIS4U pierde"
+            ],
+            "rows": [
+              [
+                "Claude Code (nativo)",
+                "Asistente de coding en terminal, de Anthropic. Es el 'anfitrion' de ARIS4U.",
+                "ARIS4U le da memoria real por-cliente y guards (el archivo de instrucciones nativo es solo texto plano).",
+                "Claude Code es la base; ARIS4U depende de el para funcionar."
+              ],
+              [
+                "Cursor v3",
+                "Editor completo (basado en VSCode) con multi-agente.",
+                "ARIS4U aporta gobernanza, memoria por-cliente y costo-cero.",
+                "Cursor tiene interfaz visual completa y mas usuarios; cambiarse a Claude Code es friccion alta."
+              ],
+              [
+                "Windsurf",
+                "Editor con motor de agentes (Cascade).",
+                "La memoria de ARIS4U es explicita por-cliente, no se vuelve obsoleta sola.",
+                "Windsurf tiene editor visual completo y memoria 'ambiental' sin configuracion."
+              ],
+              [
+                "GitHub Copilot Memory",
+                "Memoria compartida por equipo, ligada al repositorio, 28 dias.",
+                "ARIS4U es por-cliente (no solo por-repo), sin caducidad forzada y con guards.",
+                "Copilot es compartido a nivel organizacion e integrado en GitHub."
+              ],
+              [
+                "Cline",
+                "Envoltorio que monta Claude como agente de terminal.",
+                "ARIS4U suma memoria real y gobernanza (Cline solo hereda el texto plano de instrucciones).",
+                "Cline es cero-setup y tiene una gran comunidad open-source."
+              ]
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "heading": "Segmento 3 — Gobernanza y compliance de IA",
+          "text": "Aqui esta el hueco mas claro de ARIS4U: local + por-cliente + memoria y guards juntos + PHI-safe. Pero es un hueco estrecho y facil de copiar."
+        },
+        {
+          "type": "table",
+          "heading": "Gobernanza y compliance: ARIS4U gana vs pierde",
+          "table": {
+            "headers": [
+              "Competidor",
+              "Qué es",
+              "ARIS4U gana",
+              "ARIS4U pierde"
+            ],
+            "rows": [
+              [
+                "NeMo Guardrails (NVIDIA)",
+                "Reglas de seguridad programables con su propio lenguaje (Colang).",
+                "ARIS4U trae memoria integrada; NeMo no tiene memoria.",
+                "NeMo es el estandar enterprise, con lenguaje de politicas probado."
+              ],
+              [
+                "Guardrails AI",
+                "Validadores de salida (mas de 60).",
+                "ARIS4U integra memoria + guards + auditoria en uno.",
+                "Guardrails AI se instala con un pip y tiene ecosistema amplio."
+              ],
+              [
+                "Langfuse",
+                "Observabilidad de LLM (el estandar de oro).",
+                "ARIS4U anade gobernanza y memoria por encima de observar.",
+                "Langfuse tiene adopcion masiva (30k+ estrellas)."
+              ],
+              [
+                "Agent Control Plane (categoria emergente)",
+                "Infraestructura enterprise para gobernar muchos agentes.",
+                "ARIS4U es local, barato y por-cliente.",
+                "Tiene respaldo de Azure/IBM y el 40% de las licitaciones grandes ya lo piden."
+              ]
+            ]
+          }
+        },
+        {
+          "type": "bullets",
+          "heading": "Síntesis — Dónde gana ARIS4U (transversal)",
+          "bullets": [
+            "Aislamiento por-cliente (no solo por-repo) y sin caducidad forzada de la memoria.",
+            "100% local (privacidad por diseño) + residencia de datos y costo-cero (no cobra tokens). PHI-safe solo aplica al vertical médico.",
+            "Memoria + guards + gobernanza/auditoria integrados en un solo plano.",
+            "Memoria automatica: no obliga al modelo ni al usuario a gestionarla."
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "Síntesis — Dónde pierde ARIS4U (transversal)",
+          "bullets": [
+            "Madurez: sin certificaciones SOC2/HIPAA, sin benchmarks publicos, sin miles de integraciones (vs Mem0/Zep).",
+            "Sin razonamiento temporal del grafo (quien decidio que y cuando) que sí tiene Zep.",
+            "Frente a editores (Cursor/Windsurf): no tiene interfaz visual y migrar a Claude Code es friccion alta.",
+            "Frente a gobernanza enterprise (NeMo / Agent Control Plane): no es el estandar y carece de respaldo Azure/IBM que ya piden el 40% de licitaciones grandes.",
+            "RIESGO EXISTENCIAL: la memoria nativa de Claude (Anthropic), cero-setup y con compliance de Anthropic, comoditiza a ARIS4U si madura."
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "inst",
+      "title": "Instalacion",
+      "summary": "Guía de instalación de ARIS4U: pasos para que un desarrollador instale el plugin en ~15-20 minutos con Python 3.12, Claude Code CLI y Ollama opcional para la capa semántica.",
+      "blocks": [
+        {
+          "type": "kv",
+          "heading": "Estado de instalacion",
+          "kv": [
+            {
+              "k": "Instalación",
+              "v": "Sí — siguiendo los pasos de esta guía (~15-20 min)"
+            },
+            {
+              "k": "Tiempo estimado",
+              "v": "~15-20 minutos una vez cumplidos los pre-requisitos de runtime."
+            }
+          ]
+        },
+        {
+          "type": "kv",
+          "heading": "Pasos del CTO (cuando este listo)",
+          "kv": [
+            {
+              "k": "1. ACCESO",
+              "v": "el usuario lo invita al repo PRIVADO github.com/aris4u-dev/aris4u (rama feat/session-briefing o un main estable). El CTO clona: git clone git@github.com:aris4u-dev/aris4u.git ~/projects/aris4u"
+            },
+            {
+              "k": "2. PRE-REQ runtime",
+              "v": "instalar Python 3.12 (el system python del Mac es 3.9.6, NO sirve), Claude Code CLI (>=2.1.170, ya valida plugins), y opcional Ollama + modelo de embeddings bge-m3 (ollama pull bge-m3) para la memoria semantica."
+            },
+            {
+              "k": "3. BUILD del entorno",
+              "v": "cd ~/projects/aris4u && bash install.sh. Esto crea .venv312, hace pip install -e . (httpx, mcp[cli], numpy, scipy, sqlite-vec), detecta Ollama (degrada limpio si falta), y corre el gate smoke_test.py. Este paso es OBLIGATORIO porque .venv312/ esta gitignored y NO viene en el clone, pero hooks.json y .mcp.json lo referencian con ruta dura ${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3."
+            },
+            {
+              "k": "4. REGISTRAR como plugin",
+              "v": "claude plugin marketplace add ~/projects/aris4u (o el marketplace git del equipo) y claude plugin install aris4u. La validacion (claude plugin validate .) ya PASA con 1 warning cosmetico (CLAUDE.md en root). Los 7 hooks (hooks/hooks.json) y los 7 MCP tools (.mcp.json) se auto-descubren por convencion del plugin (confirmado contra plugins oficiales como explanatory-output-style: mismo patron, plugin.json minimo + hooks/hooks.json en root)."
+            },
+            {
+              "k": "5. CONFIG por-usuario (opcional)",
+              "v": "sin tocar codigo: crear ~/.aris4u/config.json para apagar W2 si no lo tiene (ARIS4U_W2_ENABLED=false) y apuntar Ollama local. El loader engine/v16/config.py ya lo lee (env var > config.json > default)."
+            },
+            {
+              "k": "6. PRIMER ARRANQUE",
+              "v": "en la nueva sesion, sessions.db se auto-crea VACIA (init_db usa CREATE TABLE IF NOT EXISTS), aris_vectors.db se crea al vuelo. La memoria del CTO empieza de cero (no hereda la del usuario). Todo lo que falte (claude-mem.db, Ollama) degrada limpio: FTS5 + guards siguen funcionando."
+            }
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "Bloqueadores actuales",
+          "bullets": [
+            "CHICKEN-AND-EGG del venv: hooks/hooks.json y ambos .mcp.json codifican la ruta dura ${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3, pero .venv312/ esta en .gitignore (0 archivos rastreados). En un clone limpio el venv NO existe hasta correr install.sh. Si el CTO registra el plugin ANTES de hacer install.sh, los hooks fallan silenciosamente (fail-open -> no-op) y el MCP wrapper sale con error 'no venv found'. El plugin install de Claude Code NO corre install.sh por ti.",
+            "PYTHON 3.12 REQUERIDO y no garantizado: el system python del Mac es 3.9.6 y no tiene las deps (sqlite-vec, mcp ausentes). Sin Python 3.12 disponible, install.sh crea el venv pero con la version equivocada. requires-python en pyproject dice >=3.11 pero el venv canonico es .venv312.",
+            "plugin.json es SOLO metadata (name, description, version, author, repository, license) — correcto para auto-discovery, pero el campo repository es STALE: dice github.com/user-a/aris4u; el repo real es github.com/aris4u-dev/aris4u (privado). Confunde a quien intente clonar desde el manifest.",
+            "claude-mem.db (2.8GB en ~/.claude-mem/) es una dependencia EXTERNA read-only del plugin SEPARADO 'claude-mem' (thedotmack), no de ARIS4U. ARIS4U lo lee para narrativa/novelty pero no lo crea ni lo envia. En el Mac del CTO no existira -> esa via (FTS5 sobre claude-mem) queda inerte hasta que instale claude-mem aparte. Degrada limpio (no crashea) pero pierde una capa de recall.",
+            "Dependencia de Ollama + W2 para la capa semantica/dialectica: sin Ollama local la memoria semantica y aris_dialectic degradan a FTS5+guards. W2 (YOUR_W2_IP / ssh w2) esta cableado por default (W2_ENABLED=true) — un CTO sin esa red debe ponerlo en false o vera timeouts (no bloqueantes, fail-open).",
+            "MLX/Qwen3.6-27B (Fase 3b, dispatch_mlx): referenciado en config como cuerpo local opcional; requiere mlx_lm.server arrancado aparte (tools/mlx_serve.sh). LAZY y fail-open, pero es una pieza R&D no documentada para terceros.",
+            "Datos PERSONALES del usuario en sessions.db (351 decisions, 84 digests, 16 guards) con client_ids reales (aris4u, pentest, client-d, client-c, client-e, client-b, lab-project-1) — NO van en el clone porque sessions.db esta gitignored. Bien para privacidad, pero significa que el CTO no ve NADA del comportamiento 'con memoria' hasta usarlo. Si el usuario en cambio le manda un ZIP de la carpeta, DEBE excluir data/*.db (client data = posible PHI/confidencial).",
+            "Sesion en rama feat/session-briefing (no main); ultimos commits son Fase 3/4 (MLX, learning loop, framing ofensivo) sin tag de release. No hay un punto 'estable' marcado para entregar."
+          ]
+        },
+        {
+          "type": "kv",
+          "heading": "Lo que te toca hacer a ti (el usuario) — Accion 1: Dar acceso por GitHub (NO ZIP)",
+          "kv": [
+            {
+              "k": "Accion",
+              "v": "Dar acceso por GitHub (invitar al CTO al repo privado aris4u-dev/aris4u), NO mandar ZIP"
+            },
+            {
+              "k": "Por que",
+              "v": "El ZIP arrastraria data/*.db con datos reales de clientes (healthcare PHI, revenue clients) y la .venv312 local llena de paths absolutos del usuario. El git ya excluye sessions.db/aris_vectors.db/.venv312/.env por .gitignore — el clone sale limpio de datos personales por construccion."
+            },
+            {
+              "k": "Como",
+              "v": "gh repo add-collaborator o invitar por la UI; elegir un commit estable (taggear v16.9.0-install en feat/session-briefing o mergear a main primero)."
+            }
+          ]
+        },
+        {
+          "type": "kv",
+          "heading": "Accion 2: Arreglar el campo repository de plugin.json",
+          "kv": [
+            {
+              "k": "Accion",
+              "v": "Arreglar el campo repository de .claude-plugin/plugin.json"
+            },
+            {
+              "k": "Por que",
+              "v": "Hoy apunta a github.com/user-a/aris4u (no existe). El real es aris4u-dev/aris4u. Quien lea el manifest se pierde."
+            },
+            {
+              "k": "Como",
+              "v": "Editar plugin.json: repository = https://github.com/aris4u-dev/aris4u"
+            }
+          ]
+        },
+        {
+          "type": "kv",
+          "heading": "Accion 3: Forzar install.sh ANTES de registrar el plugin + validar Python 3.12",
+          "kv": [
+            {
+              "k": "Accion",
+              "v": "Documentar/forzar que install.sh corra ANTES de registrar el plugin, y validar Python 3.12"
+            },
+            {
+              "k": "Por que",
+              "v": "Es EL blocker que rompe la instalacion limpia: el venv .venv312 no viene en git pero los hooks/MCP lo exigen por ruta dura. El orden equivocado = hooks mudos y MCP caido sin error visible."
+            },
+            {
+              "k": "Como",
+              "v": "Anadir al README un orden numerado explicito (1: instalar python3.12; 2: bash install.sh; 3: claude plugin install) y un check de version de python al inicio de install.sh (abortar si no es 3.12). Idealmente generar hooks.json con ruta de venv relativa o detectada en runtime, en vez de .venv312 fija."
+            }
+          ]
+        },
+        {
+          "type": "kv",
+          "heading": "Accion 4: Escribir un README de onboarding para tercero (no para el usuario)",
+          "kv": [
+            {
+              "k": "Accion",
+              "v": "Escribir un README de onboarding para tercero (no para el usuario)"
+            },
+            {
+              "k": "Por que",
+              "v": "El README/CLAUDE.md actuales asumen el hardware y rutas del usuario (M5 48GB, W2 YOUR_W2_IP, ssh w2, modelos Ollama especificos). Un CTO sin eso necesita la ruta de degradacion explicita."
+            },
+            {
+              "k": "Como",
+              "v": "Seccion 'Install sin W2 / sin Ollama': crear ~/.aris4u/config.json con ARIS4U_W2_ENABLED=false; explicar que FTS5+guards funcionan solos y que Ollama/claude-mem son capas opcionales."
+            }
+          ]
+        },
+        {
+          "type": "kv",
+          "heading": "Accion 5: Decidir memoria semilla o vacia, y aclarar claude-mem",
+          "kv": [
+            {
+              "k": "Accion",
+              "v": "Decidir si entrega memoria semilla o vacia, y aclarar claude-mem"
+            },
+            {
+              "k": "Por que",
+              "v": "claude-mem.db (2.8GB) es de un plugin de terceros, no de ARIS4U; sin el, una capa de recall queda inerte. El CTO debe saberlo para no creer que algo esta roto."
+            },
+            {
+              "k": "Como",
+              "v": "Nota en README: 'claude-mem es opcional y se instala aparte (plugin thedotmack); ARIS4U degrada limpio sin el'. sessions.db arranca vacia por diseno — eso es correcto, no requiere accion salvo avisarlo."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "heading": "Recomendacion de acceso",
+          "text": "INVITAR AL GITHUB PRIVADO (aris4u-dev/aris4u), no enviar ZIP ni solo documentacion. Razon: el .gitignore ya excluye por construccion lo personal y sensible (data/sessions.db con datos de clientes (revenue/lab clients), aris_vectors.db, .venv312 con paths del usuario, .env con ANTHROPIC_API_KEY/XAI_API_KEY), asi que un clone sale limpio automaticamente — un ZIP de la carpeta NO, arrastraria todo eso. Acompanar la invitacion de: (a) fijar un commit estable/tag, (b) arreglar el campo repository del plugin.json, y (c) un README de onboarding de 5 pasos con el orden critico 'python3.12 -> bash install.sh -> claude plugin install' y la ruta de degradacion sin W2/Ollama. Con eso el CTO pasa de 'no puede instalar hoy' a instalacion en ~15-20 min. Sin esos arreglos, choca con el blocker del venv gitignored y los hooks le quedan mudos sin error visible."
+        }
+      ]
+    },
+    {
+      "section_id": "vis",
+      "title": "Visibilidad",
+      "summary": "Telemetría real verificada de ARIS4U (17,034 eventos, 0 llamadas de inferencia), matriz de riesgos, roadmap V2.0 con gaps abiertos, costo marginal de API ~$0, y la advertencia central: el termómetro del freeze está APAGADO (recall_feedback=0).",
+      "blocks": [
+        {
+          "type": "kv",
+          "heading": "KPIs principales (registros vivos)",
+          "kv": [
+            {
+              "k": "Eventos registrados",
+              "v": "17.034"
+            },
+            {
+              "k": "Decisiones en memoria",
+              "v": "351"
+            },
+            {
+              "k": "Resumenes de sesion",
+              "v": "84"
+            },
+            {
+              "k": "Bloqueos de PHI",
+              "v": "355"
+            },
+            {
+              "k": "Pruebas pasando",
+              "v": "1208"
+            }
+          ]
+        },
+        {
+          "type": "kv",
+          "heading": "Telemetria real (lo que ARIS4U ha hecho, contado de los registros vivos)",
+          "kv": [
+            {
+              "k": "Verificaciones de salida (sin cambios)",
+              "v": "3,291"
+            },
+            {
+              "k": "Chequeos de novedad",
+              "v": "1,642"
+            },
+            {
+              "k": "Ruteos de modelo",
+              "v": "1,468"
+            },
+            {
+              "k": "Hallazgos de migraciones",
+              "v": "1,405"
+            },
+            {
+              "k": "Inyecciones de profundidad",
+              "v": "1,291"
+            },
+            {
+              "k": "Sugerencias de modelo",
+              "v": "1,266"
+            },
+            {
+              "k": "Salidas de agente verificadas",
+              "v": "1,221"
+            },
+            {
+              "k": "Recuerdos automaticos (recall)",
+              "v": "1,099"
+            },
+            {
+              "k": "Llamadas a herramientas MCP",
+              "v": "896"
+            },
+            {
+              "k": "Lanzamientos de sub-agentes",
+              "v": "864"
+            },
+            {
+              "k": "Bloqueos de PHI hacia internet",
+              "v": "355"
+            }
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "Honestidad de instrumentación (verificado 2026-06-19)",
+          "bullets": [
+            "v16_events = 31,565 filas pero el volumen es ESPIKY, no sostenido (4,692 hoy vs ~100/día el resto).",
+            "Los payloads son `event_logged` genérico (sin subtipo consultable).",
+            "Conteos arriba = agregados reales de los registros vivos.",
+            "⚠️ `recall_feedback` = 0 → la métrica de éxito del freeze NO está instrumentada (ver card aparte)."
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "Métrica del freeze — el termómetro del proyecto está APAGADO",
+          "bullets": [
+            "VERIFICADO 2026-06-19: `recall_feedback` tiene 0 filas.",
+            "La ÚNICA métrica de éxito que el usuario definió para el freeze (≥3 recalls útiles/semana sostenido 2 semanas) NO tiene un solo dato capturado — hoy NO se puede medir éxito/fracaso del freeze.",
+            "Es la pieza de visibilidad más crítica que faltaba.",
+            "El harness F2 (`tools/f1_roi.py` + `f1_feedback.py`, construido esta sesión) ya instrumenta el ROI de F1 con el mismo patrón opt-in/sin-auto-etiquetado que sirve para encender este termómetro."
+          ]
+        },
+        {
+          "type": "table",
+          "heading": "Mapa de datos: que es personal y que se puede compartir",
+          "table": {
+            "headers": [
+              "Clasificacion",
+              "Que es",
+              "Tipo"
+            ],
+            "rows": [
+              [
+                "Se queda SIEMPRE en tu maquina (NUNCA sale del repo)",
+                "sessions.db con decisiones de clientes (Client-C, Client-D, Client-B)",
+                "Datos de cliente / posible PHI"
+              ],
+              [
+                "Se queda SIEMPRE en tu maquina",
+                "aris_vectors.db (indice semantico) y claude-mem.db (2.8 GB)",
+                "Memoria personal del usuario"
+              ],
+              [
+                "Se queda SIEMPRE en tu maquina",
+                "Archivo .env con las claves de API (Anthropic, xAI)",
+                "Secretos"
+              ],
+              [
+                "Se queda SIEMPRE en tu maquina",
+                ".venv312 (entorno Python con rutas del usuario)",
+                "Entorno local"
+              ],
+              [
+                "Se comparte por GitHub (sale limpio en un clone)",
+                "Codigo del motor, hooks, MCP, skills, config de ejemplo",
+                "Codigo (compartible)"
+              ]
+            ]
+          }
+        },
+        {
+          "type": "table",
+          "heading": "Matriz de riesgos",
+          "table": {
+            "headers": [
+              "Riesgo",
+              "Severidad",
+              "Mitigacion"
+            ],
+            "rows": [
+              [
+                "El daemon MCP cachea el codigo viejo",
+                "Medio",
+                "Un arreglo no aplica hasta reiniciar la sesion de Claude. Documentado; reiniciar tras cambios."
+              ],
+              [
+                "Seguridad 'best-effort' (fail-open)",
+                "Medio",
+                "Si un guard bloqueante falla, deja pasar la accion (no rompe el flujo). Es a proposito, pero la garantia no es dura."
+              ],
+              [
+                "Bus factor del proyecto",
+                "Medio",
+                "El código y los tests son la fuente de verdad; la documentación de instalación y el CI cubren el onboarding."
+              ],
+              [
+                "Modelo 27B (Qwen3.6 MLX) VALIDADO en vivo (2026-06-19)",
+                "Resuelto",
+                "Probado: PRE estructura prompt crudo en spec (29s); POST detecta SQLi+div0+logica en codigo plantado (10s). Caveat: thinking-off obligatorio (con thinking gasta presupuesto y devuelve vacio). Ver tab Arquitectura V2."
+              ],
+              [
+                "Dependencias locales (Python 3.12 + Ollama)",
+                "Medio",
+                "Sin esto, partes degradan en silencio. Mitigacion: README de instalacion + validacion en install.sh."
+              ],
+              [
+                "CI multiplataforma (Linux) VERDE",
+                "Resuelto (Linux)",
+                "GitHub Actions (.github/workflows/ci.yml) corre pytest -m \"not integration\" en ubuntu+py3.12, VERDE. Destapo y arreglo ~40 fallos de portabilidad (rutas/.venv312/jq hardcodeados). Falta: runners Windows/macOS."
+              ]
+            ]
+          }
+        },
+        {
+          "type": "table",
+          "heading": "Seguridad y privacidad (PHI, secretos, repo, historial) — verificado 2026-06-19",
+          "table": {
+            "headers": [
+              "Aspecto",
+              "Estado"
+            ],
+            "rows": [
+              [
+                "Repo GitHub",
+                "PRIVADO (verificado vía gh)"
+              ],
+              [
+                "PHI (healthcare clients)",
+                "Solo local: decisiones por cliente en sessions.db (client-c 48, client-e 139…) NUNCA salen del Mac; phi_guard + phi_sanitizer scoped a healthcare"
+              ],
+              [
+                "Secretos",
+                ".env 0600 (rw-------) y data/.memory_key 0600 (clave de cifrado 32B) — no se commitean"
+              ],
+              [
+                "Prevención de fugas",
+                ".gitleaksignore (53 líneas) + redact handler censura secretos en el output de comandos"
+              ],
+              [
+                "Historial git",
+                "reescrito 2× con filter-repo: claves Syncthing purgadas + video 499MB removido (espejos pre-rewrite en ~/Backups)"
+              ],
+              [
+                "PHI hacia internet",
+                "355 bloqueos registrados (telemetría)"
+              ]
+            ]
+          }
+        },
+        {
+          "type": "table",
+          "heading": "Roadmap V2.0 — qué falta (gap analysis consolidado de ~8 docs)",
+          "table": {
+            "headers": [
+              "Pendiente",
+              "Estado"
+            ],
+            "rows": [
+              [
+                "Métrica del freeze instrumentada (recalls útiles/sem)",
+                "sin instrumentar (recall_feedback=0)"
+              ],
+              [
+                "F1 → medir ROI (F2) → calibrar el sensor (§8.5)",
+                "F1/F2 construidos; falta acumular ≥30 etiquetas"
+              ],
+              [
+                "Cablear §8.4 congestión tras parametrizar λ/μ/σ",
+                "biblioteca lista pero dormida (advisory: no controla el scheduler de Claude Code)"
+              ],
+              [
+                "Backfill de 68 decisiones con client_id NULL",
+                "pendiente (riesgo de scope/fuga cross-client)"
+              ],
+              [
+                "Merge feat/session-briefing → main",
+                "decisión pendiente (muchos commits acumulados)"
+              ],
+              [
+                "code_quality_gate / commit_quality_gate sin tests",
+                "gap de cobertura conocido"
+              ]
+            ]
+          }
+        },
+        {
+          "type": "kv",
+          "heading": "Costos — el costo marginal de ARIS4U en API es ~0",
+          "kv": [
+            {
+              "k": "Cognición",
+              "v": "El plan de Claude Code que el usuario YA paga (ARIS4U lo cabalga, no lo duplica)"
+            },
+            {
+              "k": "Inferencia local (embeddings bge-m3/mxbai, cuerpo 27B)",
+              "v": "$0 — Ollama/MLX en M5, keep_alive=0 (RAM solo al usar)"
+            },
+            {
+              "k": "Hardware",
+              "v": "M5 + W2 ya owned"
+            },
+            {
+              "k": "API del engine",
+              "v": "$0 (solo count_tokens, gratis)"
+            }
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "Costos — nota verificada (mito del 'costo de IA')",
+          "bullets": [
+            "VERIFICADO 2026-06-19: el engine hace 0 llamadas de inferencia (`messages.create`).",
+            "Las 3 referencias a anthropic en engine/ son el endpoint GRATIS `/v1/messages/count_tokens` + nombres de modelo, no generación."
+          ]
+        },
+        {
+          "type": "table",
+          "heading": "Glosario (apéndice)",
+          "table": {
+            "headers": [
+              "Término",
+              "Significado"
+            ],
+            "rows": [
+              [
+                "V16.x",
+                "El MOTOR (shipped V16.9). No confundir con milestones de negocio."
+              ],
+              [
+                "V17 / V18",
+                "Vertical healthcare / roadmap comercial — NO son releases del engine."
+              ],
+              [
+                "7 MCP tools",
+                "aris_search, aris_ingest, aris_recall_client, aris_dialectic, aris_structure (F1 PRE), aris_critique (F1 POST), aris_health."
+              ],
+              [
+                "Scope por cliente",
+                "Cada decisión/recall etiquetada (client-e, aris4u, client-c, lab-project-1, client-d, pentest, client-b) → memoria aislada por cliente."
+              ],
+              [
+                "F1 / F2",
+                "Amplificador local de I/O (estructura/critica) / harness que mide su ROI."
+              ],
+              [
+                "§8.4 / §8.5",
+                "Capa de congestión (colas/Markov) / calibración del sensor (logística) del blueprint."
+              ]
+            ]
+          }
+        },
+        {
+          "type": "table",
+          "heading": "Cambios sesion 2026-06-18 — Fase V2 demolicion (8 commits)",
+          "table": {
+            "headers": [
+              "Fase",
+              "Que se hizo"
+            ],
+            "rows": [
+              [
+                "F0 Rescate",
+                "Se aseguro el trabajo sin guardar + documentos + .gitignore"
+              ],
+              [
+                "F1 Foso",
+                "Memoria semantica revivida (recuperadas 6191 notas mudas) + registro de eventos reducido de 440k a 27k (base 77 a 11 MB)"
+              ],
+              [
+                "F2 Limpieza",
+                "Borrada basura del proyecto + 130 MB movidos a respaldo"
+              ],
+              [
+                "F3a Router",
+                "Catalogo de modelos reapuntado a modelos vivos; segunda opinion local revivida"
+              ],
+              [
+                "F3b Cuerpo local",
+                "Modelo grande (27B) via MLX, con arranque perezoso y control de RAM; descargado (15 GB)"
+              ],
+              [
+                "F3c Aprendizaje",
+                "El motor de aprendizaje ya corre sin romperse + senal real de verificacion"
+              ],
+              [
+                "F4 Framing",
+                "Decision OFENSIVA del vertical de salud registrada en los documentos canonicos"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "section_id": "ses",
+      "title": "Sesiones",
+      "summary": "Handover consolidado único y validado (2026-06-19): un solo documento con el estado VALIDADO de ARIS4U (lo hecho y lo que falta), que reemplaza los handovers fragmentados previos cuyo detalle fino vive en los commits de git.",
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Qué es esto (overview verbatim)",
+          "text": "Handover consolidado. Un solo documento con el estado VALIDADO (lo hecho y lo que falta). Click en la tarjeta para abrirlo en grande. Reemplaza los handovers fragmentados previos (su detalle fino vive en los commits de git). Si algo aquí choca con el repo vivo, manda el repo: git -C ~/projects/aris4u log --oneline -8 + pytest -q."
+        },
+        {
+          "type": "kv",
+          "heading": "Cabecera de la sesión (fecha / rama / HEAD / suite)",
+          "kv": [
+            {
+              "k": "Fecha",
+              "v": "2026-06-19"
+            },
+            {
+              "k": "Rama",
+              "v": "feat/session-briefing"
+            },
+            {
+              "k": "HEAD",
+              "v": "cf9737e"
+            },
+            {
+              "k": "Suite",
+              "v": "1288 / 0 fail"
+            },
+            {
+              "k": "Calidad código",
+              "v": "ruff limpio, 0 hotspots de complejidad ≥D"
+            },
+            {
+              "k": "Título de la tarjeta",
+              "v": "ESTADO CONSOLIDADO — qué hay, qué se hizo, qué falta"
+            }
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "⭐ Lo que necesitas saber YA",
+          "bullets": [
+            "Modelo local GENERATIVO = Qwen3.6-35B-A3B (MoE) vía MLX (puerto 8765). APAGADO por defecto / lazy — se arranca a mano con tools/mlx_serve.sh start (necesita ≥26 GB libres) y cede RAM al pararse.",
+            "El modelo local NO está cableado a los hooks (es opt-in, por RAM/latencia). Lo usan, si está vivo, aris_structure/aris_critique y el digest; si está apagado, el router cae a Foundation-Sec/W2 (fail-open).",
+            "EMBEDDINGS = bge-m3 (recall) + mxbai (F1) vía Ollama — NO cambiaron. bge-m3 ganó el A/B contra Qwen-embedding; Ollama sigue vivo y es necesario para el recall.",
+            "Ollama y MLX son capas distintas: Ollama = embeddings, MLX = generativo.",
+            "Repo: rama feat/session-briefing, HEAD cf9737e, suite 1288 / 0 fail, ruff limpio, 0 hotspots de complejidad ≥D."
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "✅ Lo que YA se hizo (validado)",
+          "bullets": [
+            "Calidad base (sesiones previas): 'Todo Verde' I y II — CI verde, ruff 134→0, ~14 hotspots ≥D → 0. Capa formal orchestration/ (§8.4-8.5, dormida). Amplificador local F1 (aris_structure/aris_critique) + harness de ROI F2.",
+            "Investigación del reel de Instagram (AirLLM/SubQ/Wave Field): descartado como ADOPCIÓN (irreproducible / closed / lento), pero se DESTILARON sus principios en un rediseño del recall (ver 'lo que falta').",
+            "Elección del cuerpo local por benchmark en el M5: Qwen3.6-35B-A3B MoE ganó (106.6 tok/s MLX vs 71.5 Ollama vs 15.2 del 27B denso; Llama-70B no cabe). Cableado a config.py/mlx_serve.sh y verificado funcional (smoke test: structure+critique OK, thinking-off, cazó un bug plantado).",
+            "Audit del código (HTML): la base es FIEL al reporte → se cerraron los GAPS, no se re-leyó lo verde."
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "✅ Audit del código — GAPS cerrados por severidad",
+          "bullets": [
+            "🔴 ALTO: canary anti-cambio-de-modelo en novelty_detector (bug latente; CC 13→6) + tests de ws3_backfill + regresión de _hydrate.",
+            "🟡 MEDIO: bug real de prune_old_events corregido + aris_recall_client scoped. (Hallazgo: los quality gates YA estaban testeados — el reporte estaba stale.)",
+            "🟢 BAJO: funciones inertes de knowledge_atoms borradas + atom D04 stale corregido.",
+            "Total: +21 tests (1267→1288), 1 bug real, ruff limpio, 0 hotspots ≥D."
+          ]
+        },
+        {
+          "type": "table",
+          "heading": "Commits de hoy (2026-06-19)",
+          "table": {
+            "headers": [
+              "Commit",
+              "Alcance"
+            ],
+            "rows": [
+              [
+                "795ab43",
+                "MoE (cuerpo local Qwen3.6-35B-A3B)"
+              ],
+              [
+                "f48855c",
+                "ALTO (canary novelty_detector + tests ws3_backfill + regresión _hydrate)"
+              ],
+              [
+                "2795a67",
+                "fix prune (bug real prune_old_events)"
+              ],
+              [
+                "acf590d",
+                "MEDIO (recall_client scoped + quality gates)"
+              ],
+              [
+                "cf9737e",
+                "BAJO (knowledge_atoms + atom D04) — HEAD"
+              ]
+            ]
+          }
+        },
+        {
+          "type": "bullets",
+          "heading": "⏳ Lo que FALTA (en orden)",
+          "bullets": [
+            "1. DECISIÓN tuya: merge feat/session-briefing → main (muchos commits acumulados). No se ha hecho.",
+            "2. Rediseño del recall — 4 palancas (DISEÑADO, NO implementado). Es el trabajo de fondo real, destilado del reel.",
+            "3. 46 funciones grado C (CC 11-20): advisory, no urgentes.",
+            "4. Proyecto B — auto-generar el tab Inventario del HTML: hoy se mantiene A MANO, lo que causa drift (verificado: afirmaba 'quality gates sin tests' cuando tenían 44; listaba search_semantic ya borrado). La mejor forma = un generador que escanee el código real (como status-gen hace con STATUS.md). Decidido 2026-06-19, pendiente."
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "Rediseño del recall — las 4 palancas (detalle)",
+          "bullets": [
+            "(1) kernel de decaimiento temporal multi-escala en el scoring (hoy es coseno puro; apply_decay existe pero no está cableado);",
+            "(2) estado comprimido / resúmenes jerárquicos de las observations viejas;",
+            "(3) working-set: anclar en RAM hoy (caché del canary/embeddings) vs paginar a futuro;",
+            "(4) ANN/HNSW cuando la base cruce ~50-100k vectores.",
+            "Prerequisito para medir: cerrar el loop recall_feedback (hoy vacío) + ORDER BY rank en FTS5 + fusión RRF."
+          ]
+        },
+        {
+          "type": "bullets",
+          "heading": "Cómo retomar (próximo paso recomendado)",
+          "bullets": [
+            "Si quieres consolidar el repo: decidir el merge a main.",
+            "Si quieres avanzar producto: empezar la palanca 1 del recall (decay multi-escala) tras cerrar el prerequisito recall_feedback — es el mayor ROI y 0 riesgo de RAM.",
+            "Para usar el cuerpo local: tools/mlx_serve.sh start (por ráfaga; pararlo al terminar)."
+          ]
+        }
+      ]
+    }
+  ]
+}

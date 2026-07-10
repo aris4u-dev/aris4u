@@ -1,0 +1,197 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py UserPromptSubmit",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/enterprise-build-hint.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/clarify-gate.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/governor-context.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py Stop",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py SubagentStart",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py PostToolUse",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/static-analysis-gate.py",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Bash|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/big-output-advisor.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/bootstrap_venv.sh",
+            "timeout": 300
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py SessionStart",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/session-tier-reminder.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|Read|WebFetch|WebSearch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py PreToolUse",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Workflow|Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/model-routing-guard.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Workflow|Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/ram-saturation-guard.sh",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/pre-bash-guard.sh",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/pre-commit-gate.sh",
+            "timeout": 90
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py SessionEnd",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.venv312/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/standalone/governor-record.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

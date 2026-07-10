@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARIS4U — Install, configure & use with Claude Code</title>
+<style>
+  :root{
+    --bg:#0b0f17; --bg2:#111726; --card:#161d2e; --card2:#1c2538;
+    --line:#27314a; --txt:#e8edf7; --muted:#9aa7c2; --dim:#6b7794;
+    --acc:#6ea8fe; --acc2:#a78bfa; --ok:#4ade80; --warn:#fbbf24; --pink:#f0abfc;
+    --code:#0e1420; --pill:#22304d;
+    --grad:linear-gradient(135deg,#6ea8fe 0%,#a78bfa 60%,#f0abfc 100%);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+       background:radial-gradient(1200px 700px at 80% -10%,#1a2238 0%,var(--bg) 55%);
+       color:var(--txt);line-height:1.6;font-size:16.5px;-webkit-font-smoothing:antialiased}
+  a{color:var(--acc);text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  /* language switch */
+  .langbar{position:fixed;top:12px;right:14px;z-index:50;display:flex;gap:2px;
+    background:var(--card);border:1px solid var(--line);border-radius:9px;padding:3px;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+  .langbtn{border:0;background:transparent;color:var(--muted);font-size:12.5px;font-weight:700;
+    padding:5px 11px;border-radius:6px;cursor:pointer;font-family:inherit;transition:.15s}
+  .langbtn:hover{color:var(--txt)}
+  .langbtn.active{background:var(--card2);color:#fff}
+  .doc[hidden]{display:none}
+
+  header.hero{padding:60px 0 26px;text-align:center}
+  .logo{display:inline-flex;align-items:center;gap:16px;margin-bottom:16px}
+  .logo h1{font-size:44px;margin:0;letter-spacing:-1.2px;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .tag{font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:999px;
+    padding:5px 14px;display:inline-block;margin-top:4px;background:rgba(255,255,255,.02)}
+  .sub{color:var(--muted);max-width:680px;margin:14px auto 0;font-size:18px}
+  .pillars{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .pillar{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 20px;
+    min-width:230px;text-align:left;display:flex;gap:13px;align-items:flex-start}
+  .pillar .pico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:none;font-size:20px}
+  .pillar h4{margin:0 0 3px;font-size:15.5px}
+  .pillar p{margin:0;font-size:13px;color:var(--muted)}
+  .meta-row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+  .chip{font-size:12.5px;color:var(--txt);background:var(--pill);border:1px solid var(--line);
+    border-radius:8px;padding:6px 12px;display:inline-flex;align-items:center;gap:6px}
+
+  nav.tabs{position:sticky;top:0;z-index:20;background:rgba(11,15,23,.84);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line);margin-top:30px}
+  .tabs-inner{max-width:1080px;margin:0 auto;display:flex;gap:5px;padding:9px 22px}
+  .tab-btn{flex:1;border:0;background:transparent;color:var(--muted);font-size:15px;
+    font-weight:600;padding:12px 8px;border-radius:11px;cursor:pointer;transition:.18s;
+    display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit}
+  .tab-btn:hover{color:var(--txt);background:rgba(255,255,255,.03)}
+  .tab-btn.active{color:#fff;background:var(--card2)}
+  .tab-btn .ic{width:18px;height:18px}
+
+  section.tab{display:none;padding:40px 0 80px;animation:fade .4s ease}
+  section.tab.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  h2.title{font-size:27px;margin:0 0 6px;letter-spacing:-.5px}
+  .lead{color:var(--muted);margin:0 0 30px;font-size:17px;max-width:740px}
+
+  .step{display:flex;gap:18px;margin-bottom:16px;background:var(--card);
+    border:1px solid var(--line);border-radius:16px;padding:20px 22px;transition:.2s}
+  .step:hover{border-color:#34406180}
+  .step .num{flex:none;width:40px;height:40px;border-radius:11px;background:var(--grad);
+    color:#0b0f17;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center}
+  .step .body{flex:1;min-width:0}
+  .step h3{margin:2px 0 6px;font-size:18px}
+  .step p{margin:0 0 11px;color:var(--muted)}
+  .step .opt{font-size:13px;color:var(--dim);font-style:italic}
+
+  .code{position:relative;background:var(--code);border:1px solid var(--line);
+    border-radius:11px;padding:14px 16px;margin:10px 0;overflow-x:auto}
+  .code pre{margin:0;font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;
+    font-size:13.5px;color:#cfe0ff;white-space:pre;line-height:1.7}
+  .code .c{color:#5f7398}
+  .code .k{color:#f0abfc}
+  .code .s{color:#7ee2b0}
+  .copy{position:absolute;top:9px;right:9px;background:var(--pill);border:1px solid var(--line);
+    color:var(--muted);font-size:12px;padding:5px 11px;border-radius:7px;cursor:pointer;
+    font-family:inherit;transition:.15s}
+  .copy:hover{color:#fff;background:#2c3a5c}
+  .copy.done{color:var(--ok);border-color:#2f5d44}
+
+  .note{border-left:3px solid var(--acc);background:rgba(110,168,254,.07);
+    border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;color:var(--muted);font-size:14.5px}
+  .note.warn{border-color:var(--warn);background:rgba(251,191,36,.07)}
+  .note.ok{border-color:var(--ok);background:rgba(74,222,128,.06)}
+  .note b{color:var(--txt)}
+  .kbd{font-family:ui-monospace,monospace;background:var(--pill);border:1px solid var(--line);
+    border-radius:5px;padding:1px 7px;font-size:12.5px;color:var(--txt)}
+
+  /* config table */
+  table.cfg{width:100%;border-collapse:collapse;margin:8px 0 6px;font-size:14px}
+  table.cfg th{text-align:left;color:var(--acc2);font-size:12px;text-transform:uppercase;
+    letter-spacing:.6px;padding:8px 10px;border-bottom:1px solid var(--line)}
+  table.cfg td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+  table.cfg td code{background:var(--code);padding:2px 7px;border-radius:5px;color:#9ec5ff;
+    font-family:ui-monospace,monospace;font-size:12.5px}
+  table.cfg td:first-child{white-space:nowrap}
+  .badge{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px}
+  .badge.req{background:rgba(110,168,254,.16);color:var(--acc)}
+  .badge.rec{background:rgba(74,222,128,.14);color:var(--ok)}
+  .badge.opt{background:rgba(155,167,194,.14);color:var(--muted)}
+
+  /* stack */
+  .stackgrp{margin:26px 0}
+  .stackgrp h3{font-size:16px;margin:0 0 4px;display:flex;align-items:center;gap:9px}
+  .stackgrp .gsub{color:var(--dim);font-size:13px;margin:0 0 13px}
+  .subhd{color:var(--acc2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin:16px 0 8px}
+  .subhd.first{margin-top:4px}
+  .chiprow{display:flex;flex-wrap:wrap;gap:9px}
+  .schip{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 13px;
+    font-size:13.5px;display:flex;flex-direction:column;gap:2px;min-width:0;transition:.15s}
+  .schip:hover{border-color:#41507a}
+  .schip b{color:var(--txt);font-family:ui-monospace,monospace;font-size:13px}
+  .schip span{color:var(--muted);font-size:12px}
+  .excl{border-left:3px solid var(--warn);background:rgba(251,191,36,.06);border-radius:0 10px 10px 0;
+    padding:12px 16px;margin:18px 0 4px;color:var(--muted);font-size:14px}
+  .excl b{color:var(--warn)}
+  /* prompts */
+  .prompt-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:15px}
+  .prompt-card .ph{display:flex;align-items:center;gap:11px;margin-bottom:5px}
+  .prompt-card .ph .dot{width:32px;height:32px;border-radius:10px;background:var(--card2);
+    display:flex;align-items:center;justify-content:center;flex:none}
+  .prompt-card h3{margin:0;font-size:16.5px}
+  .prompt-card .why{color:var(--dim);font-size:13px;margin:0 0 11px 43px}
+  .pbox{position:relative;background:var(--code);border:1px solid var(--line);
+    border-radius:11px;padding:14px 16px;color:#dbe6ff;font-size:14px}
+  .pbox .lbl{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--acc2);
+    font-weight:700;display:block;margin-bottom:6px}
+
+  /* value */
+  .galaxy{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:15px;margin-top:8px}
+  .imp{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;transition:.2s}
+  .imp:hover{transform:translateY(-3px);border-color:#41507a}
+  .imp .ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:13px}
+  .imp h3{margin:0 0 6px;font-size:17.5px}
+  .imp p{margin:0 0 11px;color:var(--muted);font-size:14.5px}
+  .imp .what{font-size:12.5px;color:var(--dim);border-top:1px solid var(--line);padding-top:10px}
+  .imp .what code{background:var(--code);padding:2px 7px;border-radius:5px;color:#9ec5ff;font-size:12px;font-family:ui-monospace,monospace}
+  .grp-title{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--acc2);
+    font-weight:700;margin:36px 0 14px;display:flex;align-items:center;gap:12px}
+  .grp-title::after{content:"";flex:1;height:1px;background:var(--line)}
+  .grp-title:first-of-type{margin-top:6px}
+  .dlist{display:flex;flex-direction:column;gap:11px;margin-top:6px}
+  .drow{display:flex;gap:18px;background:var(--card);border:1px solid var(--line);
+    border-radius:13px;padding:15px 18px;transition:.18s}
+  .drow:hover{border-color:#41507a;transform:translateX(2px)}
+  .drow .dleft{flex:none;width:184px;display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+  .dname{font-family:ui-monospace,"SF Mono",monospace;font-size:13.5px;color:#9ec5ff;
+    background:var(--code);border:1px solid var(--line);border-radius:8px;padding:5px 11px;display:inline-block;font-weight:600}
+  .dwho{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--dim);font-weight:700}
+  .drow .dbody{flex:1;min-width:0}
+  .drow .dbody h4{margin:0 0 5px;font-size:15px;color:var(--txt)}
+  .drow p{margin:0;color:var(--muted);font-size:14px}
+  .drow .use{display:block;margin-top:8px;font-size:12.5px;color:var(--acc2)}
+  .drow .use b{color:var(--acc)}
+  @media(max-width:680px){.drow{flex-direction:column;gap:8px}.drow .dleft{width:auto;flex-direction:row;align-items:center}.logo h1{font-size:34px}.tab-btn span.t{display:none}}
+
+  .archfig{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;margin:0 0 34px;text-align:center}
+  .archfig svg{max-width:100%;height:auto}
+  footer{border-top:1px solid var(--line);padding:28px 0 50px;text-align:center;color:var(--dim);font-size:13.5px}
+</style>
+</head>
+<body>
+
+<div class="langbar">
+  <button id="lang-en" class="langbtn active">EN</button>
+  <button id="lang-es" class="langbtn">ES</button>
+</div>
+
+<!-- gradientes compartidos por ambos idiomas (IDs únicos, siempre resuelven) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="lg" x1="0" y1="0" x2="64" y2="64"><stop stop-color="#6ea8fe"/><stop offset="1" stop-color="#a78bfa"/></linearGradient>
+  <linearGradient id="ag" x1="0" x2="760"><stop stop-color="#6ea8fe"/><stop offset="1" stop-color="#a78bfa"/></linearGradient>
+</defs></svg>
+
+<!-- ================================================================ -->
+<!-- =========================  ENGLISH  ============================= -->
+<!-- ================================================================ -->
+<div class="doc" id="doc-en">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="logo">
+      <svg width="56" height="56" viewBox="0 0 64 64" fill="none">
+        <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#lg)" opacity="0.16"/>
+        <rect x="4.5" y="4.5" width="55" height="55" rx="15.5" stroke="url(#lg)"/>
+        <circle cx="32" cy="32" r="7" fill="url(#lg)"/>
+        <circle cx="16" cy="18" r="3.4" fill="#6ea8fe"/><circle cx="48" cy="18" r="3.4" fill="#a78bfa"/>
+        <circle cx="16" cy="46" r="3.4" fill="#a78bfa"/><circle cx="48" cy="46" r="3.4" fill="#f0abfc"/>
+        <g stroke="url(#lg)" stroke-width="1.6" opacity=".75">
+          <line x1="32" y1="32" x2="16" y2="18"/><line x1="32" y1="32" x2="48" y2="18"/>
+          <line x1="32" y1="32" x2="16" y2="46"/><line x1="32" y1="32" x2="48" y2="46"/></g>
+      </svg>
+      <h1>ARIS4U</h1>
+    </div>
+    <div><span class="tag">v18.0.0 · model-aware intelligence router for Claude Code</span></div>
+    <p class="sub">Turns your Claude Code into a collaborator that <b>remembers</b>, <b>verifies your code</b>, <b>routes every subagent to the right model tier</b> and uses its whole toolkit on its own, in logical order. Complete install, configuration and usage guide.</p>
+    <div class="pillars">
+      <div class="pillar"><div class="pico" style="background:rgba(110,168,254,.16)">🧠</div>
+        <div><h4>Pillar 1 · Memory</h4><p>Persists decisions and remembers per project. Own storage — no third-party plugin required.</p></div></div>
+      <div class="pillar"><div class="pico" style="background:rgba(74,222,128,.13)">🛡️</div>
+        <div><h4>Pillar 2 · Verification</h4><p>Won't let code through without tests/lint/types. Automatic gate.</p></div></div>
+      <div class="pillar"><div class="pico" style="background:rgba(167,139,250,.16)">🎼</div>
+        <div><h4>Conductor</h4><p>Recognizes and uses your skills/MCP automatically, when they're needed.</p></div></div>
+      <div class="pillar"><div class="pico" style="background:rgba(240,171,252,.16)">🧭</div>
+        <div><h4>Model Router (V18)</h4><p>Routes each Agent() to Fable/Opus/Sonnet/Haiku by cognitive difficulty. Never overpays.</p></div></div>
+    </div>
+    <div class="meta-row">
+      <span class="chip">🐍 Python 3.11+</span>
+      <span class="chip">⌨️ Claude Code CLI</span>
+      <span class="chip">✦ Claude Max account</span>
+      <span class="chip">🖥️ macOS / Linux</span>
+      <span class="chip">🦙 Ollama <em style="color:var(--dim);font-style:normal">(optional)</em></span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab-btn active" data-tab="install">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+      <span class="t">Install</span></button>
+    <button class="tab-btn" data-tab="config">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1m0-12.8l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>
+      <span class="t">Claude config</span></button>
+    <button class="tab-btn" data-tab="stack">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span class="t">Full stack</span></button>
+    <button class="tab-btn" data-tab="prompts">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9h8M8 13h5M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="t">Prompts for Claude</span></button>
+    <button class="tab-btn" data-tab="value">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>
+      <span class="t">What you get</span></button>
+    <button class="tab-btn" data-tab="help">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.8 2.8 0 0 1 5.5.8c0 1.9-2.7 2.6-2.7 2.6"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span class="t">Help</span></button>
+  </div>
+</nav>
+
+<!-- ============ INSTALL ============ -->
+<section class="tab active" data-tab="install">
+ <div class="wrap">
+  <h2 class="title">Install</h2>
+  <p class="lead">ARIS4U is a <b>Claude Code plugin</b>. The recommended path is <b>3 commands</b> inside
+     Claude Code — no cloning, no editing files by hand. Onboarding happens <i>inside</i> Claude.</p>
+
+  <div class="note ok" style="border-left:4px solid var(--ok);padding:16px 20px;margin:18px 0;background:rgba(74,222,128,.06)">
+    <h3 style="margin-top:0">👋 Not a developer? Even simpler.</h3>
+    <p>Install once (below). The <b>first time you open Claude</b>, ARIS4U <b>finishes the setup by itself</b> —
+       it generates your config, adds the recommended settings for you (you just approve), and turns on the
+       semantic router. After that you <b>never touch a command</b>: just describe what you want in plain
+       language and ARIS4U + Claude pick the right tools and do it, <b>from A to Z</b>. You focus on the
+       <i>what</i>; they handle the <i>how</i>.</p>
+  </div>
+
+  <div class="note" style="border-left:4px solid var(--acc);padding:16px 20px;margin:18px 0;background:rgba(255,255,255,.03)">
+    <h3 style="margin-top:0">✅ Native install · 3 commands</h3>
+    <p>Type them inside Claude Code. Skills, agents, hooks and the MCP server are auto-discovered:</p>
+    <div class="code"><button class="copy">Copy</button><pre><span class="k">/plugin</span> marketplace add https://github.com/aris4u-dev/aris4u.git
+<span class="k">/plugin</span> install aris4u@aris4u-dev
+<span class="k">/reload-plugins</span></pre></div>
+    <p>On the <b>first session</b>, a <code style="color:var(--acc)">SessionStart</code> hook builds the Python
+       environment (<span class="kbd">.venv312</span> + deps) once, on its own. Then the guided onboarding detects
+       what's missing, generates your config and shows you exactly which env vars to paste (the only manual step):</p>
+    <div class="code"><button class="copy">Copy</button><pre><span class="k">/aris-onboard</span>     <span class="c"># full onboarding: config + env vars + verification (incl. /aris-status)</span></pre></div>
+    <p style="font-size:13px;color:var(--dim);margin:6px 0 0">You can run <span class="kbd">/aris-status</span> anytime to re-confirm the state (hooks + MCP + memory alive).</p>
+  </div>
+
+  <h3 style="margin-top:30px;opacity:.85">Manual install / development (alternative, step by step)</h3>
+  <p class="lead" style="font-size:14px;margin-top:4px">If you'd rather clone the repo — for example to develop on ARIS4U. ~5 minutes.</p>
+
+  <div class="step"><div class="num">0</div><div class="body">
+    <h3>Requirements</h3>
+    <p>Python 3.11+ (3.12 recommended), Git, and Claude Code with your Max account. <code style="color:var(--acc)">jq</code> is <b>REQUIRED</b> — used by the <code>parallel-dispatch-guard</code> and <code>gpu-crash-guard</code> hooks. Without it, those guards silently fail.</p>
+    <div class="code"><button class="copy">Copy</button><pre>python3 --version   <span class="c"># &gt;= 3.11</span>
+git --version
+claude --version</pre></div>
+  </div></div>
+
+  <div class="step"><div class="num">1</div><div class="body">
+    <h3>Clone the repository</h3>
+    <div class="code"><button class="copy">Copy</button><pre>cd ~/projects
+git clone https://github.com/aris4u-dev/aris4u.git aris4u
+cd aris4u</pre></div>
+  </div></div>
+
+  <div class="step"><div class="num">2</div><div class="body">
+    <h3>Run the installer</h3>
+    <p>Creates the venv, installs dependencies, passes the verification gate and generates your config. Idempotent.</p>
+    <div class="code"><button class="copy">Copy</button><pre>bash install.sh           <span class="c"># interactive: pick your projects</span>
+<span class="c"># or fully automatic (auto-detects hardware and projects):</span>
+bash install.sh --yes
+<span class="c"># additional flags: --cron (installs daily auto-adapt cron) · --no-init (skips config generation)</span></pre></div>
+    <p class="opt">Generates <span class="kbd">~/.aris4u/config.json</span> with your hardware/projects — nothing is hard-wired to the author.</p>
+  </div></div>
+
+  <div class="step"><div class="num">3</div><div class="body">
+    <h3>Register it as a plugin in Claude Code</h3>
+    <p>This is how Claude loads the hooks and the 7 MCP tools, by plugin convention.</p>
+    <div class="code"><button class="copy">Copy</button><pre>claude plugin marketplace add ~/projects/aris4u
+claude plugin install aris4u@aris4u-dev</pre></div>
+    <div class="note warn"><b>Heads up:</b> if this machine already had ARIS4U wired by hand in
+      <span class="kbd">~/.claude/settings.json</span>, remove those blocks (with a backup) after confirming
+      the plugin loads, or the hooks would run twice.</div>
+  </div></div>
+
+  <div class="step"><div class="num">4</div><div class="body">
+    <h3>Apply the recommended Claude configuration</h3>
+    <p>The env vars from the <b>Claude config</b> tab tune ARIS4U (cache, verify-gate, memory). Copy them into your settings.</p>
+    <div class="code"><button class="copy">Copy</button><pre><span class="c"># open your global settings to paste the "env" block (see Config tab)</span>
+$EDITOR ~/.claude/settings.json</pre></div>
+  </div></div>
+
+  <div class="step"><div class="num">5</div><div class="body">
+    <h3>Verify it's alive</h3>
+    <p>Open Claude Code in any project and ask for the status.</p>
+    <div class="code"><button class="copy">Copy</button><pre><span class="k">/aris-status</span></pre></div>
+  </div></div>
+
+  <div class="step"><div class="num">+</div><div class="body">
+    <h3>Optional · Local semantic memory with Ollama</h3>
+    <p>Without Ollama it works with text search + guards. With Ollama you add <b>semantic recall</b>,
+       the <b>Conductor router</b> and <b>dialectic</b>, all local (private).</p>
+    <div class="code"><button class="copy">Copy</button><pre><span class="c"># install Ollama: https://ollama.com</span>
+ollama pull embeddinggemma       <span class="c"># PRIMARY — session recall (EMBED_MODEL in engine/v16/config.py)</span>
+ollama pull mxbai-embed-large    <span class="c"># capability router (Conductor semantic matching)</span></pre></div>
+    <p class="opt">Both models are needed for full semantic recall + Conductor routing. Without Ollama the system degrades to FTS5 text search — guards still work.</p>
+  </div></div>
+ </div>
+</section>
+
+<!-- ============ CONFIG ============ -->
+<section class="tab" data-tab="config">
+ <div class="wrap">
+  <h2 class="title">Correct Claude configuration</h2>
+  <p class="lead">ARIS4U works out of the box, but these variables in
+     <span class="kbd">~/.claude/settings.json</span> tune it: they turn on caching, the code verify-gate,
+     and give memory capture enough time. Paste the <code style="color:var(--acc)">"env"</code> block and restart Claude Code.</p>
+
+  <div class="code"><button class="copy">Copy</button><pre>{
+  <span class="s">"env"</span>: {
+    <span class="c">// — performance and memory —</span>
+    <span class="s">"ENABLE_PROMPT_CACHING_1H"</span>: <span class="s">"true"</span>,
+    <span class="s">"CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS"</span>: <span class="s">"15000"</span>,
+
+    <span class="c">// — ARIS4U: depth, verification, privacy —</span>
+    <span class="s">"ARIS4U_DEPTH_PROTOCOL"</span>: <span class="s">"1"</span>,
+    <span class="s">"ARIS4U_CONDUCTOR_ENFORCE"</span>: <span class="s">"1"</span>,
+    <span class="s">"ARIS4U_HEALTHCARE"</span>: <span class="s">"0"</span>,
+
+    <span class="c">// — optional (fine tuning) —</span>
+    <span class="s">"ARIS4U_ROUTER_SEM_THRESHOLD"</span>: <span class="s">"0.70"</span>,
+    <span class="s">"ARIS4U_DIVERSE_RECALL"</span>: <span class="s">"0"</span>
+  }
+}</pre></div>
+
+  <table class="cfg">
+    <thead><tr><th>Variable</th><th>What it does</th><th></th></tr></thead>
+    <tbody>
+      <tr><td><code>ENABLE_PROMPT_CACHING_1H</code><br><code>true</code></td>
+        <td>Caches the prompt for 1 hour. Saves tokens and speeds up responses.</td><td><span class="badge rec">recommended</span></td></tr>
+      <tr><td><code>CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS</code><br><code>15000</code></td>
+        <td>Gives ARIS4U time to capture the session memory on close (commits, decisions, recall). Without it, capture may get cut off.</td><td><span class="badge rec">recommended</span></td></tr>
+      <tr><td><code>ARIS4U_DEPTH_PROTOCOL</code><br><code>1</code></td>
+        <td>Classifies each request and adjusts depth: simple goes straight through; complex is pushed to research and verify.</td><td><span class="badge rec">recommended</span></td></tr>
+      <tr><td><code>ARIS4U_CONDUCTOR_ENFORCE</code><br><code>1</code></td>
+        <td><b>The verify-gate (Pillar 2).</b> If you edited code and didn't run tests/lint, it reminds you when the turn closes — <i>without blocking</i>. Set <code>0</code> to turn it off.</td><td><span class="badge rec">recommended</span></td></tr>
+      <tr><td><code>ARIS4U_HEALTHCARE</code><br><code>0</code></td>
+        <td>PHI/HIPAA off. Set it to <code>1</code> only if you work with medical data (enables extra guards and local routing).</td><td><span class="badge req">default</span></td></tr>
+      <tr><td><code>ARIS4U_ROUTER_SEM_THRESHOLD</code><br><code>0.70</code></td>
+        <td>Threshold of the Conductor's semantic router. Higher = fewer but more precise suggestions. Lower = more coverage.</td><td><span class="badge opt">optional</span></td></tr>
+      <tr><td><code>ARIS4U_DIVERSE_RECALL</code><br><code>0 / 1</code></td>
+        <td>At <code>1</code>, recall returns more diverse (less redundant) results. Useful in large projects.</td><td><span class="badge opt">optional</span></td></tr>
+      <tr><td><code>ARIS4U_AUTOPILOT</code><br><code>0 / 1</code></td>
+        <td><b>For non-developers who want fully hands-off.</b> At <code>1</code>, when your request matches a known capability, Claude <b>executes</b> it instead of just suggesting. Leave <code>0</code> if you're a developer.</td><td><span class="badge opt">non-dev</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note ok"><b>These configure themselves (don't touch):</b> <code style="font-family:ui-monospace">ARIS4U_ROOT</code>,
+     <code style="font-family:ui-monospace">ARIS4U_CONFIG</code>, <code style="font-family:ui-monospace">ARIS4U_LOG_FILE</code> — the plugin derives them from your install.
+     Your hardware, projects and clients live in <span class="kbd">~/.aris4u/config.json</span> (generated by <code>aris4u init</code>), not here.</div>
+
+  <div class="note"><b>Apply:</b> edit <span class="kbd">~/.claude/settings.json</span> and merge the
+     <code style="font-family:ui-monospace">"env"</code> block with whatever you already have, or ask Claude to do it (see the last prompt in the next tab).
+     Restart Claude Code for it to take effect.</div>
+
+  <div class="stackgrp" style="margin-top:30px">
+    <h3>🪝 Active hooks · complete table by event</h3>
+    <p class="gsub">ARIS4U wires hooks in two layers: the <b>plugin</b> (<code>hooks.json</code>, automatic on install) and
+       <b>global hooks</b> in <code>~/.claude/settings.json</code>. Blocking hooks (exit&nbsp;2) stop the operation; advisories only warn.</p>
+    <table class="cfg">
+      <thead><tr><th>Event</th><th>Script / handler</th><th>Matcher</th><th>What it does</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><code>SessionStart</code></td><td><code>bootstrap_venv.sh</code></td><td>*</td><td>Creates <code>.venv312</code> + installs deps <b>once</b> (30–60s on first run, instant after).</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>SessionStart</code></td><td><code>dispatch.py SessionStart</code></td><td>*</td><td>ARIS4U auto-recall: injects the hybrid memory context at session open.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td><code>dispatch.py UserPromptSubmit</code></td><td>*</td><td>Depth-inject: classifies query and adjusts depth; Conductor capability routing; injects <b>🧭 ROUTING</b> advisory with explicit <code>model=</code> per Agent() tier (Opus/Sonnet/Haiku) so every fan-out pays the right price. Motor: <code>tools/model_router.py</code>.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td><code>governor-context.py</code></td><td>*</td><td><b>Governor:</b> injects live concurrency status (RAM/agents/load) so Claude sizes fan-outs correctly.</td><td><span class="badge rec">global</span></td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td><code>enterprise-build-hint.py</code></td><td>*</td><td>Injects build-discipline hints when a build/feature task is detected.</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td><code>clarify-gate.py</code></td><td>*</td><td>Auto-triggers <code>/clarify</code> before build tasks to resolve ambiguities before code runs.</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>PreToolUse</code></td><td><code>dispatch.py PreToolUse</code></td><td>Bash|Write|Edit|MultiEdit|Read|WebFetch|WebSearch|mcp__.*</td><td>phi_guard (blocking in healthcare), migration-linter (blocking), type-hints, docker-:latest, supabase-RLS advisories.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>PreToolUse</code></td><td><code>pre-bash-guard.sh</code></td><td>Bash</td><td><b>Blocking:</b> catches dangerous shell patterns before execution.</td><td><span class="badge rec">global</span></td></tr>
+        <tr><td><code>PreToolUse</code></td><td><code>ram-saturation-guard.sh</code></td><td>Workflow|Agent|Task</td><td><b>Blocking:</b> prevents fan-out launch if RAM/swap thresholds exceeded.</td><td><span class="badge rec">global</span></td></tr>
+        <tr><td><code>PreToolUse</code></td><td><code>pre-commit-gate.sh</code></td><td>Bash</td><td>Validates commit messages and staged files before git commits.</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>PostToolUse</code></td><td><code>dispatch.py PostToolUse</code></td><td>Bash|Write|Edit|MultiEdit|Agent|Task</td><td>code_quality_gate (ruff, per edit); parallel-dispatch advisory (no sequential ssh loops).</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>PostToolUse</code></td><td><code>static-analysis-gate.py</code></td><td>Write|Edit|MultiEdit</td><td>Runs native analyzer (flutter analyze / eslint / astro check) on edited file, re-injects IDE-level diagnostics.</td><td><span class="badge rec">global</span></td></tr>
+        <tr><td><code>PostToolUse</code></td><td><code>post-change-ecosystem-validator.sh</code></td><td>Write|Edit</td><td>Validates cross-file consistency after edits (import resolution, schema drift).</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>SubagentStart</code></td><td><code>dispatch.py SubagentStart</code></td><td>*</td><td>Agent policy scoping: enforces tool allow-list per agent role.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>Stop</code></td><td><code>dispatch.py Stop</code></td><td>*</td><td>ARIS4U stop handler (conductor enforce reminder if verify-gate is on).</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>Stop</code></td><td><code>process-cleanup.sh</code></td><td>*</td><td>Kills orphan processes (pytest, npm, build zombies) on session end.</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>SessionEnd</code></td><td><code>dispatch.py SessionEnd</code></td><td>*</td><td>Captures the session digest, decisions and commit summary into <code>sessions.db</code>.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>SessionEnd</code></td><td><code>governor-record.py</code></td><td>*</td><td><b>Governor:</b> appends agent duration data to the concurrency governor's learning log.</td><td><span class="badge rec">global</span></td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:12px"><b>Guards that use jq (REQUIRED):</b> <code>parallel-dispatch-guard.sh</code> and
+       <code>gpu-crash-guard.sh</code> parse JSON event payloads with <code>jq</code>. Without it they silently fail — install with
+       <code>brew install jq</code>.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ STACK ============ -->
+<section class="tab" data-tab="stack">
+ <div class="wrap">
+  <h2 class="title">The full stack · Claude + ARIS4U</h2>
+  <p class="lead">This is everything that powers up this Claude, beyond ARIS4U: plugins, MCP tools, skills and
+     agents. Almost everything installs with one command or is wired with <i>your</i> credentials. <b>Without the financial
+     connectors</b> — those are private.</p>
+
+  <!-- PLUGINS -->
+  <div class="stackgrp">
+    <h3>🧩 Plugins <span class="badge rec" style="margin-left:4px">1 command</span></h3>
+    <p class="gsub">From the official Claude Code marketplace (+ the memory). Install with
+       <code style="font-family:ui-monospace;font-size:12px">claude plugin install &lt;name&gt;</code>.</p>
+    <table class="cfg">
+      <thead><tr><th>Plugin</th><th>What it gives you</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><code>claude-mem</code></td><td>Cross-session narrative memory. <b>V18 note:</b> ARIS4U now stores observations in its own <code>observations_local</code> table inside <code>data/sessions.db</code> and does <b>not</b> require this plugin. Install only if you use its native UI features.</td><td><span class="badge opt">@thedotmack</span></td></tr>
+        <tr><td><code>serena</code></td><td><b>Semantic</b> code navigation and refactor (finds symbols, references, renames).</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>pyright-lsp</code> · <code>typescript-lsp</code></td><td>IDE-grade Python/TS type diagnostics (definitions, errors, refactor).</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>feature-dev</code></td><td>Guided feature development focused on architecture and repo conventions.</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>plugin-dev</code></td><td>Create your own plugins, skills, hooks and agents.</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>commit-commands</code></td><td>Guided commits, push and PRs (clean messages, branch cleanup).</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>hookify</code></td><td>Creates error-preventing hooks from your own conversation.</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>frontend-design</code></td><td>Distinctive, anti-template frontend design (intentional aesthetics).</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>figma</code></td><td>Bidirectional Figma ↔ code design (design-to-code and code-to-design).</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>firebase</code></td><td>Firebase: Crashlytics, deploy, security rules, app management.</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>skill-creator</code></td><td>Create, improve and measure the performance of skills.</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>claude-code-setup</code></td><td>Analyzes your repo and recommends automations (hooks/agents/skills/MCP).</td><td><span class="badge opt">official</span></td></tr>
+        <tr><td><code>security-guidance</code></td><td>Security guidance and review over your code.</td><td><span class="badge opt">official</span></td></tr>
+      </tbody>
+    </table>
+    <div class="code"><button class="copy">Copy</button><pre><span class="c"># examples</span>
+claude plugin install claude-mem@thedotmack
+claude plugin install serena@claude-plugins-official
+claude plugin install feature-dev@claude-plugins-official</pre></div>
+  </div>
+
+  <!-- MCP -->
+  <div class="stackgrp">
+    <h3>🔭 Service MCP tools</h3>
+    <p class="gsub">They connect Claude to external services. Wired in <span class="kbd">~/.claude.json</span> with
+       <i>your</i> credentials — only the ones you use.</p>
+    <table class="cfg">
+      <thead><tr><th>MCP</th><th>What it connects</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><code>context7</code></td><td><b>Up-to-date</b> docs for any library/framework (better than the web for APIs).</td><td><span class="badge rec">very useful</span></td></tr>
+        <tr><td><code>supabase</code></td><td>Your Supabase project: tables, migrations, edge functions, logs, advisors.</td><td><span class="badge opt">if you use it</span></td></tr>
+        <tr><td><code>cloudflare-builds</code></td><td>Cloudflare Pages/Workers builds and deploys.</td><td><span class="badge opt">if you use it</span></td></tr>
+        <tr><td><code>claude-in-chrome</code></td><td>Automates the browser: clicks, forms, screenshots, reading the console.</td><td><span class="badge opt">extension</span></td></tr>
+        <tr><td><code>codegraph</code></td><td>Code graph for deep navigation (requires <code>codegraph init</code>). <b>Inactive</b> — index not built; no tools available until you run <code>codegraph init</code> in a new session.</td><td><span class="badge opt">inactive</span></td></tr>
+      </tbody>
+    </table>
+    <div class="excl"><b>Excluded (private):</b> the financial connectors —
+       <code style="font-family:ui-monospace;font-size:12px">stripe</code>, FMP, Intuit QuickBooks, Ramp.
+       They are not part of this shareable stack.</div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="stackgrp">
+    <h3>⚡ Skills</h3>
+    <p class="gsub">Productivity <span class="kbd">/</span> commands. The ARIS4U ones (core + governance + utilities) ship with the plugin. Only the <b>Documents</b> ones (/docx, /pdf, /pptx, /xlsx) come from other Claude Code plugins.</p>
+    <p class="subhd first">ARIS4U (core · ship with the plugin)</p>
+    <div class="chiprow">
+      <div class="schip"><b>/aris-onboard</b><span>guided inline install</span></div>
+      <div class="schip"><b>/aris-init</b><span>adapt to your hardware/projects</span></div>
+      <div class="schip"><b>/aris-status</b><span>state of hooks+MCP+memory</span></div>
+      <div class="schip"><b>/aris-config</b><span>view/edit config and flags</span></div>
+      <div class="schip"><b>/aris-council</b><span>5 minds to decide</span></div>
+      <div class="schip"><b>/aris-client-audit</b><span>audit client code</span></div>
+      <div class="schip"><b>/aris-memory-audit</b><span>memory health</span></div>
+    </div>
+    <p class="subhd">Documents</p>
+    <div class="chiprow">
+      <div class="schip"><b>/docx</b><span>create/edit Word</span></div>
+      <div class="schip"><b>/pdf</b><span>read, merge, OCR PDFs</span></div>
+      <div class="schip"><b>/pptx</b><span>presentations</span></div>
+      <div class="schip"><b>/xlsx</b><span>spreadsheets, data</span></div>
+    </div>
+    <p class="subhd">Governance (the ARIS4U flow)</p>
+    <div class="chiprow">
+      <div class="schip"><b>/clarify</b><span>clarify before building</span></div>
+      <div class="schip"><b>/preflight</b><span>resource check before fan-out</span></div>
+      <div class="schip"><b>/harvest</b><span>close a block: clean up orphans</span></div>
+      <div class="schip"><b>/second-auditor</b><span>closing gate: author ≠ validator</span></div>
+      <div class="schip"><b>/verify-claims</b><span>verify claims with evidence</span></div>
+      <div class="schip"><b>/status</b><span>live state of a project</span></div>
+      <div class="schip"><b>/mcp-audit</b><span>security of your MCP</span></div>
+      <div class="schip"><b>/backup-verify</b><span>do your backups actually restore?</span></div>
+    </div>
+    <p class="subhd">Utilities</p>
+    <div class="chiprow">
+      <div class="schip"><b>/multi-research</b><span>triangulate Claude+Gemini+Grok</span></div>
+      <div class="schip"><b>/github-ops</b><span>repo security, releases, CI</span></div>
+      <div class="schip"><b>/audit-website</b><span>SEO/perf/security of a site</span></div>
+      <div class="schip"><b>/skill-security-scan</b><span>scan 3rd-party skills/plugins</span></div>
+      <div class="schip"><b>/taste-skill</b><span>anti-slop frontend</span></div>
+      <div class="schip"><b>/youtube</b><span>search, transcribe, analyze video</span></div>
+      <div class="schip"><b>/supabase-postgres-best-practices</b><span>Postgres best practices</span></div>
+    </div>
+  </div>
+
+  <!-- AGENTS -->
+  <div class="stackgrp">
+    <h3>🤖 Specialist agents</h3>
+    <p class="gsub">Roles Claude delegates to automatically depending on the task. They ship with the ARIS4U stack.</p>
+    <div class="chiprow">
+      <div class="schip"><b>software-dev</b><span>backend, APIs, MCP, DB</span></div>
+      <div class="schip"><b>frontend-dev</b><span>React/Vue/Svelte/Astro, UI</span></div>
+      <div class="schip"><b>mobile-dev</b><span>Flutter, React Native</span></div>
+      <div class="schip"><b>qa-agent</b><span>tests, security scan, quality</span></div>
+      <div class="schip"><b>code-review-agent</b><span>read-only bug-hunter</span></div>
+      <div class="schip"><b>security-agent</b><span>vuln scan, hardening, pentest</span></div>
+      <div class="schip"><b>devops-agent</b><span>Docker, CI/CD, infra</span></div>
+      <div class="schip"><b>data-agent</b><span>ETL, schemas, analytics</span></div>
+      <div class="schip"><b>database-migration-agent</b><span>safe migrations + rollback</span></div>
+      <div class="schip"><b>researcher</b><span>research libs/APIs before coding</span></div>
+      <div class="schip"><b>project-scout</b><span>explore the repo before touching</span></div>
+      <div class="schip"><b>ai-agent</b><span>ML, embeddings, RAG, inference</span></div>
+      <div class="schip"><b>memory-agent</b><span>cross-session context</span></div>
+      <div class="schip"><b>compliance-agent</b><span>HIPAA/SOC2/GDPR</span></div>
+      <div class="schip"><b>llm-integration-specialist</b><span>prompt/token/cost tuning</span></div>
+    </div>
+  </div>
+
+  <div class="note ok" style="margin-top:24px"><b>To recreate this stack:</b> install ARIS4U (previous tabs) →
+     add whichever plugins you want with <code style="font-family:ui-monospace;font-size:12px">claude plugin install</code> →
+     wire only the MCP of the services you use, with your credentials. The governance skills and the agents ship
+     with ARIS4U. <b>Nothing financial</b> is included.</div>
+ </div>
+</section>
+
+<!-- ============ PROMPTS ============ -->
+<section class="tab" data-tab="prompts">
+ <div class="wrap">
+  <h2 class="title">Let Claude do it for you</h2>
+  <p class="lead">Since you use <b>Claude Code CLI</b> with your Max account, you don't have to run the commands by hand.</p>
+
+  <div class="note ok" style="border-left:4px solid var(--ok);padding:16px 20px;margin:0 0 22px;background:rgba(74,222,128,.06)">
+    <h3 style="margin-top:0">✅ Simplest — a single command</h3>
+    <p>After installing the plugin (Install tab), this command does the 6 steps below <i>for you</i>, inside
+       Claude: it detects what's missing, generates your config, shows you exactly which env vars to paste and verifies the state.</p>
+    <div class="code"><button class="copy">Copy</button><pre><span class="k">/aris-onboard</span></pre></div>
+  </div>
+
+  <p class="lead" style="margin-bottom:22px">Prefer to control each step? These are the same 6, as manual prompts you paste in order:</p>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">📦</div><h3>1 · Install ARIS4U</h3></div>
+    <p class="why">Claude clones the repo, runs the installer and warns you if anything fails.</p>
+    <div class="pbox"><button class="copy">Copy</button><span class="lbl">Paste into Claude Code</span>
+Clone the repository https://github.com/aris4u-dev/aris4u.git into ~/projects (as directory "aris4u"), enter the folder and run `bash install.sh`. Explain each step, show me the output of the verification gate, and if anything fails diagnose it before continuing. Don't modify my ~/.claude/settings.json without telling me.</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">⚙️</div><h3>2 · Configure for my projects</h3></div>
+    <p class="why">Detects your real hardware and registers your projects/clients.</p>
+    <div class="pbox"><button class="copy">Copy</button><span class="lbl">Paste into Claude Code</span>
+Run `python3 tools/aris4u_init.py` to generate my configuration. First, scan ~/projects and show me the detected projects; help me decide which are labs and which are clients. Confirm the hardware (CPU, RAM, GPU) and show me the final ~/.aris4u/config.json before finalizing it.</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">🔌</div><h3>3 · Register the plugin and verify</h3></div>
+    <p class="why">Wires ARIS4U into Claude Code and confirms hooks + MCP are alive.</p>
+    <div class="pbox"><button class="copy">Copy</button><span class="lbl">Paste into Claude Code</span>
+Register ARIS4U as a plugin: `claude plugin marketplace add ~/projects/aris4u` and then `claude plugin install aris4u@aris4u-dev`. Then run /aris-status and tell me in a table which hooks, MCP tools and guards became active. If it was already wired by hand in settings.json, warn me before touching anything.</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">🎛️</div><h3>4 · Apply the recommended configuration</h3></div>
+    <p class="why">Claude merges the correct env vars into your settings (cache, verify-gate, memory).</p>
+    <div class="pbox"><button class="copy">Copy</button><span class="lbl">Paste into Claude Code</span>
+Edit my ~/.claude/settings.json and merge (without deleting what I already have) this env block: ENABLE_PROMPT_CACHING_1H=true, CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS=15000, ARIS4U_DEPTH_PROTOCOL=1, ARIS4U_CONDUCTOR_ENFORCE=1, ARIS4U_HEALTHCARE=0, ARIS4U_ROUTER_SEM_THRESHOLD=0.70, ARIS4U_DIVERSE_RECALL=0. Explain what each one does and make a backup before writing.</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">🦙</div><h3>5 · (Optional) Local semantic memory</h3></div>
+    <p class="why">Checks/installs Ollama and pulls the embeddings model.</p>
+    <div class="pbox"><button class="copy">Copy</button><span class="lbl">Paste into Claude Code</span>
+Check whether I have Ollama at localhost:11434. If not, guide me to install it. Once it's up, pull `embeddinggemma` (primary recall model, EMBED_MODEL in config) and `mxbai-embed-large` (capability router). Verify with aris_health that both are available, then build the semantic index: python3 tools/capability_semantic.py --build</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">🧠</div><h3>6 · First real use</h3></div>
+    <p class="why">Teach Claude to recall a project's context before working.</p>
+    <div class="pbox"><button class="copy">Copy</button><span class="lbl">Paste into Claude Code (inside your project)</span>
+Before we start, use aris_recall_client with the name of this client/project to bring back the decisions and guards we've already saved. Summarize what was recovered and, when we make an important decision today, save it with aris_ingest so we don't lose it.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ VALUE ============ -->
+<section class="tab" data-tab="value">
+ <div class="wrap">
+  <h2 class="title">What ARIS4U gives you</h2>
+  <p class="lead">Claude is brilliant in every conversation but <b>forgets on close</b> and <b>doesn't watch your code</b>.
+     ARIS4U is the layer that gives it <b>memory</b>, <b>verification</b> and the ability to <b>auto-orchestrate</b> its toolkit.</p>
+
+  <div class="archfig">
+    <svg viewBox="0 0 760 250" width="760">
+      <g font-family="-apple-system,sans-serif" text-anchor="middle">
+        <rect x="270" y="14" width="220" height="48" rx="13" fill="url(#ag)" opacity=".18"/>
+        <rect x="270.5" y="14.5" width="219" height="47" rx="12.5" stroke="url(#ag)"/>
+        <text x="380" y="38" fill="#e8edf7" font-size="15" font-weight="800">Claude Opus (CLI)</text>
+        <text x="380" y="54" fill="#9aa7c2" font-size="11">the cognition — rented each session</text>
+        <line x1="380" y1="62" x2="380" y2="92" stroke="url(#ag)" stroke-width="2"/>
+        <text x="380" y="108" fill="#a78bfa" font-size="12" font-weight="700" letter-spacing="1">ARIS4U LAYER</text>
+        <g font-size="12.5" font-weight="700">
+          <g><rect x="30" y="122" width="160" height="74" rx="12" fill="#161d2e" stroke="#27314a"/>
+             <text x="110" y="150" fill="#e8edf7">🧠 Memory</text>
+             <text x="110" y="170" fill="#9aa7c2" font-size="10.5" font-weight="400">cross-session +</text>
+             <text x="110" y="183" fill="#9aa7c2" font-size="10.5" font-weight="400">per-client recall</text></g>
+          <g><rect x="206" y="122" width="160" height="74" rx="12" fill="#161d2e" stroke="#27314a"/>
+             <text x="286" y="150" fill="#4ade80">🛡️ Verification</text>
+             <text x="286" y="170" fill="#9aa7c2" font-size="10.5" font-weight="400">gates + verify-gate:</text>
+             <text x="286" y="183" fill="#9aa7c2" font-size="10.5" font-weight="400">no bad code passes</text></g>
+          <g><rect x="382" y="122" width="160" height="74" rx="12" fill="#161d2e" stroke="#27314a"/>
+             <text x="462" y="150" fill="#a78bfa">🎼 Conductor</text>
+             <text x="462" y="170" fill="#9aa7c2" font-size="10.5" font-weight="400">uses your toolkit itself,</text>
+             <text x="462" y="183" fill="#9aa7c2" font-size="10.5" font-weight="400">in logical order</text></g>
+          <g><rect x="558" y="122" width="172" height="74" rx="12" fill="#161d2e" stroke="#27314a"/>
+             <text x="644" y="150" fill="#e8edf7">🔭 7 MCP + skills</text>
+             <text x="644" y="170" fill="#9aa7c2" font-size="10.5" font-weight="400">search · recall ·</text>
+             <text x="644" y="183" fill="#9aa7c2" font-size="10.5" font-weight="400">dialectic · council</text></g>
+        </g>
+        <g stroke="#27314a" stroke-width="1.4" opacity=".7">
+          <line x1="110" y1="122" x2="330" y2="92"/><line x1="286" y1="122" x2="365" y2="92"/>
+          <line x1="462" y1="122" x2="395" y2="92"/><line x1="644" y1="122" x2="430" y2="92"/></g>
+        <rect x="190" y="216" width="380" height="30" rx="10" fill="#0e1420" stroke="#27314a"/>
+        <text x="380" y="236" fill="#6b7794" font-size="11.5">💾 your machine · private · auditable (sessions.db · aris_vectors.db · per-client)</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="grp-title">V18 · Intelligent model router</div>
+  <div class="galaxy">
+    <div class="imp"><div class="ico" style="background:rgba(110,168,254,.14)">
+      <svg width="24" height="24" fill="none" stroke="#6ea8fe" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <h3>🧭 Tri-model routing doctrine (Fase A)</h3>
+      <p>V18 routes every <code>Agent()</code> to the right model tier by <b>cognitive difficulty</b>, not by habit. Without <code>model=</code> explicit, agents inherit the session thread — Fable, the most expensive model, used for work that doesn't need it.</p>
+      <div class="what"><b>Fable</b> = session thread (strategy only, not a subagent) · <b>Opus</b> = final synthesis/verdict · <b>Sonnet</b> = the bulk of fan-out (verify, explore, review, edit) · <b>Haiku</b> = trivial (classify, format, label). Engine: <code>tools/model_router.py</code> (<code>route_model</code>, <code>session_model</code>, <code>recall_tier</code>). Every prompt auto-injects <code>🧭 ROUTING</code> advisory via <code>UserPromptSubmit</code> hook.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(74,222,128,.13)">
+      <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg></div>
+      <h3>💰 Cost &amp; routing observability (Fase C)</h3>
+      <p>New in V18: <code>tools/cost_report.py</code> measures routing discipline — what % of <code>Agent()</code> calls specified <code>model=</code> explicitly, model distribution, and relative cost. Console endpoint: <code>GET /routing</code>.</p>
+      <div class="what">Run: <code>python3 tools/cost_report.py</code> (last 7 days) or <code>--all --json</code>. Live dashboard: console <code>/routing</code>. Cost is a relative proxy by tier (no per-subagent token counts from hooks) — the actionable signal is the <b>discipline %</b>, not the absolute number.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(167,139,250,.14)">
+      <svg width="24" height="24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></div>
+      <h3>🧠 Own memory — decoupled from claude-mem (Fase E)</h3>
+      <p>ARIS4U no longer depends on the third-party <code>claude-mem</code> plugin. Observation text lives in its own <code>observations_local</code> table (FTS5-indexed) inside <code>data/sessions.db</code>. Semantic index: <code>data/aris_vectors.db</code> (sqlite-vec, EmbeddingGemma 768d).</p>
+      <div class="what">Storage: <code>data/sessions.db</code> (decisions · guards · digests · observations_local) + <code>data/aris_vectors.db</code> (semantic). <code>claude-mem</code> is now optional — ARIS4U's memory is self-contained. Outside healthcare, <code>aris_dialectic</code>/<code>aris_structure</code>/<code>aris_critique</code> delegate to Sonnet harness subagents instead of local Ollama (Fase B) — local stays only for PHI data.</div></div>
+  </div>
+
+  <div class="grp-title">The two pillars</div>
+  <div class="galaxy">
+    <div class="imp"><div class="ico" style="background:rgba(110,168,254,.14)">
+      <svg width="24" height="24" fill="none" stroke="#6ea8fe" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 4 2 7h10c0-3 2-4 2-7a7 7 0 0 0-7-7zM9 21h6"/></svg></div>
+      <h3>🧠 Memory that persists</h3>
+      <p>What you decide today is still there tomorrow, in another session and with another model. Each project has its
+         <b>isolated memory</b>: when you enter a client, Claude brings <i>its</i> decisions and guards.</p>
+      <div class="what">Auto-captures every session · hybrid text+semantic recall · <code>aris_recall_client</code>, <code>aris_search</code>.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(74,222,128,.13)">
+      <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+      <h3>🛡️ Code verification</h3>
+      <p>The other pillar. <b>Layer 1:</b> on edit, it runs <code>ruff</code>/native analyzer + types/tests on commit.
+         <b>Layer 2 — verify-gate:</b> if you touched code and didn't verify, it reminds you when the turn closes — without blocking.</p>
+      <div class="what">IDE-grade diagnostics per edit · closing reminder with <code>ARIS4U_CONDUCTOR_ENFORCE=1</code>.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(167,139,250,.14)">
+      <svg width="24" height="24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M9 18V5l12-2v13M9 13l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <h3>🎼 Conductor — auto-orchestrates your toolkit</h3>
+      <p>Claude has the logic; ARIS4U gives it the map. On every non-trivial task it recognizes <b>all</b> your skills/MCP
+         (incl. future ones) and guides you through the <b>UNDERSTAND → DESIGN → BUILD → VERIFY</b> cycle with the right capability.</p>
+      <div class="what">Live inventory + local semantic router. On the trivial it stays out of the way; on the complex it orchestrates.</div></div>
+  </div>
+
+  <div class="grp-title">Judgment &amp; control</div>
+  <div class="galaxy">
+    <div class="imp"><div class="ico" style="background:rgba(251,191,36,.13)">
+      <svg width="24" height="24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1m0-12.8l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg></div>
+      <h3>Your standards, enforced automatically</h3>
+      <p>The <b>guards</b> are your own rules, watched automatically: they stop Claude from repeating known mistakes
+         or breaking conventions, before they happen. Some are blocking (migrations, sensitive data); the rest are warnings.</p>
+      <div class="what">Automatic depth: on the complex, it pushes to research and compare before answering.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(110,168,254,.14)">
+      <svg width="24" height="24" fill="none" stroke="#6ea8fe" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <h3>Traceability &amp; private</h3>
+      <p>It auto-captures commits and session summaries — you can always reconstruct what was decided and why.
+         The memory, the embeddings and the review run on <b>your</b> machine; optional PHI-safe mode.</p>
+      <div class="what">All local, no third parties · auditable.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(251,191,36,.13)">
+      <svg width="24" height="24" fill="none" stroke="#fbbf24" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+      <h3>Hardware-aware</h3>
+      <p>It detects your CPU, RAM and GPU (and your workers, if you have them) and distributes work without saturating the machine:
+         parallelizes when there's room, holds back when there isn't.</p>
+      <div class="what">Generated by <code>aris4u init</code> in your <code>~/.aris4u/config.json</code>.</div></div>
+  </div>
+
+  <div class="grp-title">The 7 MCP tools · what each one does</div>
+  <p class="lead" style="margin-bottom:16px">You invoke them when you need them (or the Conductor suggests them). Each solves a concrete moment —
+     <code>aris_structure</code> and <code>aris_critique</code> use the optional local body (<b>MLX:</b> <code style="font-size:12px">mlx-community/Mistral-Small-3.2-24B-Instruct-2506-4bit</code> · <b>Ollama:</b> <code>mxbai-embed-large</code>):</p>
+  <div class="dlist">
+    <div class="drow"><div class="dleft"><span class="dname">aris_recall_client</span><span class="dwho">memory · per client</span></div>
+      <div class="dbody"><h4>Brings a project's context before you touch it</h4>
+      <p>Recovers the decisions, standards and notes you saved for <i>that</i> client, isolated from the rest.</p>
+      <span class="use"><b>When:</b> when you start working on a client.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_search</span><span class="dwho">memory · global</span></div>
+      <div class="dbody"><h4>Searches your whole history</h4>
+      <p>"What did we decide about X?" — it finds it across all your sessions, by text and by meaning.</p>
+      <span class="use"><b>When:</b> when you already covered something but don't remember what you concluded.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_ingest</span><span class="dwho">memory · write</span></div>
+      <div class="dbody"><h4>Saves a decision or a standard</h4>
+      <p>Locks in a conclusion or rule so it survives the session close and reappears when it matters.</p>
+      <span class="use"><b>When:</b> right after deciding something important.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_dialectic</span><span class="dwho">quality · code</span></div>
+      <div class="dbody"><h4>Three-voice review of your critical code</h4>
+      <p>Builder, reviewer and security examine your code before you commit. <b>V18 (Fase B):</b> outside healthcare, the three roles delegate to Sonnet harness subagents — replacing local Ollama that was failing ~85% of the time. Local stays only for PHI contexts.</p>
+      <span class="use"><b>When:</b> before merging sensitive code (auth, payments, migrations).</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_critique</span><span class="dwho">quality · ideas</span></div>
+      <div class="dbody"><h4>Finds the weak points of a proposal</h4>
+      <p>Critiques an idea from several angles and flags its risks and fragile assumptions.</p>
+      <span class="use"><b>When:</b> when you finish designing something, to see what you missed.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_structure</span><span class="dwho">design · ideas</span></div>
+      <div class="dbody"><h4>Turns a raw idea into a specification</h4>
+      <p>Takes a vague statement and organizes it (goal, parts, criteria) ready to build.</p>
+      <span class="use"><b>When:</b> when starting something new and fuzzy.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_health</span><span class="dwho">system · diagnostics</span></div>
+      <div class="dbody"><h4>Checks that everything is alive</h4>
+      <p>Verifies the state of the memory and the local models (Ollama).</p>
+      <span class="use"><b>When:</b> if semantic recall or dialectic don't respond.</span></div></div>
+  </div>
+
+  <div class="grp-title">ARIS4U's skills · what each is for</div>
+  <p class="lead" style="margin-bottom:16px">High-level commands you type with <span class="kbd">/</span> in Claude Code:</p>
+  <div class="dlist">
+    <div class="drow"><div class="dleft"><span class="dname">/aris-onboard</span><span class="dwho">install · guided</span></div>
+      <div class="dbody"><h4>Installs and configures ARIS4U for you, inside Claude</h4>
+      <p>A single command runs the whole onboarding: detects what's missing, generates your config, shows you which env vars to paste and verifies the state. Replaces the manual step-by-step guide.</p>
+      <span class="use"><b>When:</b> right after installing the plugin, or when switching machines.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">/aris-init</span><span class="dwho">configure</span></div>
+      <div class="dbody"><h4>Adapts ARIS4U to your machine and projects</h4>
+      <p>Detects your hardware, scans your projects and writes your config. What makes ARIS4U <i>yours</i>.</p>
+      <span class="use"><b>When:</b> on install, switching machines, or adding a project.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">/aris-council</span><span class="dwho">decide</span></div>
+      <div class="dbody"><h4>A council of 5 minds for a hard decision</h4>
+      <p>Submits an architecture/strategy decision to five ways of reasoning and synthesizes a verdict.</p>
+      <span class="use"><b>When:</b> "what am I missing?", choosing between options, weighing a risk.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">/aris-client-audit</span><span class="dwho">audit code</span></div>
+      <div class="dbody"><h4>Audits a client's or a third party's code</h4>
+      <p>Reviews a repo with the three roles and issues a report with findings by severity.</p>
+      <span class="use"><b>When:</b> before delivering to a client, or when evaluating outside code.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">/aris-memory-audit</span><span class="dwho">maintain memory</span></div>
+      <div class="dbody"><h4>Keep your memory healthy</h4>
+      <p>Reviews what ARIS4U remembers per client and detects contradictions, stale data and gaps.</p>
+      <span class="use"><b>When:</b> every so often, so it doesn't accumulate obsolete decisions.</span></div></div>
+  </div>
+
+  <div class="note" style="margin-top:30px"><b>In one line:</b> Claude thinks; ARIS4U <i>remembers, verifies and orchestrates</i>.
+     The gates and the memory work on their own; the MCP tools and the skills you use (or the Conductor suggests)
+     when needed. You stop starting from scratch — and stop closing code without verifying.</div>
+ </div>
+</section>
+
+<!-- ============ HELP ============ -->
+<section class="tab" data-tab="help">
+ <div class="wrap">
+  <h2 class="title">Troubleshooting</h2>
+  <p class="lead">Most issues are one command away. ARIS4U is <b>fail-open</b>: if something isn't set up,
+     it degrades gracefully instead of breaking — you can always ask Claude "run <span class="kbd">/aris-onboard</span>"
+     and it fixes what's missing.</p>
+
+  <table class="cfg">
+    <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>ARIS4U doesn't seem active / a <code>/</code> command isn't recognized</td>
+        <td>Run <code>/reload-plugins</code>, or restart Claude Code. Then <code>/aris-status</code> to confirm hooks + MCP + memory are alive.</td></tr>
+      <tr><td>First session says "creating environment…" and is slow</td>
+        <td>One-time build of the Python env (<span class="kbd">.venv312</span>, ~30–60s). Normal — it only happens once, then every session is instant.</td></tr>
+      <tr><td>Setup didn't start by itself</td>
+        <td>Just type <code>/aris-onboard</code>. It detects what's missing, generates your config, adds the env vars for you (with your OK) and verifies.</td></tr>
+      <tr><td>Hooks seem to run twice</td>
+        <td>This machine had ARIS4U wired by hand in <span class="kbd">~/.claude/settings.json</span>. Remove those blocks (make a backup first) — the plugin already loads them.</td></tr>
+      <tr><td>Semantic recall / the router feels weak</td>
+        <td>Install Ollama + <code>ollama pull embeddinggemma</code> (primary recall) + <code>ollama pull mxbai-embed-large</code> (capability router), then build the index (<code>/aris-onboard</code> does it, or <code>python3 tools/capability_semantic.py --build</code>). Without Ollama it falls back to FTS5 text search — still works, just less semantic.</td></tr>
+      <tr><td>MCP tools don't appear</td>
+        <td><code>/reload-plugins</code>; confirm the plugin's <span class="kbd">.venv312</span> exists (a first session builds it). If needed, run <code>bash install.sh</code> in the repo.</td></tr>
+      <tr><td>I want it less proactive</td>
+        <td>Set any of these env vars to <code>0</code>: <code>ARIS4U_AUTOPILOT</code>, <code>ARIS4U_CONDUCTOR_ENFORCE</code>, <code>ARIS4U_AUTO_ONBOARD</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><b>Update:</b> in Claude Code, <code>/plugin</code> → update <code>aris4u</code> (or re-add the marketplace).
+     <b>Uninstall:</b> <code>claude plugin uninstall aris4u</code>; optionally remove <span class="kbd">~/.aris4u/</span> and the ARIS4U env vars from your settings. Your memory lives in <span class="kbd">data/sessions.db</span> (decisions/guards/observations) and <span class="kbd">data/aris_vectors.db</span> (semantic index) inside the ARIS4U repo folder — they stay unless you delete them. The old <code>~/.claude-mem/</code> is no longer used by ARIS4U V18.</div>
+
+  <div class="note ok"><b>Still stuck?</b> Ask Claude directly, in plain language: "ARIS4U doesn't seem to be working — check <code>/aris-status</code>, tell me what's missing and fix it." That's the whole point — you describe the problem, it handles the rest.</div>
+ </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    ARIS4U v18.0.0 · install, configuration and usage guide · for Claude Code (Max account)<br>
+    <span style="color:#4a5670">Repo: github.com/aris4u-dev/aris4u · Python 3.11+ · macOS / Linux · install: /plugin marketplace add https://github.com/aris4u-dev/aris4u.git</span>
+  </div>
+</footer>
+
+</div><!-- /doc-en -->
+
+<!-- ================================================================ -->
+<!-- =========================  ESPAÑOL  ============================= -->
+<!-- ================================================================ -->
+<div class="doc" id="doc-es" hidden>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="logo">
+      <svg width="56" height="56" viewBox="0 0 64 64" fill="none">
+        <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#lg)" opacity="0.16"/>
+        <rect x="4.5" y="4.5" width="55" height="55" rx="15.5" stroke="url(#lg)"/>
+        <circle cx="32" cy="32" r="7" fill="url(#lg)"/>
+        <circle cx="16" cy="18" r="3.4" fill="#6ea8fe"/><circle cx="48" cy="18" r="3.4" fill="#a78bfa"/>
+        <circle cx="16" cy="46" r="3.4" fill="#a78bfa"/><circle cx="48" cy="46" r="3.4" fill="#f0abfc"/>
+        <g stroke="url(#lg)" stroke-width="1.6" opacity=".75">
+          <line x1="32" y1="32" x2="16" y2="18"/><line x1="32" y1="32" x2="48" y2="18"/>
+          <line x1="32" y1="32" x2="16" y2="46"/><line x1="32" y1="32" x2="48" y2="46"/></g>
+      </svg>
+      <h1>ARIS4U</h1>
+    </div>
+    <div><span class="tag">v18.0.0 · router de inteligencia consciente del modelo para Claude Code</span></div>
+    <p class="sub">Convierte tu Claude Code en un colaborador que <b>recuerda</b>, <b>verifica tu código</b>, <b>enruta cada subagente al modelo correcto</b> y usa todo su toolkit solo, en orden lógico. Guía completa de instalación, configuración y uso.</p>
+    <div class="pillars">
+      <div class="pillar"><div class="pico" style="background:rgba(110,168,254,.16)">🧠</div>
+        <div><h4>Pilar 1 · Memoria</h4><p>Persiste decisiones y recuerda por proyecto. Almacenamiento propio — sin plugin de terceros.</p></div></div>
+      <div class="pillar"><div class="pico" style="background:rgba(74,222,128,.13)">🛡️</div>
+        <div><h4>Pilar 2 · Verificación</h4><p>No deja pasar código sin tests/lint/types. Gate automático.</p></div></div>
+      <div class="pillar"><div class="pico" style="background:rgba(167,139,250,.16)">🎼</div>
+        <div><h4>Conductor</h4><p>Reconoce y usa tus skills/MCP automáticamente cuando hacen falta.</p></div></div>
+      <div class="pillar"><div class="pico" style="background:rgba(240,171,252,.16)">🧭</div>
+        <div><h4>Router de modelos (V18)</h4><p>Enruta cada Agent() a Fable/Opus/Sonnet/Haiku por dificultad cognitiva. Nunca paga de más.</p></div></div>
+    </div>
+    <div class="meta-row">
+      <span class="chip">🐍 Python 3.11+</span>
+      <span class="chip">⌨️ Claude Code CLI</span>
+      <span class="chip">✦ Cuenta Claude Max</span>
+      <span class="chip">🖥️ macOS / Linux</span>
+      <span class="chip">🦙 Ollama <em style="color:var(--dim);font-style:normal">(opcional)</em></span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab-btn active" data-tab="install">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+      <span class="t">Instalación</span></button>
+    <button class="tab-btn" data-tab="config">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1m0-12.8l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>
+      <span class="t">Config de Claude</span></button>
+    <button class="tab-btn" data-tab="stack">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span class="t">Stack completo</span></button>
+    <button class="tab-btn" data-tab="prompts">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9h8M8 13h5M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="t">Prompts para Claude</span></button>
+    <button class="tab-btn" data-tab="value">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>
+      <span class="t">Qué te aporta</span></button>
+    <button class="tab-btn" data-tab="help">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.8 2.8 0 0 1 5.5.8c0 1.9-2.7 2.6-2.7 2.6"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span class="t">Ayuda</span></button>
+  </div>
+</nav>
+
+<!-- ============ INSTALL (ES) ============ -->
+<section class="tab active" data-tab="install">
+ <div class="wrap">
+  <h2 class="title">Instalación</h2>
+  <p class="lead">ARIS4U es un <b>plugin de Claude Code</b>. La vía recomendada son <b>3 comandos</b> dentro de
+     Claude Code — sin clonar ni editar archivos a mano. El onboarding ocurre <i>dentro</i> de Claude.</p>
+
+  <div class="note ok" style="border-left:4px solid var(--ok);padding:16px 20px;margin:18px 0;background:rgba(74,222,128,.06)">
+    <h3 style="margin-top:0">👋 ¿No eres desarrollador? Aún más simple.</h3>
+    <p>Instala una vez (abajo). La <b>primera vez que abras Claude</b>, ARIS4U <b>termina el setup solo</b> —
+       genera tu config, añade la configuración recomendada por ti (tú solo apruebas) y enciende el router
+       semántico. Después <b>no tocas ningún comando</b>: solo describe en lenguaje natural lo que necesitas y
+       ARIS4U + Claude eligen las herramientas correctas y lo hacen, <b>de la A a la Z</b>. Tú te enfocas en el
+       <i>qué</i>; ellos se encargan del <i>cómo</i>.</p>
+  </div>
+
+  <div class="note" style="border-left:4px solid var(--acc);padding:16px 20px;margin:18px 0;background:rgba(255,255,255,.03)">
+    <h3 style="margin-top:0">✅ Instalación nativa · 3 comandos</h3>
+    <p>Escríbelos dentro de Claude Code. Se auto-descubren skills, agents, hooks y el servidor MCP:</p>
+    <div class="code"><button class="copy">Copiar</button><pre><span class="k">/plugin</span> marketplace add https://github.com/aris4u-dev/aris4u.git
+<span class="k">/plugin</span> install aris4u@aris4u-dev
+<span class="k">/reload-plugins</span></pre></div>
+    <p>En la <b>primera sesión</b>, un hook <code style="color:var(--acc)">SessionStart</code> crea el entorno
+       Python (<span class="kbd">.venv312</span> + deps) una sola vez, solo. Luego el onboarding guiado detecta lo
+       que falte, genera tu config y te muestra exactamente qué env vars pegar (el único paso manual):</p>
+    <div class="code"><button class="copy">Copiar</button><pre><span class="k">/aris-onboard</span>     <span class="c"># onboarding completo: config + env vars + verificación (incl. /aris-status)</span></pre></div>
+    <p style="font-size:13px;color:var(--dim);margin:6px 0 0">Puedes correr <span class="kbd">/aris-status</span> cuando quieras para reconfirmar el estado (hooks + MCP + memoria vivos).</p>
+  </div>
+
+  <h3 style="margin-top:30px;opacity:.85">Instalación manual / desarrollo (alternativa, paso a paso)</h3>
+  <p class="lead" style="font-size:14px;margin-top:4px">Si prefieres clonar el repo — por ejemplo para desarrollar sobre ARIS4U. ~5 minutos.</p>
+
+  <div class="step"><div class="num">0</div><div class="body">
+    <h3>Requisitos</h3>
+    <p>Python 3.11+ (3.12 recomendado), Git, y Claude Code con tu cuenta Max. <code style="color:var(--acc)">jq</code> es <b>OBLIGATORIO</b> — lo usan los hooks <code>parallel-dispatch-guard</code> y <code>gpu-crash-guard</code>. Sin él esos guards fallan en silencio.</p>
+    <div class="code"><button class="copy">Copiar</button><pre>python3 --version   <span class="c"># &gt;= 3.11</span>
+git --version
+claude --version</pre></div>
+  </div></div>
+
+  <div class="step"><div class="num">1</div><div class="body">
+    <h3>Clona el repositorio</h3>
+    <div class="code"><button class="copy">Copiar</button><pre>cd ~/projects
+git clone https://github.com/aris4u-dev/aris4u.git aris4u
+cd aris4u</pre></div>
+  </div></div>
+
+  <div class="step"><div class="num">2</div><div class="body">
+    <h3>Ejecuta el instalador</h3>
+    <p>Crea el venv, instala dependencias, pasa el gate de verificación y genera tu config. Idempotente.</p>
+    <div class="code"><button class="copy">Copiar</button><pre>bash install.sh           <span class="c"># interactivo: elige tus proyectos</span>
+<span class="c"># o totalmente automático (auto-detecta hardware y proyectos):</span>
+bash install.sh --yes
+<span class="c"># otros flags: --cron (instala cron de auto-adaptación) · --no-init (omite generación de config)</span></pre></div>
+    <p class="opt">Genera <span class="kbd">~/.aris4u/config.json</span> con tu hardware/proyectos — nada queda cableado al autor.</p>
+  </div></div>
+
+  <div class="step"><div class="num">3</div><div class="body">
+    <h3>Regístralo como plugin en Claude Code</h3>
+    <p>Así Claude carga los hooks y las 7 herramientas MCP por convención del plugin.</p>
+    <div class="code"><button class="copy">Copiar</button><pre>claude plugin marketplace add ~/projects/aris4u
+claude plugin install aris4u@aris4u-dev</pre></div>
+    <div class="note warn"><b>Atención:</b> si ya tenías ARIS4U cableado a mano en
+      <span class="kbd">~/.claude/settings.json</span>, quita esos bloques (con backup) tras confirmar que
+      el plugin carga, o los hooks correrían dos veces.</div>
+  </div></div>
+
+  <div class="step"><div class="num">4</div><div class="body">
+    <h3>Aplica la configuración recomendada de Claude</h3>
+    <p>Las env vars del tab <b>Config de Claude</b> afinan ARIS4U (cache, verify-gate, memoria). Cópialas a tu settings.</p>
+    <div class="code"><button class="copy">Copiar</button><pre><span class="c"># abre tu settings global para pegar el bloque "env" (ver tab Config)</span>
+$EDITOR ~/.claude/settings.json</pre></div>
+  </div></div>
+
+  <div class="step"><div class="num">5</div><div class="body">
+    <h3>Verifica que está vivo</h3>
+    <p>Abre Claude Code en cualquier proyecto y pide el estado.</p>
+    <div class="code"><button class="copy">Copiar</button><pre><span class="k">/aris-status</span></pre></div>
+  </div></div>
+
+  <div class="step"><div class="num">+</div><div class="body">
+    <h3>Opcional · Memoria semántica local con Ollama</h3>
+    <p>Sin Ollama funciona con búsqueda por texto + guards. Con Ollama añades <b>recall semántico</b>,
+       <b>router del Conductor</b> y <b>dialéctica</b>, todo local (privado).</p>
+    <div class="code"><button class="copy">Copiar</button><pre><span class="c"># instala Ollama: https://ollama.com</span>
+ollama pull embeddinggemma       <span class="c"># PRIMARIO — recall de sesiones (EMBED_MODEL en engine/v16/config.py)</span>
+ollama pull mxbai-embed-large    <span class="c"># router de capacidades (matching semántico del Conductor)</span></pre></div>
+    <p class="opt">Se necesitan ambos modelos para recall semántico completo + router del Conductor. Sin Ollama el sistema degrada a búsqueda FTS5 — los guards siguen funcionando.</p>
+  </div></div>
+ </div>
+</section>
+
+<!-- ============ CONFIG (ES) ============ -->
+<section class="tab" data-tab="config">
+ <div class="wrap">
+  <h2 class="title">Configuración de Claude correcta</h2>
+  <p class="lead">ARIS4U funciona out-of-the-box, pero estas variables en
+     <span class="kbd">~/.claude/settings.json</span> lo afinan: activan el cache, el verify-gate de código,
+     y dan tiempo a la captura de memoria. Pega el bloque <code style="color:var(--acc)">"env"</code> y reinicia Claude Code.</p>
+
+  <div class="code"><button class="copy">Copiar</button><pre>{
+  <span class="s">"env"</span>: {
+    <span class="c">// — rendimiento y memoria —</span>
+    <span class="s">"ENABLE_PROMPT_CACHING_1H"</span>: <span class="s">"true"</span>,
+    <span class="s">"CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS"</span>: <span class="s">"15000"</span>,
+
+    <span class="c">// — ARIS4U: profundidad, verificación, privacidad —</span>
+    <span class="s">"ARIS4U_DEPTH_PROTOCOL"</span>: <span class="s">"1"</span>,
+    <span class="s">"ARIS4U_CONDUCTOR_ENFORCE"</span>: <span class="s">"1"</span>,
+    <span class="s">"ARIS4U_HEALTHCARE"</span>: <span class="s">"0"</span>,
+
+    <span class="c">// — opcionales (ajuste fino) —</span>
+    <span class="s">"ARIS4U_ROUTER_SEM_THRESHOLD"</span>: <span class="s">"0.70"</span>,
+    <span class="s">"ARIS4U_DIVERSE_RECALL"</span>: <span class="s">"0"</span>
+  }
+}</pre></div>
+
+  <table class="cfg">
+    <thead><tr><th>Variable</th><th>Qué hace</th><th></th></tr></thead>
+    <tbody>
+      <tr><td><code>ENABLE_PROMPT_CACHING_1H</code><br><code>true</code></td>
+        <td>Cachea el prompt 1 hora. Ahorra tokens y acelera las respuestas.</td><td><span class="badge rec">recomendado</span></td></tr>
+      <tr><td><code>CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS</code><br><code>15000</code></td>
+        <td>Da tiempo a que ARIS4U capture la memoria de la sesión al cerrar (commits, decisiones, recall). Sin esto, la captura puede cortarse.</td><td><span class="badge rec">recomendado</span></td></tr>
+      <tr><td><code>ARIS4U_DEPTH_PROTOCOL</code><br><code>1</code></td>
+        <td>Clasifica cada petición y ajusta la profundidad: lo simple va directo; lo complejo empuja a investigar y verificar.</td><td><span class="badge rec">recomendado</span></td></tr>
+      <tr><td><code>ARIS4U_CONDUCTOR_ENFORCE</code><br><code>1</code></td>
+        <td><b>El verify-gate (Pilar 2).</b> Si editaste código y no corriste tests/lint, al cerrar el turno te lo recuerda — <i>sin bloquear</i>. Pon <code>0</code> para apagarlo.</td><td><span class="badge rec">recomendado</span></td></tr>
+      <tr><td><code>ARIS4U_HEALTHCARE</code><br><code>0</code></td>
+        <td>PHI/HIPAA apagado. Ponlo a <code>1</code> solo si trabajas con datos médicos (activa guards extra y routing local).</td><td><span class="badge req">por defecto</span></td></tr>
+      <tr><td><code>ARIS4U_ROUTER_SEM_THRESHOLD</code><br><code>0.70</code></td>
+        <td>Umbral del router semántico del Conductor. Más alto = menos sugerencias pero más precisas. Menos = más cobertura.</td><td><span class="badge opt">opcional</span></td></tr>
+      <tr><td><code>ARIS4U_DIVERSE_RECALL</code><br><code>0 / 1</code></td>
+        <td>A <code>1</code>, el recall trae resultados más diversos (menos redundantes). Útil en proyectos grandes.</td><td><span class="badge opt">opcional</span></td></tr>
+      <tr><td><code>ARIS4U_AUTOPILOT</code><br><code>0 / 1</code></td>
+        <td><b>Para no-desarrolladores que quieren todo hands-off.</b> En <code>1</code>, cuando tu petición corresponde a una capacidad conocida, Claude la <b>ejecuta</b> en vez de solo sugerirla. Déjalo en <code>0</code> si eres desarrollador.</td><td><span class="badge opt">no-dev</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note ok"><b>Se configuran solas (no las toques):</b> <code style="font-family:ui-monospace">ARIS4U_ROOT</code>,
+     <code style="font-family:ui-monospace">ARIS4U_CONFIG</code>, <code style="font-family:ui-monospace">ARIS4U_LOG_FILE</code> — el plugin las deriva de tu instalación.
+     Tu hardware, proyectos y clientes viven en <span class="kbd">~/.aris4u/config.json</span> (lo generó <code>aris4u init</code>), no aquí.</div>
+
+  <div class="note"><b>Aplicar:</b> edita <span class="kbd">~/.claude/settings.json</span> y fusiona el bloque
+     <code style="font-family:ui-monospace">"env"</code> con el que ya tengas, o pídeselo a Claude (ver el último prompt del tab siguiente).
+     Reinicia Claude Code para que tome efecto.</div>
+
+  <div class="stackgrp" style="margin-top:30px">
+    <h3>🪝 Hooks activos · tabla completa por evento</h3>
+    <p class="gsub">ARIS4U cablea hooks en dos capas: el <b>plugin</b> (<code>hooks.json</code>, automático al instalar) y
+       <b>hooks globales</b> en <code>~/.claude/settings.json</code>. Los bloqueantes (exit&nbsp;2) cortan la operación; los advisories solo avisan.</p>
+    <table class="cfg">
+      <thead><tr><th>Evento</th><th>Script / handler</th><th>Matcher</th><th>Qué hace</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><code>SessionStart</code></td><td><code>bootstrap_venv.sh</code></td><td>*</td><td>Crea <code>.venv312</code> + instala deps <b>una sola vez</b> (30–60s primera vez, instantáneo después).</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>SessionStart</code></td><td><code>dispatch.py SessionStart</code></td><td>*</td><td>Auto-recall de ARIS4U: inyecta el contexto de memoria híbrida al abrir la sesión.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td><code>dispatch.py UserPromptSubmit</code></td><td>*</td><td>Depth-inject: clasifica la query y ajusta profundidad; routing de capacidades del Conductor; inyecta aviso <b>🧭 ROUTING</b> con <code>model=</code> explícito por tier de Agent() (Opus/Sonnet/Haiku) para que cada fan-out pague el precio correcto. Motor: <code>tools/model_router.py</code>.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td><code>governor-context.py</code></td><td>*</td><td><b>Gobernador:</b> inyecta estado de concurrencia en vivo (RAM/agentes/carga) para que Claude dimensione bien los fan-outs.</td><td><span class="badge rec">global</span></td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td><code>enterprise-build-hint.py</code></td><td>*</td><td>Inyecta hints de disciplina de build al detectar una tarea de construcción/feature.</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td><code>clarify-gate.py</code></td><td>*</td><td>Auto-dispara <code>/clarify</code> antes de construir para resolver ambigüedades antes de que corra el código.</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>PreToolUse</code></td><td><code>dispatch.py PreToolUse</code></td><td>Bash|Write|Edit|MultiEdit|Read|WebFetch|WebSearch|mcp__.*</td><td>phi_guard (bloqueante en healthcare), migration-linter (bloqueante), type-hints, docker-:latest, advisories supabase-RLS.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>PreToolUse</code></td><td><code>pre-bash-guard.sh</code></td><td>Bash</td><td><b>Bloqueante:</b> detecta patrones de shell peligrosos antes de ejecutar.</td><td><span class="badge rec">global</span></td></tr>
+        <tr><td><code>PreToolUse</code></td><td><code>ram-saturation-guard.sh</code></td><td>Workflow|Agent|Task</td><td><b>Bloqueante:</b> impide lanzar fan-out si los umbrales de RAM/swap están superados.</td><td><span class="badge rec">global</span></td></tr>
+        <tr><td><code>PreToolUse</code></td><td><code>pre-commit-gate.sh</code></td><td>Bash</td><td>Valida mensajes de commit y archivos staged antes de los commits git.</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>PostToolUse</code></td><td><code>dispatch.py PostToolUse</code></td><td>Bash|Write|Edit|MultiEdit|Agent|Task</td><td>code_quality_gate (ruff por edición); advisory parallel-dispatch (sin bucles ssh secuenciales).</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>PostToolUse</code></td><td><code>static-analysis-gate.py</code></td><td>Write|Edit|MultiEdit</td><td>Corre el analizador nativo (flutter analyze / eslint / astro check) sobre el archivo editado y reinyecta diagnósticos nivel-IDE.</td><td><span class="badge rec">global</span></td></tr>
+        <tr><td><code>PostToolUse</code></td><td><code>post-change-ecosystem-validator.sh</code></td><td>Write|Edit</td><td>Valida consistencia cross-file tras ediciones (resolución de imports, deriva de esquema).</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>SubagentStart</code></td><td><code>dispatch.py SubagentStart</code></td><td>*</td><td>Scoping de política de agentes: impone la lista de tools permitidas por rol de agente.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>Stop</code></td><td><code>dispatch.py Stop</code></td><td>*</td><td>Handler de Stop de ARIS4U (recordatorio del Conductor si el verify-gate está activo).</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>Stop</code></td><td><code>process-cleanup.sh</code></td><td>*</td><td>Mata procesos huérfanos (pytest, npm, builds zombis) al cerrar la sesión.</td><td><span class="badge opt">global</span></td></tr>
+        <tr><td><code>SessionEnd</code></td><td><code>dispatch.py SessionEnd</code></td><td>*</td><td>Captura el digest de sesión, decisiones y resumen de commits en <code>sessions.db</code>.</td><td><span class="badge req">plugin</span></td></tr>
+        <tr><td><code>SessionEnd</code></td><td><code>governor-record.py</code></td><td>*</td><td><b>Gobernador:</b> anexa duración de agentes al log de aprendizaje del gobernador de concurrencia.</td><td><span class="badge rec">global</span></td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:12px"><b>Guards que usan jq (OBLIGATORIO):</b> <code>parallel-dispatch-guard.sh</code> y
+       <code>gpu-crash-guard.sh</code> parsean payloads JSON con <code>jq</code>. Sin él fallan en silencio — instala con
+       <code>brew install jq</code>.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ STACK (ES) ============ -->
+<section class="tab" data-tab="stack">
+ <div class="wrap">
+  <h2 class="title">El stack completo · Claude + ARIS4U</h2>
+  <p class="lead">Esto es todo lo que potencia este Claude, más allá de ARIS4U: plugins, herramientas MCP, skills y
+     agentes. Casi todo se instala con un comando o se cablea con <i>tus</i> credenciales. <b>Sin los conectores
+     financieros</b> — esos son privados.</p>
+
+  <!-- PLUGINS -->
+  <div class="stackgrp">
+    <h3>🧩 Plugins <span class="badge rec" style="margin-left:4px">1 comando</span></h3>
+    <p class="gsub">Del marketplace oficial de Claude Code (+ la memoria). Instala con
+       <code style="font-family:ui-monospace;font-size:12px">claude plugin install &lt;nombre&gt;</code>.</p>
+    <table class="cfg">
+      <thead><tr><th>Plugin</th><th>Qué te da</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><code>claude-mem</code></td><td>Memoria narrativa cross-session. <b>Nota V18:</b> ARIS4U guarda ahora las observaciones en su propia tabla <code>observations_local</code> dentro de <code>data/sessions.db</code> y <b>no depende</b> de este plugin. Instálalo solo si usas sus funciones de UI nativas.</td><td><span class="badge opt">@thedotmack</span></td></tr>
+        <tr><td><code>serena</code></td><td>Navegación y refactor <b>semántico</b> de código (encuentra símbolos, referencias, renombra).</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>pyright-lsp</code> · <code>typescript-lsp</code></td><td>Diagnósticos de tipos Python/TS nivel-IDE (definiciones, errores, refactor).</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>feature-dev</code></td><td>Desarrollo guiado de features con foco en arquitectura y convenciones del repo.</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>plugin-dev</code></td><td>Crear tus propios plugins, skills, hooks y agentes.</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>commit-commands</code></td><td>Commits, push y PRs guiados (mensajes limpios, limpieza de ramas).</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>hookify</code></td><td>Crea hooks que previenen errores, a partir de tu propia conversación.</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>frontend-design</code></td><td>Diseño frontend distintivo, anti-templado (estética intencional).</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>figma</code></td><td>Diseño Figma ↔ código bidireccional (design-to-code y code-to-design).</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>firebase</code></td><td>Firebase: Crashlytics, deploy, security rules, gestión de apps.</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>skill-creator</code></td><td>Crear, mejorar y medir el rendimiento de skills.</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>claude-code-setup</code></td><td>Analiza tu repo y recomienda automatizaciones (hooks/agents/skills/MCP).</td><td><span class="badge opt">oficial</span></td></tr>
+        <tr><td><code>security-guidance</code></td><td>Guía y revisión de seguridad sobre tu código.</td><td><span class="badge opt">oficial</span></td></tr>
+      </tbody>
+    </table>
+    <div class="code"><button class="copy">Copiar</button><pre><span class="c"># ejemplos</span>
+claude plugin install claude-mem@thedotmack
+claude plugin install serena@claude-plugins-official
+claude plugin install feature-dev@claude-plugins-official</pre></div>
+  </div>
+
+  <!-- MCP -->
+  <div class="stackgrp">
+    <h3>🔭 Herramientas MCP de servicios</h3>
+    <p class="gsub">Conectan Claude a servicios externos. Se cablean en <span class="kbd">~/.claude.json</span> con
+       <i>tus</i> credenciales — solo los que uses.</p>
+    <table class="cfg">
+      <thead><tr><th>MCP</th><th>Qué conecta</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><code>context7</code></td><td>Docs <b>actualizadas</b> de cualquier librería/framework (mejor que la web para APIs).</td><td><span class="badge rec">muy útil</span></td></tr>
+        <tr><td><code>supabase</code></td><td>Tu proyecto Supabase: tablas, migraciones, edge functions, logs, advisors.</td><td><span class="badge opt">si lo usas</span></td></tr>
+        <tr><td><code>cloudflare-builds</code></td><td>Builds y deploys de Cloudflare Pages/Workers.</td><td><span class="badge opt">si lo usas</span></td></tr>
+        <tr><td><code>claude-in-chrome</code></td><td>Automatiza el navegador: clicks, formularios, screenshots, leer consola.</td><td><span class="badge opt">extensión</span></td></tr>
+        <tr><td><code>codegraph</code></td><td>Grafo de código para navegación profunda (requiere <code>codegraph init</code>). <b>Inactivo</b> — índice no construido; no hay tools disponibles hasta correr <code>codegraph init</code> en nueva sesión.</td><td><span class="badge opt">inactivo</span></td></tr>
+      </tbody>
+    </table>
+    <div class="excl"><b>Excluidos (privados):</b> los conectores financieros —
+       <code style="font-family:ui-monospace;font-size:12px">stripe</code>, FMP, Intuit QuickBooks, Ramp.
+       No forman parte de este stack compartible.</div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="stackgrp">
+    <h3>⚡ Skills</h3>
+    <p class="gsub">Comandos <span class="kbd">/</span> de productividad. Las de ARIS4U (core + gobernanza + utilidades) vienen con el plugin. Solo las de <b>Documentos</b> (/docx, /pdf, /pptx, /xlsx) provienen de otros plugins de Claude Code.</p>
+    <p class="subhd first">ARIS4U (core · vienen con el plugin)</p>
+    <div class="chiprow">
+      <div class="schip"><b>/aris-onboard</b><span>instalación guiada inline</span></div>
+      <div class="schip"><b>/aris-init</b><span>adapta a tu hardware/proyectos</span></div>
+      <div class="schip"><b>/aris-status</b><span>estado de hooks+MCP+memoria</span></div>
+      <div class="schip"><b>/aris-config</b><span>ver/editar config y flags</span></div>
+      <div class="schip"><b>/aris-council</b><span>5 mentes para decidir</span></div>
+      <div class="schip"><b>/aris-client-audit</b><span>audita código de cliente</span></div>
+      <div class="schip"><b>/aris-memory-audit</b><span>salud de la memoria</span></div>
+    </div>
+    <p class="subhd">Documentos</p>
+    <div class="chiprow">
+      <div class="schip"><b>/docx</b><span>crear/editar Word</span></div>
+      <div class="schip"><b>/pdf</b><span>leer, fusionar, OCR de PDFs</span></div>
+      <div class="schip"><b>/pptx</b><span>presentaciones</span></div>
+      <div class="schip"><b>/xlsx</b><span>hojas de cálculo, datos</span></div>
+    </div>
+    <p class="subhd">Gobernanza (el flujo ARIS4U)</p>
+    <div class="chiprow">
+      <div class="schip"><b>/clarify</b><span>aclara antes de construir</span></div>
+      <div class="schip"><b>/preflight</b><span>chequeo de recursos antes de fan-out</span></div>
+      <div class="schip"><b>/harvest</b><span>cierra bloque: limpia huérfanos</span></div>
+      <div class="schip"><b>/second-auditor</b><span>gate de cierre: autor ≠ validador</span></div>
+      <div class="schip"><b>/verify-claims</b><span>verifica claims con evidencia</span></div>
+      <div class="schip"><b>/status</b><span>estado vivo de un proyecto</span></div>
+      <div class="schip"><b>/mcp-audit</b><span>seguridad de tus MCP</span></div>
+      <div class="schip"><b>/backup-verify</b><span>¿tus backups restauran de verdad?</span></div>
+    </div>
+    <p class="subhd">Utilidades</p>
+    <div class="chiprow">
+      <div class="schip"><b>/multi-research</b><span>triangula Claude+Gemini+Grok</span></div>
+      <div class="schip"><b>/github-ops</b><span>seguridad, releases, CI de repos</span></div>
+      <div class="schip"><b>/audit-website</b><span>SEO/perf/seguridad de un sitio</span></div>
+      <div class="schip"><b>/skill-security-scan</b><span>escanea skills/plugins de 3ros</span></div>
+      <div class="schip"><b>/taste-skill</b><span>frontend anti-slop</span></div>
+      <div class="schip"><b>/youtube</b><span>buscar, transcribir, analizar video</span></div>
+      <div class="schip"><b>/supabase-postgres-best-practices</b><span>best practices de Postgres</span></div>
+    </div>
+  </div>
+
+  <!-- AGENTS -->
+  <div class="stackgrp">
+    <h3>🤖 Agentes especialistas</h3>
+    <p class="gsub">Roles que Claude delega automáticamente según la tarea. Vienen con el stack ARIS4U.</p>
+    <div class="chiprow">
+      <div class="schip"><b>software-dev</b><span>backend, APIs, MCP, DB</span></div>
+      <div class="schip"><b>frontend-dev</b><span>React/Vue/Svelte/Astro, UI</span></div>
+      <div class="schip"><b>mobile-dev</b><span>Flutter, React Native</span></div>
+      <div class="schip"><b>qa-agent</b><span>tests, security scan, calidad</span></div>
+      <div class="schip"><b>code-review-agent</b><span>bug-hunter read-only</span></div>
+      <div class="schip"><b>security-agent</b><span>vuln scan, hardening, pentest</span></div>
+      <div class="schip"><b>devops-agent</b><span>Docker, CI/CD, infra</span></div>
+      <div class="schip"><b>data-agent</b><span>ETL, esquemas, analítica</span></div>
+      <div class="schip"><b>database-migration-agent</b><span>migraciones seguras + rollback</span></div>
+      <div class="schip"><b>researcher</b><span>investiga libs/APIs antes de codear</span></div>
+      <div class="schip"><b>project-scout</b><span>explora el repo antes de tocar</span></div>
+      <div class="schip"><b>ai-agent</b><span>ML, embeddings, RAG, inferencia</span></div>
+      <div class="schip"><b>memory-agent</b><span>contexto cross-sesión</span></div>
+      <div class="schip"><b>compliance-agent</b><span>HIPAA/SOC2/GDPR</span></div>
+      <div class="schip"><b>llm-integration-specialist</b><span>tuning de prompts/tokens/coste</span></div>
+    </div>
+  </div>
+
+  <div class="note ok" style="margin-top:24px"><b>Para recrear este stack:</b> instala ARIS4U (tabs anteriores) →
+     añade los plugins que quieras con <code style="font-family:ui-monospace;font-size:12px">claude plugin install</code> →
+     cablea solo los MCP de los servicios que uses, con tus credenciales. Las skills de gobernanza y los agentes vienen
+     con ARIS4U. <b>Nada financiero</b> se incluye.</div>
+ </div>
+</section>
+
+<!-- ============ PROMPTS (ES) ============ -->
+<section class="tab" data-tab="prompts">
+ <div class="wrap">
+  <h2 class="title">Deja que Claude lo haga por ti</h2>
+  <p class="lead">Como usas <b>Claude Code CLI</b> con tu cuenta Max, no tienes que correr los comandos a mano.</p>
+
+  <div class="note ok" style="border-left:4px solid var(--ok);padding:16px 20px;margin:0 0 22px;background:rgba(74,222,128,.06)">
+    <h3 style="margin-top:0">✅ Lo más simple — un solo comando</h3>
+    <p>Tras instalar el plugin (tab <b>Instalación</b>), este comando hace los 6 pasos de abajo <i>por ti</i>, dentro de
+       Claude: detecta lo que falta, genera tu config, te muestra exactamente qué env vars pegar y verifica el estado.</p>
+    <div class="code"><button class="copy">Copiar</button><pre><span class="k">/aris-onboard</span></pre></div>
+  </div>
+
+  <p class="lead" style="margin-bottom:22px">¿Prefieres controlar cada paso? Estos son los mismos 6, como prompts manuales que pegas en orden:</p>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">📦</div><h3>1 · Instalar ARIS4U</h3></div>
+    <p class="why">Claude clona el repo, corre el instalador y te avisa si algo falla.</p>
+    <div class="pbox"><button class="copy">Copiar</button><span class="lbl">Pega en Claude Code</span>
+Clona el repositorio https://github.com/aris4u-dev/aris4u.git dentro de ~/projects (como directorio "aris4u"), entra a la carpeta y ejecuta `bash install.sh`. Explícame cada paso, muéstrame la salida del gate de verificación, y si algo falla diagnostícalo antes de continuar. No modifiques mi ~/.claude/settings.json sin avisarme.</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">⚙️</div><h3>2 · Configurar para mis proyectos</h3></div>
+    <p class="why">Detecta tu hardware real y registra tus proyectos/clientes.</p>
+    <div class="pbox"><button class="copy">Copiar</button><span class="lbl">Pega en Claude Code</span>
+Corre `python3 tools/aris4u_init.py` para generar mi configuración. Antes, escanea ~/projects y muéstrame los proyectos detectados; ayúdame a decidir cuáles son labs y cuáles clientes. Confírmame el hardware (CPU, RAM, GPU) y enséñame el ~/.aris4u/config.json final antes de darlo por bueno.</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">🔌</div><h3>3 · Registrar el plugin y verificar</h3></div>
+    <p class="why">Cablea ARIS4U en Claude Code y confirma que hooks + MCP están vivos.</p>
+    <div class="pbox"><button class="copy">Copiar</button><span class="lbl">Pega en Claude Code</span>
+Registra ARIS4U como plugin: `claude plugin marketplace add ~/projects/aris4u` y luego `claude plugin install aris4u@aris4u-dev`. Después corre /aris-status y dime en una tabla qué hooks, herramientas MCP y guards quedaron activos. Si ya estaba cableado a mano en settings.json, avísame antes de tocar nada.</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">🎛️</div><h3>4 · Aplicar la configuración recomendada</h3></div>
+    <p class="why">Claude fusiona las env vars correctas en tu settings (cache, verify-gate, memoria).</p>
+    <div class="pbox"><button class="copy">Copiar</button><span class="lbl">Pega en Claude Code</span>
+Edita mi ~/.claude/settings.json y fusiona (sin borrar lo que ya tengo) este bloque env: ENABLE_PROMPT_CACHING_1H=true, CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS=15000, ARIS4U_DEPTH_PROTOCOL=1, ARIS4U_CONDUCTOR_ENFORCE=1, ARIS4U_HEALTHCARE=0, ARIS4U_ROUTER_SEM_THRESHOLD=0.70, ARIS4U_DIVERSE_RECALL=0. Explícame qué hace cada una y haz un backup antes de escribir.</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">🦙</div><h3>5 · (Opcional) Memoria semántica local</h3></div>
+    <p class="why">Verifica/instala Ollama y baja el modelo de embeddings.</p>
+    <div class="pbox"><button class="copy">Copiar</button><span class="lbl">Pega en Claude Code</span>
+Comprueba si tengo Ollama en localhost:11434. Si no, guíame para instalarlo. Cuando esté, descarga `embeddinggemma` (modelo de recall primario, EMBED_MODEL en config) y `mxbai-embed-large` (router de capacidades). Verifica con aris_health que ambos están disponibles y luego construye el índice semántico: python3 tools/capability_semantic.py --build</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="ph"><div class="dot">🧠</div><h3>6 · Primer uso real</h3></div>
+    <p class="why">Enséñale a Claude a recordar lo de un proyecto antes de trabajar.</p>
+    <div class="pbox"><button class="copy">Copiar</button><span class="lbl">Pega en Claude Code (dentro de tu proyecto)</span>
+Antes de empezar, usa aris_recall_client con el nombre de este cliente/proyecto para traer las decisiones y guards que ya guardamos. Resúmeme lo recuperado y, cuando tomemos una decisión importante hoy, guárdala con aris_ingest para no perderla.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ VALUE (ES) ============ -->
+<section class="tab" data-tab="value">
+ <div class="wrap">
+  <h2 class="title">Qué te aporta ARIS4U</h2>
+  <p class="lead">Claude es brillante en cada conversación pero <b>olvida al cerrar</b> y <b>no vigila tu código</b>.
+     ARIS4U es la capa que le da <b>memoria</b>, <b>verificación</b> y la capacidad de <b>auto-orquestar</b> su toolkit.</p>
+
+  <div class="archfig">
+    <svg viewBox="0 0 760 250" width="760">
+      <g font-family="-apple-system,sans-serif" text-anchor="middle">
+        <rect x="270" y="14" width="220" height="48" rx="13" fill="url(#ag)" opacity=".18"/>
+        <rect x="270.5" y="14.5" width="219" height="47" rx="12.5" stroke="url(#ag)"/>
+        <text x="380" y="38" fill="#e8edf7" font-size="15" font-weight="800">Claude Opus (CLI)</text>
+        <text x="380" y="54" fill="#9aa7c2" font-size="11">la cognición — se renta en cada sesión</text>
+        <line x1="380" y1="62" x2="380" y2="92" stroke="url(#ag)" stroke-width="2"/>
+        <text x="380" y="108" fill="#a78bfa" font-size="12" font-weight="700" letter-spacing="1">CAPA ARIS4U</text>
+        <g font-size="12.5" font-weight="700">
+          <g><rect x="30" y="122" width="160" height="74" rx="12" fill="#161d2e" stroke="#27314a"/>
+             <text x="110" y="150" fill="#e8edf7">🧠 Memoria</text>
+             <text x="110" y="170" fill="#9aa7c2" font-size="10.5" font-weight="400">cross-session +</text>
+             <text x="110" y="183" fill="#9aa7c2" font-size="10.5" font-weight="400">recall por cliente</text></g>
+          <g><rect x="206" y="122" width="160" height="74" rx="12" fill="#161d2e" stroke="#27314a"/>
+             <text x="286" y="150" fill="#4ade80">🛡️ Verificación</text>
+             <text x="286" y="170" fill="#9aa7c2" font-size="10.5" font-weight="400">gates + verify-gate:</text>
+             <text x="286" y="183" fill="#9aa7c2" font-size="10.5" font-weight="400">no pasa código malo</text></g>
+          <g><rect x="382" y="122" width="160" height="74" rx="12" fill="#161d2e" stroke="#27314a"/>
+             <text x="462" y="150" fill="#a78bfa">🎼 Conductor</text>
+             <text x="462" y="170" fill="#9aa7c2" font-size="10.5" font-weight="400">usa tu toolkit solo,</text>
+             <text x="462" y="183" fill="#9aa7c2" font-size="10.5" font-weight="400">en orden lógico</text></g>
+          <g><rect x="558" y="122" width="172" height="74" rx="12" fill="#161d2e" stroke="#27314a"/>
+             <text x="644" y="150" fill="#e8edf7">🔭 7 MCP + skills</text>
+             <text x="644" y="170" fill="#9aa7c2" font-size="10.5" font-weight="400">search · recall ·</text>
+             <text x="644" y="183" fill="#9aa7c2" font-size="10.5" font-weight="400">dialéctica · council</text></g>
+        </g>
+        <g stroke="#27314a" stroke-width="1.4" opacity=".7">
+          <line x1="110" y1="122" x2="330" y2="92"/><line x1="286" y1="122" x2="365" y2="92"/>
+          <line x1="462" y1="122" x2="395" y2="92"/><line x1="644" y1="122" x2="430" y2="92"/></g>
+        <rect x="190" y="216" width="380" height="30" rx="10" fill="#0e1420" stroke="#27314a"/>
+        <text x="380" y="236" fill="#6b7794" font-size="11.5">💾 tu máquina · privado · auditable (sessions.db · aris_vectors.db · por-cliente)</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="grp-title">V18 · Router de inteligencia consciente del modelo</div>
+  <div class="galaxy">
+    <div class="imp"><div class="ico" style="background:rgba(110,168,254,.14)">
+      <svg width="24" height="24" fill="none" stroke="#6ea8fe" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <h3>🧭 Doctrina tri-modelo (Fase A)</h3>
+      <p>V18 enruta cada <code>Agent()</code> al tier de modelo correcto por <b>dificultad cognitiva</b>, no por inercia. Sin <code>model=</code> explícito los agentes heredan el hilo — Fable, el modelo más caro, para trabajo que no lo necesita.</p>
+      <div class="what"><b>Fable</b> = hilo de sesión (estrategia, no subagente) · <b>Opus</b> = síntesis/veredicto final · <b>Sonnet</b> = el grueso del fan-out (verificar, explorar, revisar, editar) · <b>Haiku</b> = trivial (clasificar, formatear, etiquetar). Motor: <code>tools/model_router.py</code> (<code>route_model</code>, <code>session_model</code>, <code>recall_tier</code>). Cada prompt auto-inyecta el aviso <code>🧭 ROUTING</code> vía hook <code>UserPromptSubmit</code>.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(74,222,128,.13)">
+      <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg></div>
+      <h3>💰 Observabilidad de costo/routing (Fase C)</h3>
+      <p>Nuevo en V18: <code>tools/cost_report.py</code> mide la disciplina de routing — qué % de llamadas <code>Agent()</code> especificó <code>model=</code> explícito, distribución por modelo y costo relativo. Endpoint de consola: <code>GET /routing</code>.</p>
+      <div class="what">Corre: <code>python3 tools/cost_report.py</code> (últimos 7 días) o <code>--all --json</code>. Dashboard vivo: consola <code>/routing</code>. El costo es una proxy relativa por tier (sin token counts por subagente desde los hooks) — la señal útil es el <b>% de disciplina</b>, no el número absoluto.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(167,139,250,.14)">
+      <svg width="24" height="24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></div>
+      <h3>🧠 Memoria propia — desacoplada de claude-mem (Fase E)</h3>
+      <p>ARIS4U ya no depende del plugin de terceros <code>claude-mem</code>. El texto de las observaciones vive en su propia tabla <code>observations_local</code> (con índice FTS5) dentro de <code>data/sessions.db</code>. Índice semántico: <code>data/aris_vectors.db</code> (sqlite-vec, EmbeddingGemma 768d).</p>
+      <div class="what">Almacenamiento: <code>data/sessions.db</code> (decisiones · guards · digests · observations_local) + <code>data/aris_vectors.db</code> (semántico). <code>claude-mem</code> es ahora opcional — la memoria de ARIS4U es autónoma. Fuera de healthcare, <code>aris_dialectic</code>/<code>aris_structure</code>/<code>aris_critique</code> delegan en subagentes Sonnet del harness (Fase B) — local queda solo para datos PHI.</div></div>
+  </div>
+
+  <div class="grp-title">Los dos pilares</div>
+  <div class="galaxy">
+    <div class="imp"><div class="ico" style="background:rgba(110,168,254,.14)">
+      <svg width="24" height="24" fill="none" stroke="#6ea8fe" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 4 2 7h10c0-3 2-4 2-7a7 7 0 0 0-7-7zM9 21h6"/></svg></div>
+      <h3>🧠 Memoria que persiste</h3>
+      <p>Lo que decides hoy sigue ahí mañana, en otra sesión y con otro modelo. Cada proyecto tiene su
+         <b>memoria aislada</b>: al entrar a un cliente, Claude trae <i>sus</i> decisiones y guards.</p>
+      <div class="what">Captura sola en cada sesión · recall híbrido texto+semántico · <code>aris_recall_client</code>, <code>aris_search</code>.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(74,222,128,.13)">
+      <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+      <h3>🛡️ Verificación de código</h3>
+      <p>El otro pilar. <b>Capa 1:</b> al editar, corre <code>ruff</code>/analizador nativo + tipos/tests en el commit.
+         <b>Capa 2 — verify-gate:</b> si tocaste código y no verificaste, al cerrar el turno te lo recuerda — sin bloquear.</p>
+      <div class="what">Diagnósticos nivel-IDE por edición · recordatorio de cierre con <code>ARIS4U_CONDUCTOR_ENFORCE=1</code>.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(167,139,250,.14)">
+      <svg width="24" height="24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M9 18V5l12-2v13M9 13l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <h3>🎼 Conductor — auto-orquesta tu toolkit</h3>
+      <p>Claude tiene la lógica; ARIS4U le da el mapa. En cada tarea no-trivial reconoce <b>todas</b> tus skills/MCP
+         (incl. futuras) y te guía por el ciclo <b>ENTENDER → DISEÑAR → CONSTRUIR → VERIFICAR</b> con la capacidad correcta.</p>
+      <div class="what">Inventario vivo + router semántico local. En lo trivial no estorba; en lo complejo orquesta.</div></div>
+  </div>
+
+  <div class="grp-title">Criterio &amp; control</div>
+  <div class="galaxy">
+    <div class="imp"><div class="ico" style="background:rgba(251,191,36,.13)">
+      <svg width="24" height="24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1m0-12.8l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg></div>
+      <h3>Tus estándares, aplicados solos</h3>
+      <p>Los <b>guards</b> son reglas tuyas que se vigilan automáticamente: evitan que Claude repita errores conocidos
+         o rompa convenciones, antes de que ocurran. Algunos bloqueantes (migraciones, datos sensibles); el resto, avisos.</p>
+      <div class="what">Profundidad automática: en lo complejo, empuja a investigar y comparar antes de responder.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(110,168,254,.14)">
+      <svg width="24" height="24" fill="none" stroke="#6ea8fe" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <h3>Trazabilidad &amp; privado</h3>
+      <p>Captura sola commits y resúmenes de sesión — siempre puedes reconstruir qué se decidió y por qué.
+         La memoria, los embeddings y la revisión corren en <b>tu</b> máquina; modo PHI-safe opcional.</p>
+      <div class="what">Todo local, sin terceros · auditable.</div></div>
+
+    <div class="imp"><div class="ico" style="background:rgba(251,191,36,.13)">
+      <svg width="24" height="24" fill="none" stroke="#fbbf24" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+      <h3>Consciente de tu hardware</h3>
+      <p>Detecta tu CPU, RAM y GPU (y tus workers, si tienes) y reparte el trabajo sin saturar la máquina:
+         paraleliza cuando hay margen, se contiene cuando no.</p>
+      <div class="what">Generado por <code>aris4u init</code> en tu <code>~/.aris4u/config.json</code>.</div></div>
+  </div>
+
+  <div class="grp-title">Las 7 herramientas MCP · qué hace cada una</div>
+  <p class="lead" style="margin-bottom:16px">Las invocas cuando las necesitas (o el Conductor te las sugiere). Cada una resuelve un momento concreto —
+     <code>aris_structure</code> y <code>aris_critique</code> usan el cuerpo local opcional (<b>MLX:</b> <code style="font-size:12px">mlx-community/Mistral-Small-3.2-24B-Instruct-2506-4bit</code> · <b>Ollama:</b> <code>mxbai-embed-large</code>):</p>
+  <div class="dlist">
+    <div class="drow"><div class="dleft"><span class="dname">aris_recall_client</span><span class="dwho">memoria · por cliente</span></div>
+      <div class="dbody"><h4>Trae el contexto de un proyecto antes de tocarlo</h4>
+      <p>Recupera las decisiones, estándares y notas que guardaste para <i>ese</i> cliente, aislado del resto.</p>
+      <span class="use"><b>Cuándo:</b> al empezar a trabajar en un cliente.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_search</span><span class="dwho">memoria · global</span></div>
+      <div class="dbody"><h4>Busca en todo tu historial</h4>
+      <p>"¿Qué decidimos sobre X?" — lo encuentra entre todas tus sesiones por texto y por significado.</p>
+      <span class="use"><b>Cuándo:</b> cuando ya trataste algo pero no recuerdas qué concluiste.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_ingest</span><span class="dwho">memoria · escribir</span></div>
+      <div class="dbody"><h4>Guarda una decisión o un estándar</h4>
+      <p>Fija una conclusión o regla para que sobreviva al cierre de la sesión y reaparezca cuando importe.</p>
+      <span class="use"><b>Cuándo:</b> justo después de decidir algo importante.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_dialectic</span><span class="dwho">calidad · código</span></div>
+      <div class="dbody"><h4>Revisión a tres voces de tu código crítico</h4>
+      <p>Constructor, revisor y seguridad examinan tu código antes de comprometerlo. <b>V18 (Fase B):</b> fuera de healthcare, los tres roles delegan en subagentes Sonnet del harness — reemplaza el Ollama local que fallaba ~85% del tiempo. Local queda solo para contextos PHI.</p>
+      <span class="use"><b>Cuándo:</b> antes de mergear código sensible (auth, pagos, migraciones).</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_critique</span><span class="dwho">calidad · ideas</span></div>
+      <div class="dbody"><h4>Encuentra los puntos débiles de una propuesta</h4>
+      <p>Critica una idea desde varios ángulos y marca sus riesgos y supuestos frágiles.</p>
+      <span class="use"><b>Cuándo:</b> al terminar de diseñar algo, para ver qué se te escapó.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_structure</span><span class="dwho">diseño · ideas</span></div>
+      <div class="dbody"><h4>Convierte una idea cruda en una especificación</h4>
+      <p>Toma un planteamiento vago y lo organiza (objetivo, partes, criterios) listo para construir.</p>
+      <span class="use"><b>Cuándo:</b> al arrancar algo nuevo y difuso.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">aris_health</span><span class="dwho">sistema · diagnóstico</span></div>
+      <div class="dbody"><h4>Chequea que todo esté vivo</h4>
+      <p>Verifica el estado de la memoria y de los modelos locales (Ollama).</p>
+      <span class="use"><b>Cuándo:</b> si el recall semántico o la dialéctica no responden.</span></div></div>
+  </div>
+
+  <div class="grp-title">Las skills de ARIS4U · para qué sirve cada una</div>
+  <p class="lead" style="margin-bottom:16px">Comandos de alto nivel que escribes con <span class="kbd">/</span> en Claude Code:</p>
+  <div class="dlist">
+    <div class="drow"><div class="dleft"><span class="dname">/aris-onboard</span><span class="dwho">instalar · guiado</span></div>
+      <div class="dbody"><h4>Te instala y configura ARIS4U, dentro de Claude</h4>
+      <p>Un solo comando hace todo el onboarding: detecta lo que falte, genera tu config, te muestra qué env vars pegar y verifica el estado. Reemplaza la guía de pasos manuales.</p>
+      <span class="use"><b>Cuándo:</b> justo después de instalar el plugin, o al cambiar de máquina.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">/aris-init</span><span class="dwho">configurar</span></div>
+      <div class="dbody"><h4>Adapta ARIS4U a tu máquina y proyectos</h4>
+      <p>Detecta tu hardware, escanea tus proyectos y escribe tu config. Lo que hace ARIS4U <i>tuyo</i>.</p>
+      <span class="use"><b>Cuándo:</b> al instalar, cambiar de equipo o sumar un proyecto.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">/aris-council</span><span class="dwho">decidir</span></div>
+      <div class="dbody"><h4>Un consejo de 5 mentes para una decisión difícil</h4>
+      <p>Somete una decisión de arquitectura/estrategia a cinco formas de razonar y sintetiza un veredicto.</p>
+      <span class="use"><b>Cuándo:</b> "¿qué se me escapa?", elegir entre opciones, evaluar un riesgo.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">/aris-client-audit</span><span class="dwho">auditar código</span></div>
+      <div class="dbody"><h4>Audita el código de un cliente o de terceros</h4>
+      <p>Revisa un repo con los tres roles y emite un reporte con hallazgos por severidad.</p>
+      <span class="use"><b>Cuándo:</b> antes de entregar a un cliente, o al evaluar código ajeno.</span></div></div>
+    <div class="drow"><div class="dleft"><span class="dname">/aris-memory-audit</span><span class="dwho">mantener memoria</span></div>
+      <div class="dbody"><h4>Mantén tu memoria sana</h4>
+      <p>Revisa lo que ARIS4U recuerda por cliente y detecta contradicciones, datos viejos y huecos.</p>
+      <span class="use"><b>Cuándo:</b> cada cierto tiempo, para que no acumule decisiones obsoletas.</span></div></div>
+  </div>
+
+  <div class="note" style="margin-top:30px"><b>En una frase:</b> Claude piensa; ARIS4U <i>recuerda, verifica y orquesta</i>.
+     Los gates y la memoria trabajan solos; las herramientas MCP y las skills las usas (o el Conductor te las sugiere)
+     cuando hace falta. Dejas de empezar de cero — y de cerrar código sin verificar.</div>
+ </div>
+</section>
+
+<!-- ============ HELP (ES) ============ -->
+<section class="tab" data-tab="help">
+ <div class="wrap">
+  <h2 class="title">Solución de problemas</h2>
+  <p class="lead">La mayoría se resuelve con un comando. ARIS4U es <b>fail-open</b>: si algo no está configurado,
+     degrada limpio en vez de romperse — siempre puedes pedirle a Claude "corre <span class="kbd">/aris-onboard</span>"
+     y arregla lo que falte.</p>
+
+  <table class="cfg">
+    <thead><tr><th>Síntoma</th><th>Solución</th></tr></thead>
+    <tbody>
+      <tr><td>ARIS4U no parece activo / un comando <code>/</code> no se reconoce</td>
+        <td>Corre <code>/reload-plugins</code>, o reinicia Claude Code. Luego <code>/aris-status</code> para confirmar que hooks + MCP + memoria están vivos.</td></tr>
+      <tr><td>La primera sesión dice "creando el entorno…" y va lenta</td>
+        <td>Construcción única del entorno Python (<span class="kbd">.venv312</span>, ~30–60s). Normal — pasa una sola vez; después cada sesión es instantánea.</td></tr>
+      <tr><td>El setup no arrancó solo</td>
+        <td>Escribe <code>/aris-onboard</code>. Detecta lo que falta, genera tu config, añade las env vars por ti (con tu OK) y verifica.</td></tr>
+      <tr><td>Los hooks parecen correr dos veces</td>
+        <td>Esta máquina tenía ARIS4U cableado a mano en <span class="kbd">~/.claude/settings.json</span>. Quita esos bloques (con backup) — el plugin ya los carga.</td></tr>
+      <tr><td>El recall semántico / el router se sienten flojos</td>
+        <td>Instala Ollama + <code>ollama pull embeddinggemma</code> (recall primario) + <code>ollama pull mxbai-embed-large</code> (router), luego construye el índice (<code>/aris-onboard</code> lo hace, o <code>python3 tools/capability_semantic.py --build</code>). Sin Ollama cae a búsqueda FTS5 — funciona, solo menos semántico.</td></tr>
+      <tr><td>Las herramientas MCP no aparecen</td>
+        <td><code>/reload-plugins</code>; confirma que existe el <span class="kbd">.venv312</span> del plugin (una primera sesión lo construye). Si hace falta, corre <code>bash install.sh</code> en el repo.</td></tr>
+      <tr><td>Lo quiero menos proactivo</td>
+        <td>Pon cualquiera de estas env vars en <code>0</code>: <code>ARIS4U_AUTOPILOT</code>, <code>ARIS4U_CONDUCTOR_ENFORCE</code>, <code>ARIS4U_AUTO_ONBOARD</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><b>Actualizar:</b> en Claude Code, <code>/plugin</code> → update <code>aris4u</code> (o re-agrega el marketplace).
+     <b>Desinstalar:</b> <code>claude plugin uninstall aris4u</code>; opcionalmente borra <span class="kbd">~/.aris4u/</span> y las env vars de ARIS4U de tu settings. Tu memoria vive en <span class="kbd">data/sessions.db</span> (decisiones/guards/observaciones) y <span class="kbd">data/aris_vectors.db</span> (índice semántico) dentro del repo de ARIS4U — quedan hasta que las borres. El antiguo <code>~/.claude-mem/</code> ya no lo usa ARIS4U V18.</div>
+
+  <div class="note ok"><b>¿Sigue atascado?</b> Pídeselo a Claude directo, en lenguaje llano: "ARIS4U no parece funcionar — revisa <code>/aris-status</code>, dime qué falta y arréglalo." Ese es todo el punto — describes el problema, él se encarga del resto.</div>
+ </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    ARIS4U v18.0.0 · guía de instalación, configuración y uso · para Claude Code (cuenta Max)<br>
+    <span style="color:#4a5670">Repo: github.com/aris4u-dev/aris4u · Python 3.11+ · macOS / Linux · instala: /plugin marketplace add https://github.com/aris4u-dev/aris4u.git</span>
+  </div>
+</footer>
+
+</div><!-- /doc-es -->
+
+<script>
+  // ---- language toggle (default EN, persisted) ----
+  function setLang(l){
+    document.documentElement.lang=l;
+    document.getElementById('doc-en').hidden = (l!=='en');
+    document.getElementById('doc-es').hidden = (l!=='es');
+    document.getElementById('lang-en').classList.toggle('active', l==='en');
+    document.getElementById('lang-es').classList.toggle('active', l==='es');
+    try{localStorage.setItem('aris4u_lang',l)}catch(e){}
+  }
+  document.getElementById('lang-en').addEventListener('click',()=>setLang('en'));
+  document.getElementById('lang-es').addEventListener('click',()=>setLang('es'));
+  (function(){ let s='en'; try{s=localStorage.getItem('aris4u_lang')||'en'}catch(e){} setLang(s); })();
+
+  // ---- tabs, scoped per language container (avoids duplicate-id collision) ----
+  document.querySelectorAll('.doc').forEach(function(doc){
+    var btns=doc.querySelectorAll('.tab-btn');
+    btns.forEach(function(b){ b.addEventListener('click',function(){
+      btns.forEach(function(x){x.classList.remove('active')});
+      doc.querySelectorAll('section.tab').forEach(function(x){x.classList.remove('active')});
+      b.classList.add('active');
+      var sec=doc.querySelector('section.tab[data-tab="'+b.dataset.tab+'"]');
+      if(sec) sec.classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }); });
+  });
+
+  // ---- copy buttons (language-aware label) ----
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var box=btn.parentElement, txt;
+      if(box.querySelector('pre')) txt=box.querySelector('pre').innerText;
+      else { var c=[].slice.call(box.childNodes).filter(function(n){return n.nodeType===3}).map(function(n){return n.textContent}).join('').trim();
+             txt=c||box.innerText.replace(/^(Copiar|Copy)\s*/,'').replace(/^.*(Pega en Claude Code|Paste into Claude Code)[^\n]*\s*/s,'').trim(); }
+      navigator.clipboard.writeText(txt).then(function(){
+        var es=!!btn.closest('#doc-es'); var old=btn.textContent;
+        btn.textContent= es?'✓ Copiado':'✓ Copied'; btn.classList.add('done');
+        setTimeout(function(){btn.textContent=old;btn.classList.remove('done')},1600);
+      });
+    });
+  });
+</script>
+</body>
+</html>

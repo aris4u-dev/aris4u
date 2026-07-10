@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Template del cron de backup verificado a W2 (FREEZE ítem 2). install.sh reemplaza
+     __ARIS4U_ROOT__ y __HOME__ y copia el resultado a
+     ~/Library/LaunchAgents/com.aris4u.backup-daily.plist. Password del repo restic =
+     macOS Keychain (servicio aris4u-restic-repo); el script lo lee solo. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.aris4u.backup-daily</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>__ARIS4U_ROOT__/tools/backup_to_w2.sh</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>ARIS4U_ROOT</key>
+		<string>__ARIS4U_ROOT__</string>
+		<key>PATH</key>
+		<string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+	</dict>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>3</integer>
+		<key>Minute</key>
+		<integer>30</integer>
+	</dict>
+	<key>StandardOutPath</key>
+	<string>__ARIS4U_ROOT__/logs/backup-daily.out</string>
+	<key>StandardErrorPath</key>
+	<string>__ARIS4U_ROOT__/logs/backup-daily.err</string>
+</dict>
+</plist>

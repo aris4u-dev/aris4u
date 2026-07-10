@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "cat audit.jsonl"}, "tool_output": "{\"log\":\"aws_secret_access_key=wJalrXUtnFEMIK7MDENGbPxRf\",\"next\":\"keepme\"}", "cwd": "/tmp"}

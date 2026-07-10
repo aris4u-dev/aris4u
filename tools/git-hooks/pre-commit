@@ -1,0 +1,10 @@
+#!/bin/sh
+# ARIS4U WS0 — guard anti version-drift. Bloquea el commit si pyproject.toml
+# y .claude-plugin/plugin.json divergen en versión.
+# Instalar: ln -sf ../../tools/git-hooks/pre-commit .git/hooks/pre-commit
+ROOT="$(git rev-parse --show-toplevel)"
+python3 "$ROOT/tools/sync_version.py" --check || {
+  echo "pre-commit abortado: versiones desincronizadas." >&2
+  echo "Corre 'python tools/sync_version.py' y vuelve a commitear." >&2
+  exit 1
+}

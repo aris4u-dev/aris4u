@@ -1,0 +1,1558 @@
+{
+  "_note": "Catálogo de triggers del enrutador (paso 3). Generado por workflow de 6 analistas (propuesta+curación) + 15 agentes (literalización), dedup+normalizado. Precision-first: triggers literales, gate de intent+contexto. Editable a mano. Lo consume tools/capability_router.py.",
+  "generated": "2026-06-22",
+  "catalog": [
+    {
+      "name": "aris-client-audit",
+      "ctype": "skill",
+      "triggers": [
+        "auditoría cliente",
+        "riesgos seguridad repo",
+        "tech debt cliente",
+        "sarif codebase",
+        "compliance cliente",
+        "audit cliente",
+        "auditar cliente",
+        "code audit cliente",
+        "riesgos seguridad cliente",
+        "audit cliente",
+        "code audit cliente",
+        "security audit repo cliente"
+      ],
+      "anti_triggers": [
+        "aris4u",
+        "código propio",
+        "review genérico",
+        "bugfixing",
+        "refactoring",
+        "testing",
+        "código mío",
+        "bugfix",
+        "refactor"
+      ],
+      "intent": [
+        "fix",
+        "research"
+      ],
+      "context": "tu-cliente",
+      "hint": "💡 Auditoría de cliente (seguridad + compliance) → /aris-client-audit (aris_dialectic: Builder+Reviewer+Security, salida SARIF).",
+      "confidence": "high"
+    },
+    {
+      "name": "aris-council",
+      "ctype": "skill",
+      "triggers": [
+        "arquitectura",
+        "trade-off",
+        "consejo",
+        "perspectivas",
+        "decisión difícil",
+        "alternativas"
+      ],
+      "anti_triggers": [
+        "código",
+        "bug",
+        "phi",
+        "implementa",
+        "debugging",
+        "pregunta simple"
+      ],
+      "intent": [
+        "decision"
+      ],
+      "context": "",
+      "hint": "💡 Decisión arquitectónica con trade-offs → /aris-council (5 lentes: contrarian, first-principles, expansionist, outsider, executor).",
+      "confidence": "high"
+    },
+    {
+      "name": "aris-status",
+      "ctype": "skill",
+      "triggers": [
+        "aris4u",
+        "motor aris4u",
+        "capacidades",
+        "hooks activos",
+        "guards",
+        "telemetría"
+      ],
+      "anti_triggers": [
+        "proyecto status",
+        "deploy",
+        "github",
+        "sin nombre"
+      ],
+      "intent": [
+        "simple"
+      ],
+      "context": "",
+      "hint": "💡 Health de ARIS4U → /aris-status (hooks, MCP, guards, memory por cliente, telemetría).",
+      "confidence": "high"
+    },
+    {
+      "name": "aris4u.aris_dialectic",
+      "ctype": "mcp_tool",
+      "triggers": [
+        "review auth",
+        "review security",
+        "review database",
+        "código sensible",
+        "guard crítico",
+        "builder+reviewer+security"
+      ],
+      "anti_triggers": [
+        "auditoría cliente",
+        "code-review genérico",
+        "vulnerability/cve",
+        "tests unitarios",
+        "refactor menor"
+      ],
+      "intent": [
+        "fix",
+        "implementation"
+      ],
+      "context": "",
+      "hint": "🛡️ Para este código sensible, aris_dialectic (Builder+Reviewer+Security en paralelo, local Ollama) puede encontrar issues multi-ángulo.",
+      "confidence": "high"
+    },
+    {
+      "name": "aris4u.aris_ingest",
+      "ctype": "mcp_tool",
+      "triggers": [
+        "decisión importante",
+        "patrón identificado",
+        "guard nuevo",
+        "arquitectura validada",
+        "regla nueva"
+      ],
+      "anti_triggers": [
+        "datos crudos",
+        "api integration",
+        "debuggig en curso",
+        "código cosmético"
+      ],
+      "intent": [
+        "decision",
+        "implementation"
+      ],
+      "context": "",
+      "hint": "💾 Ingesta esta decisión con aris_ingest para que futuros trabajos la recuperen automáticamente.",
+      "confidence": "high"
+    },
+    {
+      "name": "aris4u.aris_recall_client",
+      "ctype": "mcp_tool",
+      "triggers": [
+        "trabajar en cliente",
+        "crm de",
+        "auditar cliente",
+        "decisiones previas cliente",
+        "guards de cliente",
+        "cambiar db cliente"
+      ],
+      "anti_triggers": [
+        "recall sin cliente",
+        "laboratorio aris4u",
+        "proyecto sin cliente"
+      ],
+      "intent": [
+        "decision",
+        "implementation",
+        "fix"
+      ],
+      "context": "03-clients",
+      "hint": "🔍 Usa aris_recall_client para traer decisiones/guards previos de este cliente antes de proceder.",
+      "confidence": "high"
+    },
+    {
+      "name": "claude-code-setup:claude-automation-recommender",
+      "ctype": "skill",
+      "triggers": [
+        "automation recommendations",
+        "optimize claude code",
+        "hooks subagents mcp",
+        "project setup",
+        "recommend automation"
+      ],
+      "anti_triggers": [
+        "general setup",
+        "aris4u config",
+        "configure settings"
+      ],
+      "intent": [
+        "decision",
+        "research"
+      ],
+      "context": "",
+      "hint": "💡 Analizar codebase y recomendar hooks/subagents/skills/MCP → claude-code-setup:claude-automation-recommender.",
+      "confidence": "high"
+    },
+    {
+      "name": "code-review-agent",
+      "ctype": "agent",
+      "triggers": [
+        "review diff",
+        "check bugs",
+        "peer review",
+        "code quality"
+      ],
+      "anti_triggers": [
+        "arquitectura (usar aris-council)",
+        "auditoría cliente (usar aris-client-audit)",
+        "implement/write/fix/create"
+      ],
+      "intent": [
+        "fix"
+      ],
+      "context": "",
+      "hint": "💡 Auditar diffs antes de push sin modificar → /code-review-agent.",
+      "confidence": "high"
+    },
+    {
+      "name": "commit-commands:clean_gone",
+      "ctype": "command",
+      "triggers": [
+        "clean gone",
+        "gone branches",
+        "limpiar gone",
+        "borradas remote"
+      ],
+      "anti_triggers": [
+        "git cleanup genérico",
+        "rm files",
+        "delete local"
+      ],
+      "intent": [
+        "fix"
+      ],
+      "context": "",
+      "hint": "💡 Limpiar ramas borradas en remote pero locales aún → /commit-commands:clean_gone.",
+      "confidence": "high"
+    },
+    {
+      "name": "compliance-agent",
+      "ctype": "agent",
+      "triggers": [
+        "hipaa",
+        "soc2",
+        "gdpr",
+        "audit trail",
+        "access control",
+        "regulatory"
+      ],
+      "anti_triggers": [
+        "vulnerability",
+        "exploit",
+        "pentest",
+        "cve",
+        "hardening"
+      ],
+      "intent": [
+        "fix",
+        "research"
+      ],
+      "context": "",
+      "hint": "💡 HIPAA, SOC2, GDPR y auditoría regulatoria → /compliance-agent.",
+      "confidence": "high"
+    },
+    {
+      "name": "deep-research",
+      "ctype": "skill",
+      "triggers": [
+        "investigación profunda",
+        "fact-check",
+        "multi-fuente",
+        "citas",
+        "research riguroso",
+        "referencias publicadas",
+        "deep research",
+        "estudios publicados",
+        "referencias citas",
+        "investigación rigurosa",
+        "citas/referencias"
+      ],
+      "anti_triggers": [
+        "código",
+        "tutorial",
+        "ya lo sé",
+        "multi-modelo",
+        "tutorial corto",
+        "triangulación (usar /multi-research)"
+      ],
+      "intent": [
+        "research"
+      ],
+      "context": "",
+      "hint": "💡 Investigación rigurosa multi-fuente con fact-checking → /deep-research (búsquedas fan-out + verificación adversarial + reporte citado).",
+      "confidence": "high"
+    },
+    {
+      "name": "figma:figma-create-new-file",
+      "ctype": "skill",
+      "triggers": [
+        "new figma file",
+        "create figma",
+        "blank figjam",
+        "new figma slides",
+        "fresh figma before use_figma"
+      ],
+      "anti_triggers": [
+        "edit existing figma",
+        "open figma file",
+        "figma plugin use"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": "",
+      "hint": "💡 Carga figma:figma-create-new-file ANTES de create_new_file (workflow de creación).",
+      "confidence": "high"
+    },
+    {
+      "name": "figma:figma-generate-design",
+      "ctype": "skill",
+      "triggers": [
+        "write to figma",
+        "push page figma",
+        "push screen figma",
+        "build landing page figma",
+        "convert modal figma",
+        "design-to-code"
+      ],
+      "anti_triggers": [
+        "create new blank figma",
+        "figma-create-new-file",
+        "diseñar desde cero"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": "",
+      "hint": "💡 Traducir páginas/layouts de la app a Figma (design-to-code) → figma:figma-generate-design.",
+      "confidence": "high"
+    },
+    {
+      "name": "figma:figma-generate-diagram",
+      "ctype": "skill",
+      "triggers": [
+        "architecture diagram",
+        "flowchart",
+        "sequence diagram",
+        "erd",
+        "state machine",
+        "mermaid"
+      ],
+      "anti_triggers": [
+        "mindmap",
+        "pie chart",
+        "class diagram"
+      ],
+      "intent": [
+        "implementation",
+        "decision"
+      ],
+      "context": "",
+      "hint": "💡 Carga figma:figma-generate-diagram ANTES de generate_diagram (selección de tipo + constraints Mermaid).",
+      "confidence": "high"
+    },
+    {
+      "name": "figma:figma-swiftui",
+      "ctype": "skill",
+      "triggers": [
+        "swiftui",
+        "swift code figma",
+        "push view to figma",
+        "implement figma in swiftui",
+        "ios/iphone"
+      ],
+      "anti_triggers": [
+        "android",
+        "react native",
+        "flutter",
+        "web design"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": "",
+      "hint": "💡 Traducción bidireccional SwiftUI ↔ Figma → figma:figma-swiftui.",
+      "confidence": "high"
+    },
+    {
+      "name": "figma:figma-use",
+      "ctype": "skill",
+      "triggers": [
+        "use_figma",
+        "call use_figma",
+        "plugin api figma",
+        "write nodes figma",
+        "set variables figma",
+        "javascript figma"
+      ],
+      "anti_triggers": [
+        "create new figma file",
+        "figma-create-new-file",
+        "generate design",
+        "figma-generate-design"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": "",
+      "hint": "💡 Carga figma:figma-use ANTES de llamar use_figma (contexto Plugin API, evita fallos comunes).",
+      "confidence": "high"
+    },
+    {
+      "name": "frontend-dev",
+      "ctype": "agent",
+      "triggers": [
+        "react",
+        "vue",
+        "svelte",
+        "astro",
+        "frontend",
+        "ui component",
+        "css",
+        "responsive design"
+      ],
+      "anti_triggers": [
+        "backend",
+        "database",
+        "api",
+        "deployment",
+        "mobile app",
+        "dirección visual"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": "",
+      "hint": "React/Vue/Svelte/Astro y UI → /frontend-dev.",
+      "confidence": "high"
+    },
+    {
+      "name": "github-ops",
+      "ctype": "skill",
+      "triggers": [
+        "seguridad repo",
+        "hardening",
+        "dependabot",
+        "codeql",
+        "branch protection",
+        "release/tag",
+        "repo audit"
+      ],
+      "anti_triggers": [
+        "git commit",
+        "git push",
+        "git clone",
+        "pr básico",
+        "código negocio"
+      ],
+      "intent": [
+        "implementation",
+        "fix"
+      ],
+      "context": "",
+      "hint": "💡 Operaciones de GitHub (security, releases, workflows) → /github-ops.",
+      "confidence": "high"
+    },
+    {
+      "name": "llm-integration-specialist",
+      "ctype": "agent",
+      "triggers": [
+        "claude api",
+        "token counting",
+        "prompt cache",
+        "batch api",
+        "aris4u hooks",
+        "cost analysis"
+      ],
+      "anti_triggers": [
+        "model training",
+        "fine-tuning",
+        "embeddings",
+        "general ai"
+      ],
+      "intent": [
+        "implementation",
+        "fix"
+      ],
+      "context": "aris4u",
+      "hint": "💡 Claude API, cache, batch y ARIS4U hooks → /llm-integration-specialist.",
+      "confidence": "high"
+    },
+    {
+      "name": "multi-research",
+      "ctype": "skill",
+      "triggers": [
+        "triangulación",
+        "multi-modelo",
+        "perspectivas gemini",
+        "evaluar herramienta",
+        "framework comparison",
+        "grok perspective",
+        "claude+gemini+grok",
+        "comparar opciones",
+        "evaluar framework",
+        "perspectivas múltiples",
+        "perspectivas claude+gemini+grok"
+      ],
+      "anti_triggers": [
+        "single source",
+        "ya decidí",
+        "búsqueda simple",
+        "implementa",
+        "librería sola",
+        "una librería",
+        "single librería"
+      ],
+      "intent": [
+        "decision",
+        "research"
+      ],
+      "context": "",
+      "hint": "💡 Decisión técnica con múltiples perspectivas → /multi-research (Claude + Gemini + Grok en paralelo vía W2).",
+      "confidence": "high"
+    },
+    {
+      "name": "plugin-dev:agent-development",
+      "ctype": "skill",
+      "triggers": [
+        "create agent",
+        "add agent",
+        "subagent",
+        "agent frontmatter",
+        "write agent",
+        "agent tools",
+        "agent colors"
+      ],
+      "anti_triggers": [
+        "what is agent",
+        "agent pattern",
+        "skill",
+        "command"
+      ],
+      "intent": [
+        "implementation",
+        "decision"
+      ],
+      "context": ".claude",
+      "hint": "💡 Crear/mejorar agentes (frontmatter, system prompts, tools) → plugin-dev:agent-development.",
+      "confidence": "high"
+    },
+    {
+      "name": "plugin-dev:command-development",
+      "ctype": "skill",
+      "triggers": [
+        "create slash command",
+        "add command",
+        "command arguments",
+        "command frontmatter",
+        "interactive command",
+        "askuserquestion"
+      ],
+      "anti_triggers": [
+        "bash command",
+        "cli command",
+        "agent",
+        "skill"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": ".claude",
+      "hint": "💡 Crear slash commands (YAML, args, interacción, bash) → plugin-dev:command-development.",
+      "confidence": "high"
+    },
+    {
+      "name": "plugin-dev:create-plugin",
+      "ctype": "command",
+      "triggers": [
+        "create plugin",
+        "scaffold plugin",
+        "new plugin",
+        "plugin end-to-end",
+        "build plugin"
+      ],
+      "anti_triggers": [
+        "edit plugin",
+        "modify existing",
+        "add to plugin",
+        "file named plugin"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": ".claude",
+      "hint": "💡 Scaffolding guiado end-to-end de plugin (diseño + implementación + validación) → /plugin-dev:create-plugin.",
+      "confidence": "high"
+    },
+    {
+      "name": "plugin-dev:hook-development",
+      "ctype": "skill",
+      "triggers": [
+        "create hook",
+        "pretooluse",
+        "posttooluse",
+        "hook automation",
+        "block commands hook"
+      ],
+      "anti_triggers": [
+        "git hooks",
+        "webhooks",
+        "react hooks",
+        "hook pattern general"
+      ],
+      "intent": [
+        "implementation",
+        "decision"
+      ],
+      "context": ".claude",
+      "hint": "💡 Hooks de plugin Claude Code (Pre/PostToolUse, Stop, Session*) → plugin-dev:hook-development.",
+      "confidence": "high"
+    },
+    {
+      "name": "plugin-dev:mcp-integration",
+      "ctype": "skill",
+      "triggers": [
+        ".mcp.json",
+        "add mcp server",
+        "mcp integration",
+        "configure mcp",
+        "external service mcp",
+        "mcp connection"
+      ],
+      "anti_triggers": [
+        "protocol general",
+        "aris-config",
+        "config genérico"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": ".claude",
+      "hint": "💡 Añadir MCP servers, configurar .mcp.json → plugin-dev:mcp-integration.",
+      "confidence": "high"
+    },
+    {
+      "name": "plugin-dev:plugin-settings",
+      "ctype": "skill",
+      "triggers": [
+        ".local.md",
+        "plugin config",
+        "yaml frontmatter",
+        "plugin state",
+        "per-project settings"
+      ],
+      "anti_triggers": [
+        "settings general",
+        "app configuration",
+        "user settings"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": ".claude",
+      "hint": "💡 Configurar .claude/<plugin>.local.md (YAML frontmatter) → plugin-dev:plugin-settings.",
+      "confidence": "high"
+    },
+    {
+      "name": "plugin-dev:plugin-structure",
+      "ctype": "skill",
+      "triggers": [
+        "scaffold plugin",
+        "plugin.json",
+        "plugin manifest",
+        "plugin layout",
+        "organize plugin",
+        "create plugin",
+        "plugin structure",
+        ".claude/",
+        "plugin directory"
+      ],
+      "anti_triggers": [
+        "regular code",
+        "generic structure",
+        "non-plugin code",
+        "general structure"
+      ],
+      "intent": [
+        "decision",
+        "implementation"
+      ],
+      "context": ".claude",
+      "hint": "💡 Estructura/manifest/organización de plugins → plugin-dev:plugin-structure.",
+      "confidence": "high"
+    },
+    {
+      "name": "plugin-dev:skill-development",
+      "ctype": "skill",
+      "triggers": [
+        "create skill",
+        "write skill",
+        "skill plugin",
+        "improve skill description",
+        "progressive disclosure",
+        "skill structure"
+      ],
+      "anti_triggers": [
+        "learn skill",
+        "programming skill",
+        "create plugin",
+        "create agent"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": ".claude",
+      "hint": "💡 Estructura y best-practices de skills → plugin-dev:skill-development.",
+      "confidence": "high"
+    },
+    {
+      "name": "profiles:aris4u",
+      "ctype": "command",
+      "triggers": [
+        "cargar contexto aris4u",
+        "aris4u",
+        "amplificador",
+        "cognitive engine",
+        "mcp server aris"
+      ],
+      "anti_triggers": [
+        "aris4u-console",
+        "typescript react",
+        "aristóteles",
+        "cwd en aris4u",
+        "arista"
+      ],
+      "intent": [
+        "implementation",
+        "research",
+        "decision"
+      ],
+      "context": "",
+      "hint": "Cargar contexto ARIS4U (Python MCP, cognitive engine, hooks, memoria) → /profiles:aris4u",
+      "confidence": "high"
+    },
+    {
+      "name": "qa-agent",
+      "ctype": "agent",
+      "triggers": [
+        "write tests",
+        "e2e playwright",
+        "pytest/jest/vitest",
+        "test strategy",
+        "flutter test",
+        "write test",
+        "playwright",
+        "pytest",
+        "jest",
+        "vitest",
+        "bug-finding",
+        "qa gate"
+      ],
+      "anti_triggers": [
+        "endpoint api design",
+        "code review",
+        "security",
+        "implement feature",
+        "api design"
+      ],
+      "intent": [
+        "implementation",
+        "fix"
+      ],
+      "context": "",
+      "hint": "💡 Testing, E2E y bug-finding (quality gate) → /qa-agent.",
+      "confidence": "high"
+    },
+    {
+      "name": "researcher",
+      "ctype": "agent",
+      "triggers": [
+        "antes de implementar",
+        "evaluar librería",
+        "best practices",
+        "documentación"
+      ],
+      "anti_triggers": [
+        "implementa esto",
+        "fix bug",
+        "ya leí",
+        "devops/infra",
+        "multi-research"
+      ],
+      "intent": [
+        "research",
+        "decision"
+      ],
+      "context": "",
+      "hint": "💡 Investigar APIs, librerías y soluciones antes de implementar → /researcher.",
+      "confidence": "high"
+    },
+    {
+      "name": "security-agent",
+      "ctype": "agent",
+      "triggers": [
+        "vulnerability",
+        "exploit",
+        "cve",
+        "pentest",
+        "hardening",
+        "security hardening",
+        "incident response"
+      ],
+      "anti_triggers": [
+        "code review bugs",
+        "hipaa/gdpr/soc2",
+        "performance",
+        "code review",
+        "compliance",
+        "bug fix general"
+      ],
+      "intent": [
+        "implementation",
+        "fix",
+        "research"
+      ],
+      "context": "",
+      "hint": "💡 Auditorías de seguridad, vulns, CVEs y hardening → /security-agent.",
+      "confidence": "high"
+    },
+    {
+      "name": "software-dev",
+      "ctype": "agent",
+      "triggers": [
+        "backend",
+        "api",
+        "microservice",
+        "mcp server",
+        "database schema",
+        "python backend",
+        "node backend"
+      ],
+      "anti_triggers": [
+        "frontend",
+        "ui",
+        "mobile",
+        "deployment",
+        "kubernetes",
+        "docker"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": "",
+      "hint": "Backends, APIs, MCP servers y sistemas core → /software-dev.",
+      "confidence": "high"
+    },
+    {
+      "name": "status",
+      "ctype": "skill",
+      "triggers": [
+        "¿en qué va",
+        "status de",
+        "¿está listo",
+        "estado vivo",
+        "verificación proyecto"
+      ],
+      "anti_triggers": [
+        "aris4u (usar /aris-status)",
+        "deploy status",
+        "github status",
+        "sin proyecto"
+      ],
+      "intent": [
+        "simple"
+      ],
+      "context": "tu-cliente|aris4u",
+      "hint": "💡 Estado vivo y verificado del proyecto desde git/tests/métricas → /status.",
+      "confidence": "high"
+    },
+    {
+      "name": "aris-config",
+      "ctype": "skill",
+      "triggers": [
+        "aris4u",
+        "config",
+        "flags",
+        "modelo default",
+        "env aris4u",
+        "mcp duplicados"
+      ],
+      "anti_triggers": [
+        "app config",
+        "settings.json",
+        "npm",
+        "database",
+        "mcp-integration"
+      ],
+      "intent": [
+        "simple"
+      ],
+      "context": "",
+      "hint": "💡 Configuración ARIS4U → /aris-config (modelo default, flags, MCP servers).",
+      "confidence": "med"
+    },
+    {
+      "name": "aris-memory-audit",
+      "ctype": "skill",
+      "triggers": [
+        "audit memoria aris4u",
+        "sessions.db",
+        "decisiones contradictorias",
+        "guards compliance",
+        "stale patterns",
+        "memoria cliente",
+        "memory audit",
+        "decisions aris4u"
+      ],
+      "anti_triggers": [
+        "redis",
+        "clear history",
+        "code",
+        "feature",
+        "consistency genérico",
+        "memoria sesión",
+        "feature code"
+      ],
+      "intent": [
+        "research",
+        "fix"
+      ],
+      "context": "tu-cliente-healthcare",
+      "hint": "💡 Compliance en memoria ARIS4U → /aris-memory-audit (decisiones, guards, PHI/HIPAA/SOC2 coverage).",
+      "confidence": "med"
+    },
+    {
+      "name": "aris4u.aris_critique",
+      "ctype": "mcp_tool",
+      "triggers": [
+        "post-implementación",
+        "producción",
+        "omisiones lógicas",
+        "review código",
+        "antes de merge"
+      ],
+      "anti_triggers": [
+        "en desarrollo",
+        "borrador",
+        "linting",
+        "testing genérico",
+        "mejora menor"
+      ],
+      "intent": [
+        "fix",
+        "implementation"
+      ],
+      "context": "",
+      "hint": "⚠️ Respuesta/código listo para review — aris_critique (cuerpo local F1 POST) escanea correctitud/seguridad/lógica/omisiones/mantenibilidad y retorna FLAGS.",
+      "confidence": "med"
+    },
+    {
+      "name": "aris4u.aris_structure",
+      "ctype": "mcp_tool",
+      "triggers": [
+        "idea cruda",
+        "feature request vago",
+        "requisito vago",
+        "especificación parcial"
+      ],
+      "anti_triggers": [
+        "spec ya estructurada",
+        "código listo",
+        "pregunta sí/no",
+        "búsqueda específica",
+        "ajuste menor código"
+      ],
+      "intent": [
+        "decision",
+        "implementation"
+      ],
+      "context": "",
+      "hint": "📋 Idea cruda detectada — aris_structure (cuerpo local F1 PRE) puede expandirla a spec accionable (objetivo/requisitos/riesgos/criterios).",
+      "confidence": "med"
+    },
+    {
+      "name": "figma:figma-generate-library",
+      "ctype": "skill",
+      "triggers": [
+        "design system figma",
+        "component library",
+        "design tokens",
+        "variables figma",
+        "theming light dark",
+        "component variants"
+      ],
+      "anti_triggers": [
+        "single component",
+        "edit existing component"
+      ],
+      "intent": [
+        "implementation",
+        "decision"
+      ],
+      "context": "",
+      "hint": "💡 Design systems en Figma (tokens, component variants, theming) → figma:figma-generate-library.",
+      "confidence": "med"
+    },
+    {
+      "name": "frontend-design:frontend-design",
+      "ctype": "skill",
+      "triggers": [
+        "visual direction",
+        "typography",
+        "distinctive design",
+        "redesign ui intent",
+        "aesthetic/identity"
+      ],
+      "anti_triggers": [
+        "build component code",
+        "design system library",
+        "figma artifact"
+      ],
+      "intent": [
+        "decision",
+        "implementation"
+      ],
+      "context": "",
+      "hint": "💡 Dirección visual, tipografía e identidad → frontend-design:frontend-design.",
+      "confidence": "med"
+    },
+    {
+      "name": "plugin-dev:plugin-validator",
+      "ctype": "agent",
+      "triggers": [
+        "validate plugin",
+        "check plugin structure",
+        "verify plugin.json",
+        "plugin validation",
+        "structure error"
+      ],
+      "anti_triggers": [
+        "code validation",
+        "general validation",
+        "test"
+      ],
+      "intent": [
+        "fix"
+      ],
+      "context": ".claude",
+      "hint": "💡 Verificar estructura, plugin.json y organización del plugin → plugin-dev:plugin-validator.",
+      "confidence": "med"
+    },
+    {
+      "name": "plugin-dev:skill-reviewer",
+      "ctype": "agent",
+      "triggers": [
+        "review skill",
+        "validate skill",
+        "skill quality",
+        "best practices skill",
+        "skill description"
+      ],
+      "anti_triggers": [
+        "code review",
+        "review general",
+        "peer review"
+      ],
+      "intent": [
+        "fix",
+        "decision"
+      ],
+      "context": "",
+      "hint": "💡 Validar calidad/descripción/best-practices de una skill → plugin-dev:skill-reviewer.",
+      "confidence": "med"
+    },
+    {
+      "name": "project-scout",
+      "ctype": "agent",
+      "triggers": [
+        "mapear proyecto",
+        "explorar codebase",
+        "arquitectura antes",
+        "dependencies",
+        "pre-coding"
+      ],
+      "anti_triggers": [
+        "implement",
+        "write code",
+        "fix bug",
+        "ya leí"
+      ],
+      "intent": [
+        "research"
+      ],
+      "context": "",
+      "hint": "💡 Explorar proyectos ANTES de codificar (mapeo arquitectura/dependencias) → /project-scout.",
+      "confidence": "med"
+    },
+    {
+      "name": "skill-creator:skill-creator",
+      "ctype": "skill",
+      "triggers": [
+        "optimize skill",
+        "skill eval",
+        "skill benchmark",
+        "measure skill",
+        "skill performance",
+        "create skill"
+      ],
+      "anti_triggers": [
+        "create plugin",
+        "create agent",
+        "skill structure",
+        "best practices"
+      ],
+      "intent": [
+        "implementation"
+      ],
+      "context": ".claude",
+      "hint": "💡 Crear/optimizar skills + correr evals y medir performance → skill-creator:skill-creator.",
+      "confidence": "med"
+    },
+    {
+      "name": "flujo-construir-feature",
+      "ctype": "flow",
+      "triggers": [
+        "construir un módulo",
+        "nueva feature",
+        "crear un proyecto",
+        "construir el",
+        "implementar un módulo",
+        "armar el sistema",
+        "construir una app",
+        "nuevo dashboard",
+        "crear el crm",
+        "build me",
+        "construye un",
+        "vamos a construir",
+        "necesito un módulo"
+      ],
+      "anti_triggers": [
+        "arreglar bug",
+        "el error",
+        "falla",
+        "no funciona",
+        "debuggear"
+      ],
+      "intent": [
+        "any"
+      ],
+      "context": "",
+      "confidence": "high",
+      "hint": "construir feature/proyecto",
+      "flow": [
+        "DESCUBRIR el dominio: mapea el código/patrones existentes con project-scout (benchmark: gana 9 vs Explore 6) + decisiones del cliente (aris_recall_client). No codees a ciegas.",
+        "ARQUITECTURA primero: diseña antes de codear con feature-dev:code-architect (benchmark: gana 9 vs software-dev 5 — clava el patrón del repo, evita sobre-ingeniería) + plantillas templates/planning/ → .planning/ARCHITECTURE.md.",
+        "CONSTRUIR con el especialista del dominio: software-dev (backend) · frontend-dev (UI) · mobile-dev (Flutter) · el especialista del dominio del cliente, módulo por módulo.",
+        "REVISAR lo construido: code-review-agent o qa-agent (severidad calibrada). OJO: el benchmark mostró que hasta un genérico halla bugs sutiles que el 'especialista' no — VERIFICA cada hallazgo (CLAIM-VERIFY), no asumas que el especialista es infalible.",
+        "VERIFICAR de verdad: corre tests/build reales. Nada 'hecho' sin verificar (Regla #7)."
+      ]
+    },
+    {
+      "name": "flujo-evaluar-herramienta",
+      "ctype": "flow",
+      "triggers": [
+        "instalar una skill",
+        "instalar plugin",
+        "evaluar herramienta",
+        "agregar un mcp",
+        "nueva herramienta",
+        "instalar el plugin",
+        "vale la pena instalar",
+        "skill de github",
+        "probar esta herramienta",
+        "instalar este",
+        "cablear un mcp",
+        "añadir herramienta",
+        "instalo esta"
+      ],
+      "anti_triggers": [],
+      "intent": [
+        "any"
+      ],
+      "context": "",
+      "confidence": "high",
+      "hint": "evaluar/instalar herramienta de 3ros",
+      "flow": [
+        "INVENTARIAR PRIMERO: ¿ya tengo algo que haga esto? Mira consola → Capacidades o corre python3 tools/capability_inventory.py. NO instales sin revisar lo existente.",
+        "Si hay gap real → SEGURIDAD: escanea con /skill-security-scan ANTES de cablear (código de 3ros = superficie de riesgo: injection, exfiltración).",
+        "CALIDAD: si es skill/plugin propio, skill-reviewer / skill-creator para best-practices.",
+        "DECIDIR: cablear solo si NO es redundante y pasa seguridad; registra la decisión (aris_ingest) y su lugar en el flujo."
+      ]
+    },
+    {
+      "name": "flujo-trabajar-cliente",
+      "ctype": "flow",
+      "triggers": [
+        "trabajar en cliente",
+        "tocar cliente",
+        "código de client-f",
+        "trabajar con cliente",
+        "el crm de",
+        "modificar cliente",
+        "feature de cliente",
+        "en el proyecto de client-f",
+        "para el cliente",
+        "client-b",
+        "client-d",
+        "client-d-co",
+        "client-c",
+        "inventory system",
+        "client-f financ"
+      ],
+      "anti_triggers": [],
+      "intent": [
+        "any"
+      ],
+      "context": "",
+      "confidence": "high",
+      "hint": "trabajar/auditar un cliente",
+      "flow": [
+        "RECALL del cliente: aris_recall_client('nombre-del-cliente') — trae sus decisiones y guards previos ANTES de tocar nada.",
+        "TRABAJAR respetando sus guards: RLS, datos sensibles → local; PHI solo en healthcare (clientes de salud). Datos sintéticos en tests.",
+        "INGEST: guarda las decisiones/guards nuevos con aris_ingest(client=...) para la próxima sesión (cierra el lazo de memoria por-cliente)."
+      ]
+    },
+    {
+      "name": "flujo-research-decision",
+      "ctype": "flow",
+      "triggers": [
+        "qué framework",
+        "cuál es mejor",
+        "decidir entre",
+        "qué herramienta uso",
+        "investiga",
+        "investiga a fondo",
+        "investigar",
+        "evaluar opciones",
+        "comparar opciones",
+        "qué modelo",
+        "cuál conviene",
+        "decisión técnica",
+        "qué librería"
+      ],
+      "anti_triggers": [],
+      "intent": [
+        "any"
+      ],
+      "context": "",
+      "confidence": "high",
+      "hint": "research / decisión técnica",
+      "flow": [
+        "RESEARCH FIRST: lanza agentes de research en PARALELO — 3+ alternativas con evidencia. No opines antes de investigar (Reglas #1, #3).",
+        "TRIANGULAR si pesa: /multi-research (Claude + Gemini + Grok vía W2) para decisiones técnicas de peso.",
+        "DECIDIR con método: /aris-council (5 lentes) para estrategia; aris_dialectic para código crítico.",
+        "RECOMENDAR con datos + VERIFICAR que la opción elegida funciona antes de cerrar (Regla #7)."
+      ]
+    },
+    {
+      "name": "debug-session",
+      "ctype": "skill",
+      "triggers": [
+        "debug runtime",
+        "step debug",
+        "bug runtime",
+        "variable en runtime",
+        "breakpoint",
+        "postmortem excepción",
+        "debug programático",
+        "valor de las variables",
+        "estado en la línea"
+      ],
+      "anti_triggers": [
+        "debug estático",
+        "logs",
+        "tests unitarios",
+        "node",
+        "dart"
+      ],
+      "intent": ["fix"],
+      "context": "",
+      "hint": "💡 Bug de runtime Python resistente a análisis estático/logs → /debug-session (step-debug headless bdb, breakpoints por línea o condición, postmortem de excepción).",
+      "confidence": "high"
+    },
+    {
+      "name": "harvest",
+      "ctype": "skill",
+      "triggers": [
+        "cosecha workflows",
+        "procesos huérfanos",
+        "limpiar huérfanos",
+        "cerrar bloque de trabajo",
+        "terminar workflow",
+        "hay huérfanos",
+        "m5 cargado tras fan-out"
+      ],
+      "anti_triggers": [
+        "git harvest",
+        "cosecha datos",
+        "harvest crops"
+      ],
+      "intent": ["simple", "fix"],
+      "context": "",
+      "hint": "💡 Cerrar bloque: cosechar journals de workflow y limpiar procesos huérfanos (pytest/ollama/npm colgados) → /harvest.",
+      "confidence": "high"
+    },
+    {
+      "name": "preflight",
+      "ctype": "skill",
+      "triggers": [
+        "auditar recursos",
+        "hay recursos para",
+        "puedo paralelizar",
+        "antes del fan-out",
+        "m5 lento",
+        "verificar ram antes",
+        "presession audit",
+        "swap check"
+      ],
+      "anti_triggers": [
+        "recursos humanos",
+        "preflight avión",
+        "checklist vuelo"
+      ],
+      "intent": ["simple"],
+      "context": "",
+      "hint": "💡 Auditoría de recursos del M5 antes de fan-out (swap/compressor=0, Docker, Ollama) → /preflight (veredicto GO/CAUTION/NO-GO).",
+      "confidence": "high"
+    },
+    {
+      "name": "backup-verify",
+      "ctype": "skill",
+      "triggers": [
+        "verificar backups",
+        "backups sirven",
+        "backup restaurable",
+        "backups vacíos",
+        "integridad backup",
+        "pg_dump vacío",
+        "backup real"
+      ],
+      "anti_triggers": [
+        "hacer backup",
+        "crear backup",
+        "backup a w2",
+        "schedule backup"
+      ],
+      "intent": ["fix", "research"],
+      "context": "",
+      "hint": "💡 Verificar que los backups son reales y restaurables (no solo que existen) → /backup-verify (tamaño, gzip, SQL real, antigüedad).",
+      "confidence": "high"
+    },
+    {
+      "name": "second-auditor",
+      "ctype": "skill",
+      "triggers": [
+        "gate de cierre",
+        "cerrar módulo",
+        "auditar antes de commit",
+        "second auditor",
+        "revisar antes de cerrar",
+        "listo para commitear",
+        "gate final antes de",
+        "verificar antes de cerrar"
+      ],
+      "anti_triggers": [
+        "review rápido",
+        "review genérico inline"
+      ],
+      "intent": ["fix", "implementation"],
+      "context": "",
+      "hint": "💡 Gate de cierre antes de commitear: análisis mecánico + auditor read-only distinto del autor → /second-auditor (GO/NO-GO).",
+      "confidence": "high"
+    },
+    {
+      "name": "mcp-audit",
+      "ctype": "skill",
+      "triggers": [
+        "auditar mcp servers",
+        "seguros mis mcp",
+        "mcp servers seguros",
+        "supply-chain mcp",
+        "binario mcp",
+        "procedencia mcp",
+        "qué ejecutan mis mcp"
+      ],
+      "anti_triggers": [
+        "cablear mcp",
+        "añadir mcp server",
+        "configurar mcp",
+        "mcp-integration"
+      ],
+      "intent": ["research", "fix"],
+      "context": "",
+      "hint": "💡 Auditoría de seguridad de MCP servers cableados (procedencia, binario, supply-chain, duplicados) → /mcp-audit.",
+      "confidence": "high"
+    },
+    {
+      "name": "verify-claims",
+      "ctype": "skill",
+      "triggers": [
+        "verifica eso",
+        "es cierto lo que",
+        "verificar claims",
+        "claim-verify",
+        "afirmación técnica",
+        "comprueba los claims",
+        "verificar afirmaciones"
+      ],
+      "anti_triggers": [
+        "verificar backups",
+        "verificar proyecto",
+        "verify gate"
+      ],
+      "intent": ["fix", "research"],
+      "context": "",
+      "hint": "💡 Verificar afirmaciones técnicas de la última respuesta con evidencia viva (CLAIM-VERIFY) → /verify-claims.",
+      "confidence": "high"
+    },
+    {
+      "name": "clarify",
+      "ctype": "skill",
+      "triggers": [
+        "aclarar antes de construir",
+        "brief ambiguo",
+        "clarificar requisitos",
+        "antes de planear aclarar",
+        "especificar la feature",
+        "requisitos sin detallar"
+      ],
+      "anti_triggers": [
+        "brief ya listo",
+        "spec completa",
+        "ya está especificado",
+        "feature clara"
+      ],
+      "intent": ["decision", "implementation"],
+      "context": "",
+      "hint": "💡 Brief ambiguo o requisitos sin detallar → /clarify (taxonomía 11 categorías, resuelve ambigüedades una a la vez antes de planear).",
+      "confidence": "med"
+    },
+    {
+      "name": "incident-response",
+      "ctype": "skill",
+      "triggers": [
+        "servicio caído",
+        "brecha de seguridad",
+        "incidente de seguridad",
+        "data corruption producción",
+        "outage producción",
+        "emergencia producción"
+      ],
+      "anti_triggers": [
+        "test de incidente",
+        "simulación de fallo",
+        "pentest",
+        "audit"
+      ],
+      "intent": ["fix"],
+      "context": "",
+      "hint": "💡 Emergencia de producción: servicio caído, brecha, corrupción → /incident-response (runbook P1-P4, triage, contención, postmortem).",
+      "confidence": "high"
+    },
+    {
+      "name": "skill-security-scan",
+      "ctype": "skill",
+      "triggers": [
+        "es seguro instalar",
+        "escanear skill tercero",
+        "escanear plugin tercero",
+        "seguridad antes de instalar",
+        "auditar skill externo",
+        "skill de tercero segura",
+        "plugin de tercero seguro"
+      ],
+      "anti_triggers": [
+        "mi propia skill",
+        "skill propia de aris4u",
+        "mcp-audit"
+      ],
+      "intent": ["research", "fix"],
+      "context": "",
+      "hint": "💡 Antes de instalar una skill/plugin/MCP de tercero → /skill-security-scan (SkillSpector local, score 0-100, SAFE/CAUTION/DO-NOT-INSTALL).",
+      "confidence": "high"
+    },
+    {
+      "name": "transcribe",
+      "ctype": "skill",
+      "triggers": [
+        "transcribir audio",
+        "transcripción video",
+        "subtítulos srt",
+        "mlx-whisper",
+        "audio a texto",
+        "whisper local"
+      ],
+      "anti_triggers": [
+        "texto a audio",
+        "síntesis de voz",
+        "tts"
+      ],
+      "intent": ["implementation"],
+      "context": "",
+      "hint": "💡 Transcribir audio/video a texto (local, PHI-safe, Apple Silicon M5) → /transcribe (mlx-whisper, SRT/JSON, ~10x CPU).",
+      "confidence": "high"
+    },
+    {
+      "name": "youtube",
+      "ctype": "skill",
+      "triggers": [
+        "buscar en youtube",
+        "video de youtube",
+        "transcripción de youtube",
+        "extraer subtítulos youtube",
+        "resumir video youtube"
+      ],
+      "anti_triggers": [
+        "youtube api key",
+        "youtube ads",
+        "instagram reels"
+      ],
+      "intent": ["research"],
+      "context": "",
+      "hint": "💡 Buscar, transcribir y resumir contenido YouTube (yt-dlp local) → /youtube.",
+      "confidence": "med"
+    },
+    {
+      "name": "aris-init",
+      "ctype": "skill",
+      "triggers": [
+        "primera instalación aris4u",
+        "instalar aris4u nuevo usuario",
+        "cambio de máquina aris4u",
+        "config aris4u detectar hardware",
+        "aris-init"
+      ],
+      "anti_triggers": [
+        "aris-config",
+        "aris-onboard",
+        "aris-status"
+      ],
+      "intent": ["implementation"],
+      "context": "aris4u",
+      "hint": "💡 Primera instalación de ARIS4U o cambio de máquina → /aris-init (genera config por-usuario, detecta hardware/repos, idempotente).",
+      "confidence": "med"
+    },
+    {
+      "name": "aris-onboard",
+      "ctype": "skill",
+      "triggers": [
+        "onboarding aris4u",
+        "plugin recién instalado aris4u",
+        "aris4u no está activo",
+        "aris4u no funciona tras instalar"
+      ],
+      "anti_triggers": [
+        "aris-init",
+        "aris-config",
+        "aris-status"
+      ],
+      "intent": ["implementation", "fix"],
+      "context": "",
+      "hint": "💡 ARIS4U recién instalado o no activo → /aris-onboard (guía conversacional, detecta estado, configura env vars, verifica con /aris-status).",
+      "confidence": "med"
+    }
+  ]
+}

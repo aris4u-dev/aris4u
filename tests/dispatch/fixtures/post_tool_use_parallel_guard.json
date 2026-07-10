@@ -1,0 +1,1 @@
+{"tool_name": "Write", "tool_input": {"file_path": "/tmp/deploy.sh", "content": "#!/bin/bash\nssh w2 build\nssh w2 test\nwait\n"}}

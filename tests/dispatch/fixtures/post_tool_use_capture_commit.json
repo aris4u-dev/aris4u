@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "git commit -m \"feat: thing\""}, "tool_output": "[main abc123] feat: thing", "cwd": "/tmp/aris4u_cc_test_repo"}

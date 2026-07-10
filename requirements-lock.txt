@@ -1,0 +1,36 @@
+# requirements-lock.txt — versiones exactas de runtime + transitivas
+# Generado: 2026-07-06 con .venv312/bin/pip show (transitive walk desde runtime deps)
+# Fuente de rangos declarados: pyproject.toml [project].dependencies
+# Propósito: reproducibilidad — pip install -r requirements-lock.txt
+# NO modifica pyproject.toml (los rangos >= quedan intactos para flexibilidad).
+
+annotated-types==0.7.0
+anyio==4.13.0
+attrs==26.1.0
+certifi==2026.2.25
+click==8.3.2
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+httpx-sse==0.4.3
+idna==3.11
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+mcp==1.27.0
+numpy==2.4.4
+pydantic==2.12.5
+pydantic-settings==2.13.1
+pydantic_core==2.41.5
+PyJWT==2.12.1
+python-dotenv==1.2.2
+python-multipart==0.0.24
+PyYAML==6.0.3
+referencing==0.37.0
+rpds-py==0.30.0
+scipy==1.17.1
+sqlite-vec==0.1.9
+sse-starlette==3.3.4
+starlette==1.0.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+uvicorn==0.44.0

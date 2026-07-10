@@ -1,0 +1,8 @@
+{
+  "decision": "allow",
+  "hookSpecificOutput": {
+    "hookEventName": "PostToolUse",
+    "updatedToolOutput": "AWS_ACCESS_KEY=[REDACTED:aws_access_key] and [REDACTED:aws_secret] done"
+  },
+  "additionalContext": "Secret redaction: 2 credential(s) redacted"
+}

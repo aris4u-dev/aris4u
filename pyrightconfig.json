@@ -1,0 +1,6 @@
+{
+  "venvPath": ".",
+  "venv": ".venv312",
+  "extraPaths": ["hooks", "tools", "."],
+  "reportMissingImports": "warning"
+}
